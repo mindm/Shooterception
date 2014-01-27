@@ -6,5 +6,6 @@
 *   Markku Painomaa (0358551) - markku.painomaa@lut.fi
 */
 
+#include <stdlib.h>
 
-#include <stdint.h>
+
