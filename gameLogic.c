@@ -8,5 +8,4 @@
 
 #include <stdlib.h>
 
-/*test*/
 

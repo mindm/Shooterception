@@ -8,4 +8,14 @@
 
 #include <stdlib.h>
 
+// TODO
 
+// Functions
+// Function to determine enemy location
+
+
+// Structs
+
+// Enemy struct
+// Player character stuct 
+// Game struct
