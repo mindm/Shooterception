@@ -46,10 +46,11 @@ SDL_Surface *fxSurf = NULL;
 
 SDL_Event event;
 
+SDL_Rect lineRect;
+
 TTF_Font *font = NULL;
 SDL_Color textColor = { 255, 33, 0 };
 
-/* Player 1 object */
 struct player {
 	int health;
 	int xVel, yVel;
@@ -62,11 +63,6 @@ struct player {
 	SDL_Rect fx[6];
 } player;
 
-/* Player 1 shooting line (rectangle which height or width should be 1px) */
-SDL_Rect lineRect;
-
-
-/* Generic enemy object */
 struct enemy {
 	int health;
 	int dir;
@@ -81,14 +77,14 @@ struct enemy {
 /* Function prototypes */
 SDL_Surface *load_image(char*);
 void apply_surface(int, int, SDL_Surface*, SDL_Surface*, SDL_Rect*);
-void draw_bground(void);
+void draw_bg(void);
 int init(void);
 void free_assets(void); 
 
 void set_player(void);
 void set_enemy(void);
 
-void handle_player_input(void);
+void handle_input(void);
 void move_player(void);
 void move_enemies(void);
 void shoot_bullet(void);

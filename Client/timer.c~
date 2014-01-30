@@ -6,7 +6,19 @@
 *   Markku Painomaa (0358551) - markku.painomaa@lut.fi
 */
 
-int start_ticks = 0;
+#include "SDL/SDL.h"
+#include "timer.h"
 
-void init_timer(void);
-int delta_time();
+void init_timer() {
+	start_ticks = SDL_GetTicks();
+}
+
+int get_ticks() {
+
+	if(!start_ticks)
+		return SDL_GetTicks() - start_ticks;
+	else
+		return 0;
+
+}
+

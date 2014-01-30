@@ -9,4 +9,4 @@
 int start_ticks = 0;
 
 void init_timer(void);
-int delta_time();
+int get_ticks();

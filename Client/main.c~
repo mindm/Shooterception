@@ -88,8 +88,8 @@ int main(int argc, char* args[]) {
 					return 1;
 
 				//framecap							
-				if(delta_time() < 1000/FPS) {
-				    SDL_Delay((1000/FPS) - delta_time());
+				if(get_ticks() < 1000/FPS) {
+				    SDL_Delay((1000/FPS) - get_ticks());
 				}
 			}
 			/* in game end */
