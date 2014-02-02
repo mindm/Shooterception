@@ -10,8 +10,13 @@
 
 #include "generic.h"
 
-uint16_t getmessagetype(char *buf);
-int packmessagetype(char *buf, uint16_t msgtype);
+/* ##### Packing functions #####*/
+
+/* Generic */
+//uint16_t getmessagetype(char *buf);
+int packMessageType(char *buf, uint16_t msgtype);
+int packAck();
+
 
 /* Client to server messages */
 int packChatMessage(char *message);
@@ -21,7 +26,6 @@ int packStartGame();
 int packClientState(int xcood, int ycood, int viewDirection,
         bool hasShot, int messageNumber, int timeReply);
 int packClientExit();
-int packAck();
 
 
 /* Server to client messages */
@@ -31,7 +35,6 @@ int packServerState(int playerCount, int enemyCount,
         int messageNumber, int timeSent); // Not ready
 int packChatRelay(char * message);
 int packError(int errorCode);
-// int packAck();
 
 
 /* Client to master messages */
@@ -47,6 +50,47 @@ int packServerName(int serverCount, char *IP, int port);
 /* Server to master messages */
 int packUpdateStats(int playerNumber);
 int packServerState(int serverAction);
+
+
+/* ##### UnPacking functions #####*/
+
+/*Messages containing only messageType need not be unpacked*/
+
+/* Generic */
+uint16_t getMessageType(char *buf);
+
+/* Client to server messages */
+int unpackChatMessage(char *message);
+int unpackCreateGame(char *gameName, int *maxPlayers, char *playerName)
+int unpackJoinGame(char *gameName, char *playerName)
+int unpackClientState(int *xcood, int *ycood, int *viewDirection,
+        bool *hasShot, int *messageNumber, int *timeReply); // Maybe a struct here??
+
+
+
+/* Server to client messages */
+int unpackLobbyState(char *playernames ); // Not ready
+int unpackGameStart(int *gameLevel);
+int unpackServerState(int playerCount, int enemyCount,
+        int messageNumber, int timeSent); // Struct here too
+int unpackChatRelay(char * message);
+int unpackError(int *errorCode);
+
+
+/* Client to master messages */
+//None to unpack
+
+
+/* Master to client messages */
+int unpackGameList(int *gameCount, char *IP, int *port, char *gameName, int *maxPlayers); // Struct would be nice
+int unpackServerName(int *serverCount, char *IP, int *port);
+
+
+/* Server to master messages */
+int unpackUpdateStats(int *playerNumber);
+int unpackServerState(int *serverAction);
+
+
 
 
 
