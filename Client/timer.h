@@ -6,7 +6,9 @@
 *   Markku Painomaa (0358551) - markku.painomaa@lut.fi
 */
 
-int start_ticks = 0;
+Uint32 start_ticks = 0;
 
 void init_timer(void);
-int delta_time();
+
+Uint32 delta_time();
+

@@ -22,7 +22,7 @@ void setup_buttons() {
 	/*join selected game button*/
  	join_button.image = load_image("join.gif");
 	join_button.box.x = SCREEN_CX-125;
-	join_button.box.y = 650;
+	join_button.box.y = 750;
 	join_button.box.w = 250;
 	join_button.box.h = 100;
 	join_button.action = GAME_LOBBY;
@@ -38,7 +38,7 @@ void setup_buttons() {
 	/* create game */
  	create_button.image = load_image("create.gif");
 	create_button.box.x = SCREEN_CX-125;
-	create_button.box.y = 650;
+	create_button.box.y = 750;
 	create_button.box.w = 250;
 	create_button.box.h = 100;
 	create_button.action = CREATE_MENU;
@@ -53,7 +53,7 @@ void setup_buttons() {
 	/* start joined game from game lobby */
  	start_button.image = load_image("start.gif");
 	start_button.box.x = SCREEN_CX-125;
-	start_button.box.y = 650;
+	start_button.box.y = 475;
 	start_button.box.w = 250;
 	start_button.box.h = 100;
 	start_button.action = IN_GAME;

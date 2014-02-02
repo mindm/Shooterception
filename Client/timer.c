@@ -13,11 +13,10 @@ void init_timer() {
 	start_ticks = SDL_GetTicks();
 }
 
-/* delta time */
-int delta_time() {
+Uint32 delta_time() {
 
 	if(!start_ticks)
-		return SDL_GetTicks() - start_ticks;
+		return (SDL_GetTicks() - start_ticks)/0.001f;
 	else
 		return 0;
 
