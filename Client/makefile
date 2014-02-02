@@ -1,7 +1,7 @@
 COMPILER = gcc
 CFLAGS = -std=gnu99
 DFLAGS = -g
-LIBS = -lSDL -lSDL_image -lSDL_ttf
+LIBS = -lSDL -lSDL_image -lSDL_ttf -lSDL_mixer
 SRC = main.c
 OUT = main
 

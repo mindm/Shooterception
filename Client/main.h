@@ -8,9 +8,11 @@
 
 #ifndef __MAIN_H
 
+#include <stdio.h>
 #include "SDL/SDL.h"
 #include "SDL/SDL_image.h"
 #include "SDL/SDL_ttf.h"
+#include "SDL/SDL_mixer.h"
   
 #define __MAIN_H
 
@@ -20,6 +22,7 @@
 #define RIGHT 3
  
 /* Screen attributes */
+
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 800
 #define SCREEN_CX 400
@@ -27,22 +30,36 @@
 #define SCREEN_BPP 8
 
 /* Client constants */
-#define IN_GAME 42
-#define IN_MENU 21
-#define QUIT 0
 
+#define S_TIME 0.5
+#define RANGE 400
 #define PC_DIMS 32
 #define PC_VEL 10
 #define EN_VEL 3
 #define FPS 20
 
-/* Declarations */
+/* Declarations of graphics, sounds and text objects*/
+
 SDL_Surface *background = NULL;
 SDL_Surface *screen = NULL;
-SDL_Surface *title = NULL;
+SDL_Surface *main_title = NULL;
+SDL_Surface *join_title = NULL;
+SDL_Surface *lobby_title = NULL;
+SDL_Surface *create_title = NULL;
 SDL_Surface *playerSurf = NULL;
 SDL_Surface *enemySurf = NULL;
 SDL_Surface *fxSurf = NULL;
+SDL_Surface *hudSurf = NULL;
+
+Mix_Music *menu_music = NULL;
+Mix_Music *game_music = NULL;
+
+Mix_Chunk *pl_bang = NULL;
+Mix_Chunk *en_bite = NULL;
+Mix_Chunk *en_hit = NULL;
+
+Mix_Chunk *pl_death = NULL;
+Mix_Chunk *en_death = NULL;
 
 SDL_Event event;
 
@@ -54,6 +71,7 @@ struct player {
 	int health;
 	int xVel, yVel;
 	int shooting;
+	float shoot_time;
 	int dir;
 	int frame;
 	SDL_Rect b;
@@ -65,7 +83,6 @@ struct player {
 /* Player 1 shooting line (rectangle which height or width should be 1px) */
 SDL_Rect lineRect;
 
-
 /* Generic enemy object */
 struct enemy {
 	int health;
@@ -75,18 +92,21 @@ struct enemy {
 	SDL_Rect animHor[9];
 	SDL_Rect animVer[9];
 	SDL_Rect fx[2];
-} enemy;
+};
 
+struct enemy *enemy = NULL;
 
 /* Function prototypes */
 SDL_Surface *load_image(char*);
 void apply_surface(int, int, SDL_Surface*, SDL_Surface*, SDL_Rect*);
 void draw_bground(void);
+void draw_hud(void);
 int init(void);
+int load_assets(void);
 void free_assets(void); 
 
-void set_player(void);
-void set_enemy(void);
+void setup_player(void);
+void setup_enemy(void);
 
 void handle_player_input(void);
 void move_player(void);
@@ -95,6 +115,11 @@ void shoot_bullet(void);
 void draw_player(void);
 void draw_enemies(void);
 
+void handle_enemy_damage(struct enemy*);
+void handle_player_damage(struct enemy*);
 int check_collision(SDL_Rect, SDL_Rect);
+
+void toggle_menu_music(void);
+void toggle_game_music(void);
 
 #endif
