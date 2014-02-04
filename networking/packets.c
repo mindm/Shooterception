@@ -7,25 +7,52 @@
 #include "packets.h"
 
 // Get messages type
-uint16_t getmessagetype(char *buf)
+uint8_t getmessagetype(char *buf)
 {
-	uint16_t value = ntohs(*(uint16_t*)&buf[0]);
+	uint8_t value = ntohs(*(uint8_t*)&buf[0]);
 	return value;
 }
 // Pack messages type
-int packmessagetype(char *buf, uint16_t msgtype)
+int packmessagetype(char *buf, uint8_t msgtype)
 {
-	*(uint16_t*)&buf[0] = htons(msgtype);
-	return sizeof(uint16_t);
+	*(uint8_t*)&buf[0] = htons(msgtype);
+	return sizeof(uint8_t);
+}
+
+// Pack acknowledgement message
+int packAck()
+{
+    int msgtype = 0 //Whatever is type of ack
+    *(uint8_t*)&buf[0] = htons(msgtype);
+    return sizeof(uint8_t);
+}
+
+//---Client methods---
+int packChatMessage(char *message)
+{
+	uint8_t msgtype = 5; //change
+	packmessagetype(buf, msgtype);
+	int msg_size = strlen(message);
+	memcpy(&buf[1], message, msg_size+1)
+
+	return (sizeof(uint8_t) + msg_size+1);
+}
+
+int packCreateGame(char *gameName, int maxPlayers, char *playerName)
+{
+    uint8_t msgtype = 5; //change
+    packmessagetype(buf, msgtype);
+    int msg_size = strlen(message);
+	memcpy(&buf[1], message, msg_size+1)
+    //memset
 }
 
 
 
-//---Client methods---
-
+/* Below are old functions*/
 int packcolumn(char *buf, int column)
 {
-	uint16_t msgtype = 5;
+	uint8_t msgtype = 5; 
 	packmessagetype(buf, msgtype);
 	uint8_t x = column;
 	*(uint8_t*)&buf[2] = x;
