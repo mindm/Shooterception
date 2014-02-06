@@ -18,6 +18,13 @@ int main(int argc, char* args[]) {
 
 	/* actual menu state and temporal menu state */
 	int state = MAIN_MENU, _state = MAIN_MENU;
+	int id = NOTHING, _id = NOTHING;
+
+	//number of players in created game
+	int pl_num = 1;
+
+	//for incrementor
+	int i = 0;
 
 	if(!init())
 		return 1;
@@ -28,9 +35,11 @@ int main(int argc, char* args[]) {
 	setup_buttons();
 	setup_player();
 	setup_enemy();
+
+	setup_itemlist();
 	
 	toggle_menu_music(); // toggle once = play
-	Mix_VolumeMusic(100); //max 128
+	Mix_VolumeMusic(100); //max: 128
 
 	//gamestate loop
 	while(!quit) {
@@ -74,7 +83,22 @@ int main(int argc, char* args[]) {
 				//if any button's hitbox is left-clicked
 				if(event.type == SDL_MOUSEBUTTONDOWN) {
 					if(event.button.button == SDL_BUTTON_LEFT) {
-						state = handle_button(join_button, event.button.x, event.button.y);
+
+						int x = event.button.x;
+						int y = event.button.y;
+
+						if(_state = handle_button(join_button, x, y))
+							state = _state;
+
+						for(i = 0; i < 3; i++) {
+							if(_id = handle_focus(server_list[i], x, y)) {
+								id = _id;				
+							}
+						}
+
+						/* yes, this could be inside the previous loop
+						but it doesn't update correctly for some reason. so it has its own loop */
+						for(i = 0; i < 3; i++) { focus(server_list[i], id); }
 					}
 				}
 
@@ -86,6 +110,18 @@ int main(int argc, char* args[]) {
 		    SDL_FillRect(screen, &screen->clip_rect, SDL_MapRGB(screen->format, 0x66, 0x66, 0x66));
 			apply_surface(300, 100, join_title, screen, NULL);
 
+			//server list box
+			SDL_FillRect(screen, &server_list_box, SDL_MapRGB(screen->format, 0x00, 0x00, 0x00));
+			
+			
+			for(i = 0; i < 3; i++) {
+
+				if(server_list[i]->focused)
+					SDL_FillRect(screen, &server_list[i]->box, SDL_MapRGB(screen->format, 0x00, 0x66, 0x00));
+
+				print_text(server_list[i]->box.x, server_list[i]->box.y, server_list[i]->name);
+			}
+
         	show_button(join_button);
 		}
 		/* join menu end */
@@ -94,22 +130,46 @@ int main(int argc, char* args[]) {
 		if(state == CREATE_MENU) { 
 		    if(SDL_PollEvent(&event)) {
 
-			//if any button's hitbox is left-clicked
-			if(event.type == SDL_MOUSEBUTTONDOWN) {
-				if(event.button.button == SDL_BUTTON_LEFT) {
-				    state = handle_button(create_button, event.button.x, event.button.y);
+				//if any button's hitbox is left-clicked
+				if(event.type == SDL_MOUSEBUTTONDOWN) {
+					if(event.button.button == SDL_BUTTON_LEFT) {
+
+						if(_state = handle_button(up_button, event.button.x, event.button.y)) {
+							if(pl_num < 4) pl_num++; else pl_num = 4;
+						}
+
+						if(_state = handle_button(down_button, event.button.x, event.button.y)) {
+							if(pl_num > 1) pl_num--; else pl_num = 1;
+						}
+
+						//there's only one state anyway
+						if(_state = handle_button(create_button, event.button.x, event.button.y))
+							state = _state;
+					}
 				}
-			}
-		        if(event.type == SDL_QUIT)
-		            quit = 1;
+
+				if(event.type == SDL_QUIT)
+					quit = 1;
 		    }
 
 		    //bground and title
 		    SDL_FillRect(screen, &screen->clip_rect, SDL_MapRGB(screen->format, 0x66, 0x66, 0x66));
 			apply_surface(200, 100, create_title, screen, NULL);
+			
+			//pl_num box
+			SDL_FillRect(screen, &pl_num_box, SDL_MapRGB(screen->format, 0x00, 0x00, 0x00));
+			print_text(275, pl_num_box.y+30, "Max players:");
+			
+			char mem[1] = "m"; //memory placeholder
+			print_text(475, pl_num_box.y+30, itoa(pl_num, mem));
+
+			//game name box
+			print_text(game_name_box.x, game_name_box.y-35, "Game name:");
+			SDL_FillRect(screen, &game_name_box, SDL_MapRGB(screen->format, 0x00, 0x00, 0x00));
 
 			show_button(create_button);
-
+			show_button(up_button);
+			show_button(down_button);
 
 		}
 		/* create game menu end */
@@ -162,12 +222,12 @@ int main(int argc, char* args[]) {
 				
 				draw_hud(); // aka foreground
 
-				if(player.shooting) {
+				if(player->shooting) {
 
-					player.shoot_time -= 0.19;
+					player->shoot_time -= 0.19;
 
-					if(player.shoot_time <= 0.0f) {
-						player.shooting = 0; //could be also empty if 
+					if(player->shoot_time <= 0.0f) {
+						player->shooting = 0; //could be also empty if 
 					}
 					else {
 						shoot_bullet(); //just gfx shot
@@ -236,11 +296,13 @@ int load_assets(void) {
 	hudSurf = load_image("health.gif");
 
 	//texts and fonts
-	font = TTF_OpenFont("OCR", 36);
-	main_title = TTF_RenderText_Solid(font, "Shooterception", textColor);
-	join_title = TTF_RenderText_Solid(font, "Join game", textColor);
-	lobby_title = TTF_RenderText_Solid(font, "Game lobby", textColor);
-	create_title = TTF_RenderText_Solid(font, "Create a new game", textColor);
+	title_font = TTF_OpenFont("OCR", 36);
+	text_font = TTF_OpenFont("OCR", 16);
+
+	main_title = TTF_RenderText_Solid(title_font, "Shooterception", textColor);
+	join_title = TTF_RenderText_Solid(title_font, "Join game", textColor);
+	lobby_title = TTF_RenderText_Solid(title_font, "Game lobby", textColor);
+	create_title = TTF_RenderText_Solid(title_font, "Create a new game", textColor);
 
 	//musics
 	menu_music = Mix_LoadMUS("sh_menu.ogg");
@@ -264,6 +326,7 @@ int load_assets(void) {
 
 void free_assets(void) {
 
+	free(player);
 	free(enemy);
 
  	Mix_FreeChunk(pl_bang);
@@ -276,6 +339,7 @@ void free_assets(void) {
 	Mix_FreeMusic(game_music);
 	
 	free_buttons();
+	free_itemlist(3);
 
     SDL_FreeSurface(background);
 	SDL_FreeSurface(playerSurf);
@@ -289,58 +353,62 @@ void free_assets(void) {
 	SDL_FreeSurface(lobby_title);
 
 	Mix_CloseAudio();
-	TTF_CloseFont(font);
+
 	TTF_Quit();
     SDL_Quit();
 }
 
 void setup_player(void) {
 
-	player.frame = 4;
-	player.health = 3;
-	player.shooting = 0;
-	player.shoot_time = S_TIME;
-	player.dir = UP;
+	player = malloc(sizeof(struct player));
+
+	player->frame = 4;
+	player->health = 3;
+	player->xVel = 0;
+	player->yVel = 0;
+	player->shooting = 0;
+	player->shoot_time = S_TIME;
+	player->dir = UP;
 	
 	/* collider box */
-	player.b.w = PC_DIMS;
-	player.b.h = PC_DIMS;
-	player.b.x = SCREEN_CX;
-	player.b.y = SCREEN_CY;
+	player->b.w = PC_DIMS;
+	player->b.h = PC_DIMS;
+	player->b.x = SCREEN_CX;
+	player->b.y = SCREEN_CY;
 
 	/* shooting line collider */
-	lineRect.x = player.b.x + PC_DIMS*0.5;
-	lineRect.y = player.b.y-300;
+	lineRect.x = player->b.x + PC_DIMS*0.5;
+	lineRect.y = player->b.y-300;
 	lineRect.w = 1;
 	lineRect.h = 300;
 
 	/* setup animations */
 	int offset = 0, i;
 	for(i = 0; i < 8; i++) {
-		player.animHor[i].x = offset;
-		player.animHor[i].y = 0;
-		player.animHor[i].w = PC_DIMS;
-		player.animHor[i].h = PC_DIMS;
+		player->animHor[i].x = offset;
+		player->animHor[i].y = 0;
+		player->animHor[i].w = PC_DIMS;
+		player->animHor[i].h = PC_DIMS;
 
 		offset += PC_DIMS;
 	}
 	
 	offset = 0;
 	for(i = 0; i < 8; i++) {
-		player.animVer[i].x = offset;
-		player.animVer[i].y = PC_DIMS;
-		player.animVer[i].w = PC_DIMS;
-		player.animVer[i].h = PC_DIMS;
+		player->animVer[i].x = offset;
+		player->animVer[i].y = PC_DIMS;
+		player->animVer[i].w = PC_DIMS;
+		player->animVer[i].h = PC_DIMS;
 
 		offset += PC_DIMS;
 	}
 
 	offset = 0;
 	for(i = 0; i < 6; i++) {
-		player.fx[i].x = offset;
-		player.fx[i].y = 0;
-		player.fx[i].w = 16;
-		player.fx[i].h = 16;
+		player->fx[i].x = offset;
+		player->fx[i].y = 0;
+		player->fx[i].w = 16;
+		player->fx[i].h = 16;
 
 		offset += 16;
 	}
@@ -397,16 +465,16 @@ void handle_player_damage(struct enemy *contact) {
 	if(contact->health <= 0) 
 		return;
 
-	if(check_collision(player.b, contact->b)) {
+	if(check_collision(player->b, contact->b)) {
 
 		//draw blood spatter
-		apply_surface(player.b.x, player.b.y, fxSurf, screen, &player.fx[4]);
+		apply_surface(player->b.x, player->b.y, fxSurf, screen, &player->fx[4]);
 
 		//decrease health play sounds
-		player.health--;
-		if(player.health <= 0 ) {
+		player->health--;
+		if(player->health <= 0 ) {
 			Mix_PlayChannel(-1, pl_death, 0);
-			player.health = 0;
+			player->health = 0;
 		}
 		else	
 			Mix_PlayChannel(-1, en_bite, 0);
@@ -469,41 +537,43 @@ void draw_bground(void) {
 }
 
 void draw_hud(void) {
-	int i;	
-	for(i = 1; i <= player.health; i++)
-		apply_surface((16*i)+32, 16, hudSurf, screen, NULL);
 
-	for(i = 1; i <= enemy->health; i++)
-		apply_surface((16*i)+32, 750, hudSurf, screen, NULL);
+	int i;	
+	for(i = 0; i < player->health; i++)
+		apply_surface(20+(32*i), 16, hudSurf, screen, NULL);
+
+	//turha lopullisessa versiossa
+	for(i = 0; i < enemy->health; i++)
+		apply_surface(20+(32*i), 750, hudSurf, screen, NULL);
 }
 
 void handle_player_input() {
 	if(event.type == SDL_KEYDOWN) {
 		switch(event.key.keysym.sym) { 
 
-			case SDLK_UP: 		player.yVel -= PC_VEL; 	break; 
-			case SDLK_DOWN: 	player.yVel += PC_VEL; 	break; 
-			case SDLK_LEFT: 	player.xVel -= PC_VEL; 	break; 
-			case SDLK_RIGHT: 	player.xVel += PC_VEL; 	break;
-			case SDLK_w: 		player.dir = UP; 		break; 
-			case SDLK_s: 		player.dir = DOWN; 		break; 
-			case SDLK_a: 		player.dir = LEFT; 		break; 
-			case SDLK_d: 		player.dir = RIGHT; 	break;
-			case SDLK_SPACE: 	player.shooting = 1; 	break;
+			case SDLK_UP: 		player->yVel -= PC_VEL; 	break; 
+			case SDLK_DOWN: 	player->yVel += PC_VEL; 	break; 
+			case SDLK_LEFT: 	player->xVel -= PC_VEL; 	break; 
+			case SDLK_RIGHT: 	player->xVel += PC_VEL; 	break;
+			case SDLK_w: 		player->dir = UP; 			break; 
+			case SDLK_s: 		player->dir = DOWN; 		break; 
+			case SDLK_a: 		player->dir = LEFT; 		break; 
+			case SDLK_d: 		player->dir = RIGHT; 		break;
+			case SDLK_SPACE: 	player->shooting = 1; 		break;
 
-			case SDLK_9:		toggle_game_music();	break;
-			case SDLK_0:		Mix_HaltMusic();		break; 
+			case SDLK_9:		toggle_game_music();		break;
+			case SDLK_0:		Mix_HaltMusic();			break; 
 		}
 	}
 	else if(event.type == SDL_KEYUP) {
 		switch(event.key.keysym.sym) { 
 
-			case SDLK_UP: 		player.yVel += PC_VEL; 		break; 
-			case SDLK_DOWN: 	player.yVel -= PC_VEL; 		break; 
-			case SDLK_LEFT: 	player.xVel += PC_VEL; 		break; 
-			case SDLK_RIGHT: 	player.xVel -= PC_VEL; 		break;
-			case SDLK_SPACE:	player.shooting = 0; 
-								player.shoot_time = S_TIME;	break; 
+			case SDLK_UP: 		player->yVel += PC_VEL; 		break; 
+			case SDLK_DOWN: 	player->yVel -= PC_VEL; 		break; 
+			case SDLK_LEFT: 	player->xVel += PC_VEL; 		break; 
+			case SDLK_RIGHT: 	player->xVel -= PC_VEL; 		break;
+			case SDLK_SPACE:	player->shooting = 0; 
+								player->shoot_time = S_TIME;	break; 
 		}
 	}
 }
@@ -511,21 +581,21 @@ void handle_player_input() {
 void move_player() {
 
 	//left/right 
-	player.b.x += player.xVel; 
+	player->b.x += player->xVel; 
 	
 	//screen left/right border 
-	if((player.b.x < 0) || (player.b.x + PC_DIMS > SCREEN_WIDTH)) { 
+	if((player->b.x < 0) || (player->b.x + PC_DIMS > SCREEN_WIDTH)) { 
 		//move back 
-		player.b.x -= player.xVel; 
+		player->b.x -= player->xVel; 
 	} 
 
 	// up/down 
-	player.b.y += player.yVel;
+	player->b.y += player->yVel;
 
 	//screen top/bottom border
-	if((player.b.y < 0) || ( player.b.y + PC_DIMS > SCREEN_HEIGHT)) { 
+	if((player->b.y < 0) || ( player->b.y + PC_DIMS > SCREEN_HEIGHT)) { 
 		//move back 
-		player.b.y -= player.yVel; 
+		player->b.y -= player->yVel; 
 	}
 }
 
@@ -536,8 +606,8 @@ void move_enemies() {
 
 	int x1, y1, x2, y2;
 	
-	x1 = player.b.x;
-	y1 = player.b.y;
+	x1 = player->b.x;
+	y1 = player->b.y;
 
 	x2 = enemy->b.x; 
 	y2 = enemy->b.y;
@@ -564,22 +634,22 @@ void move_enemies() {
 
 void draw_player() {
 
-	switch(player.dir){
+	switch(player->dir){
 		case UP:
-			if(player.frame > 7) player.frame = 4;
-			apply_surface(player.b.x, player.b.y, playerSurf, screen, &player.animVer[player.frame++]);
+			if(player->frame > 7) player->frame = 4;
+			apply_surface(player->b.x, player->b.y, playerSurf, screen, &player->animVer[player->frame++]);
 			break;
 		case DOWN:
-			if(player.frame > 3) player.frame = 0;
-			apply_surface(player.b.x, player.b.y, playerSurf, screen, &player.animVer[player.frame++]);
+			if(player->frame > 3) player->frame = 0;
+			apply_surface(player->b.x, player->b.y, playerSurf, screen, &player->animVer[player->frame++]);
 			break;
 		case LEFT:
-			if(player.frame > 3) player.frame = 0;
-			apply_surface(player.b.x, player.b.y, playerSurf, screen, &player.animHor[player.frame++]);
+			if(player->frame > 3) player->frame = 0;
+			apply_surface(player->b.x, player->b.y, playerSurf, screen, &player->animHor[player->frame++]);
 			break;
 		case RIGHT:
-			if(player.frame > 7) player.frame = 4;
-			apply_surface(player.b.x, player.b.y, playerSurf, screen, &player.animHor[player.frame++]);
+			if(player->frame > 7) player->frame = 4;
+			apply_surface(player->b.x, player->b.y, playerSurf, screen, &player->animHor[player->frame++]);
 			break;
 	}
 }
@@ -616,40 +686,40 @@ void shoot_bullet() {
 	//fx position
 	int x = 0, y = 0;
 
-	switch(player.dir){
+	switch(player->dir){
 
 		case UP:
-			lineRect.x = player.b.x + PC_DIMS*0.5;
-			lineRect.y = player.b.y - RANGE;
-			x = player.b.x + 10;
-			y = player.b.y - 12;
+			lineRect.x = player->b.x + PC_DIMS*0.5;
+			lineRect.y = player->b.y - RANGE;
+			x = player->b.x + 10;
+			y = player->b.y - 12;
 			lineRect.w = 1;
 			lineRect.h = RANGE;
 			break;
 
 		case DOWN:
-			lineRect.x = player.b.x + PC_DIMS*0.5;
-			lineRect.y = player.b.y + PC_DIMS;
-			x = player.b.x + 8;
-			y = player.b.y + 28;
+			lineRect.x = player->b.x + PC_DIMS*0.5;
+			lineRect.y = player->b.y + PC_DIMS;
+			x = player->b.x + 8;
+			y = player->b.y + 28;
 			lineRect.w = 1;
 			lineRect.h = RANGE;
 			break;
 
 		case LEFT:
-			lineRect.x = player.b.x - RANGE;
-			lineRect.y = player.b.y + PC_DIMS*0.5;
-			x = player.b.x - 12;
-			y = player.b.y + 8;
+			lineRect.x = player->b.x - RANGE;
+			lineRect.y = player->b.y + PC_DIMS*0.5;
+			x = player->b.x - 12;
+			y = player->b.y + 8;
 			lineRect.w = RANGE;
 			lineRect.h = 1;
 			break;
 
 		case RIGHT:
-			lineRect.x = player.b.x + PC_DIMS;
-			lineRect.y = player.b.y + PC_DIMS*0.5;
-			x = player.b.x + 28;
-			y = player.b.y + 8;
+			lineRect.x = player->b.x + PC_DIMS;
+			lineRect.y = player->b.y + PC_DIMS*0.5;
+			x = player->b.x + 28;
+			y = player->b.y + 8;
 			lineRect.w = RANGE;
 			lineRect.h = 1;
 			break;
@@ -658,7 +728,7 @@ void shoot_bullet() {
 	//debug
 	SDL_FillRect(screen, &lineRect, SDL_MapRGB(screen->format, 255, 255, 255));
 	
-	apply_surface(x, y, fxSurf, screen, &player.fx[player.dir]);
+	apply_surface(x, y, fxSurf, screen, &player->fx[player->dir]);
 	Mix_PlayChannel(-1, pl_bang, 0);
 }
 

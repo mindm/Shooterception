@@ -16,7 +16,7 @@ void init_timer() {
 Uint32 delta_time() {
 
 	if(!start_ticks)
-		return (SDL_GetTicks() - start_ticks)/0.001f;
+		return (SDL_GetTicks() - start_ticks)*0.001f;
 	else
 		return 0;
 

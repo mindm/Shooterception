@@ -22,7 +22,7 @@ void setup_buttons() {
 	/*join selected game button*/
  	join_button.image = load_image("join.gif");
 	join_button.box.x = SCREEN_CX-125;
-	join_button.box.y = 750;
+	join_button.box.y = 650;
 	join_button.box.w = 250;
 	join_button.box.h = 100;
 	join_button.action = GAME_LOBBY;
@@ -38,10 +38,10 @@ void setup_buttons() {
 	/* create game */
  	create_button.image = load_image("create.gif");
 	create_button.box.x = SCREEN_CX-125;
-	create_button.box.y = 750;
+	create_button.box.y = 650;
 	create_button.box.w = 250;
 	create_button.box.h = 100;
-	create_button.action = CREATE_MENU;
+	create_button.action = GAME_LOBBY;
 
  	quit_menu_button.image = load_image("quit.gif");
 	quit_menu_button.box.x = SCREEN_CX-125;
@@ -53,18 +53,56 @@ void setup_buttons() {
 	/* start joined game from game lobby */
  	start_button.image = load_image("start.gif");
 	start_button.box.x = SCREEN_CX-125;
-	start_button.box.y = 475;
+	start_button.box.y = 650;
 	start_button.box.w = 250;
 	start_button.box.h = 100;
 	start_button.action = IN_GAME;
 
 	/* switch buttons for changing the num of players in create game menu*/
- 	switch_button.image = load_image("arrows.gif");
-	switch_button.box.x = SCREEN_CX-125;
-	switch_button.box.y = 475;
-	switch_button.box.w = 48;
-	switch_button.box.h = 96;
-	switch_button.action = NOTHING;
+ 	up_button.image = load_image("arrow_up.gif");
+	up_button.box.x = SCREEN_CX+130;
+	up_button.box.y = 268;
+	up_button.box.w = 48;
+	up_button.box.h = 43;
+	up_button.action = INC;
+
+ 	down_button.image = load_image("arrow_down.gif");
+	down_button.box.x = SCREEN_CX+130;
+	down_button.box.y = 353;
+	down_button.box.w = 48;
+	down_button.box.h = 43;
+	down_button.action = DEC;
+
+	/* text areas */
+	server_list_box.x = 200;
+	server_list_box.y = 150;
+	server_list_box.w = 400;
+	server_list_box.h = 480;
+
+	game_name_box.x = 250;
+	game_name_box.y = SCREEN_CY+50;
+	game_name_box.w = 300;
+	game_name_box.h = 64;
+
+	pl_num_box.x = SCREEN_CX+50;
+	pl_num_box.y = 308;
+	pl_num_box.w = 64;
+	pl_num_box.h = 64;
+
+}
+
+void setup_itemlist() {
+	int i;
+	for(i=0;i<3;i++){
+		server_list[i] = malloc(sizeof(struct item));
+		server_list[i]->box.x = 220;
+		server_list[i]->box.y = 170+32*i;
+		server_list[i]->box.w = 380;
+		server_list[i]->box.h = 32;
+		server_list[i]->id = i+1;
+		server_list[i]->focused = 0;
+		server_list[i]->name = "rolol";
+	}
 }
 
 /* check if button hitbox is clicked and return the appropriate button.action */
@@ -79,13 +117,45 @@ int handle_button(struct button _button, int x, int y) {
 	return NOTHING;
 }
 
+/* check if button hitbox is clicked and return the appropriate button.action */
+int handle_focus(struct item *_focus, int x, int y) {
+
+    if((x > _focus->box.x) && (x < _focus->box.x + _focus->box.w) 
+		&& (y > _focus->box.y) && (y < _focus->box.y + _focus->box.h)) {
+		//_focus->focused = 1;
+		return _focus->id;	
+    }
+
+	return NOTHING;
+}
+
+//unfocus all but "id"
+void focus(struct item *_focus, int id) {
+	if(_focus->id == id) 
+		_focus->focused = 1;
+	else
+		_focus->focused = 0;
+}
+
 void show_button(struct button _button) {
 
     apply_surface(_button.box.x, _button.box.y, _button.image, screen, NULL);
 }
 
-void free_buttons() {
+void print_text(int x, int y, char* string) {
+	
+	apply_surface(x, y, TTF_RenderText_Solid(text_font, string, textColor), screen, NULL);
+}
 
+char* itoa(int i, char c[]) {
+	
+	char* string = c; 
+	sprintf(string, "%d", i);
+
+	return string;
+}
+
+void free_buttons() {
 
 	SDL_FreeSurface(join_menu_button.image);
 	SDL_FreeSurface(create_menu_button.image);
@@ -93,5 +163,17 @@ void free_buttons() {
 	SDL_FreeSurface(create_button.image);
 	SDL_FreeSurface(quit_menu_button.image);
 	SDL_FreeSurface(start_button.image);
-	SDL_FreeSurface(switch_button.image);
+	SDL_FreeSurface(up_button.image);
+	SDL_FreeSurface(down_button.image);
+
+	TTF_CloseFont(title_font);
+	TTF_CloseFont(text_font);
 }
+
+void free_itemlist(int n) {
+	int i;
+	for(i = 0; i < n; i++){
+		free(server_list[i]);
+	}
+}
+

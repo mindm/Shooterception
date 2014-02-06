@@ -7,11 +7,13 @@
 */
 
 /* button actions | game states */
-#define IN_GAME 25
+#define IN_GAME 20
 #define MAIN_MENU 21
 #define JOIN_MENU 22
 #define CREATE_MENU 23
 #define GAME_LOBBY 24
+#define INC 25
+#define DEC 26
 #define NOTHING 0
 #define QUIT 1
 
@@ -21,6 +23,23 @@ struct button {
 	int action;
 };
 
+struct item {
+	SDL_Rect box;
+	char* name;
+	int focused;
+	int id;
+};
+
+SDL_Rect server_list_box;
+SDL_Rect game_name_box;
+SDL_Rect pl_num_box;
+
+struct item *server_list[3];
+
+TTF_Font *title_font = NULL;
+TTF_Font *text_font = NULL;
+SDL_Color textColor = { 255, 33, 0 };
+
 struct button join_menu_button;
 struct button create_menu_button;
 struct button quit_menu_button;
@@ -28,12 +47,18 @@ struct button quit_menu_button;
 struct button join_button;
 struct button create_button;
 struct button start_button;
-struct button switch_button;
+struct button up_button;
+struct button down_button;
 
 void setup_buttons(void);
+void setup_itemlist(void);
 
 int handle_button(struct button, int, int);
+int handle_focus(struct item*, int, int);
+void focus(struct item*, int);
 
 void show_button(struct button);
+void print_text(int, int, char*);
+char* itoa(int, char[]);
 
 void free_buttons(void);

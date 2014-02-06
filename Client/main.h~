@@ -8,6 +8,7 @@
 
 #ifndef __MAIN_H
 
+#include <stdio.h>
 #include "SDL/SDL.h"
 #include "SDL/SDL_image.h"
 #include "SDL/SDL_ttf.h"
@@ -77,7 +78,9 @@ struct player {
 	SDL_Rect animHor[8];
 	SDL_Rect animVer[8];
 	SDL_Rect fx[6];
-} player;
+};
+
+struct player *player = NULL;
 
 /* Player 1 shooting line (rectangle which height or width should be 1px) */
 SDL_Rect lineRect;

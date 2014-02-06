@@ -63,9 +63,6 @@ Mix_Chunk *en_death = NULL;
 
 SDL_Event event;
 
-TTF_Font *font = NULL;
-SDL_Color textColor = { 255, 33, 0 };
-
 /* Player 1 object */
 struct player {
 	int health;
@@ -78,7 +75,9 @@ struct player {
 	SDL_Rect animHor[8];
 	SDL_Rect animVer[8];
 	SDL_Rect fx[6];
-} player;
+};
+
+struct player *player = NULL;
 
 /* Player 1 shooting line (rectangle which height or width should be 1px) */
 SDL_Rect lineRect;
