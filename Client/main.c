@@ -15,6 +15,8 @@
 
 int main(int argc, char* args[]) { 
 
+	srand (time(NULL));
+
 	int quit = 0;
 
 	/* actual menu state and temporal menu state */
@@ -241,11 +243,12 @@ int main(int argc, char* args[]) {
 
 				draw_bground();
 
-				move_player();			
-				move_enemies();
+				move_player();
 
-				//for(i = 0; i < en_num; i++)
-					draw_enemy(enemy);
+				for(i = 0; i < MAX_EN; i++)	{		
+					move_enemy(enemies[i]);
+					draw_enemy(enemies[i]);
+				}
 
 				draw_player();
 				
@@ -260,11 +263,14 @@ int main(int argc, char* args[]) {
 					}
 					else {
 						shoot_bullet(); //just gfx shot
-						handle_enemy_damage(enemy); //calculate real shot
+
+						for(i = 0; i < 20; i++)
+							handle_enemy_damage(enemies[i]); //calculate real shot
 					}
 				}
 
-				handle_player_damage(enemy);
+				for(i = 0; i < 20; i++)
+					handle_player_damage(enemies[i]);
 
 				//framecap							
 				if(delta_time() < 1000/FPS) {
@@ -349,7 +355,10 @@ int load_assets(void) {
 void free_assets(void) {
 
 	free(player);
-	free(enemy);
+
+	int i;
+	for(i = 0; i < MAX_EN; i++) 
+		free(enemies[i]);
 
  	Mix_FreeChunk(pl_bang);
  	Mix_FreeChunk(en_bite);
@@ -437,47 +446,50 @@ void setup_player(void) {
 
 void setup_enemy(void) {
 
-	if(!enemy)
- 		enemy = malloc(sizeof(struct enemy));
+	int i, j;
+	int offset;
+	for(i = 0; i < MAX_EN; i++) {
 
-	enemy->health = 3;
-	enemy->dir = DOWN;
-	enemy->frame = 0;
-	enemy->b.w = PC_DIMS;
-	enemy->b.h = PC_DIMS;
-	enemy->b.x = 0;
-	enemy->b.y = 0;
+	 	enemies[i] = malloc(sizeof(struct enemy));
 
-	/* setup animations */
-	int offset = 0; 
-	int i;
-	for(i = 0; i < 9; i++) {
-		enemy->animHor[i].x = offset;
-		enemy->animHor[i].y = 0;
-		enemy->animHor[i].w = PC_DIMS;
-		enemy->animHor[i].h = PC_DIMS;
+		enemies[i]->health = 3;
+		enemies[i]->dir = DOWN;
+		enemies[i]->frame = 0;
+		enemies[i]->b.w = PC_DIMS;
+		enemies[i]->b.h = PC_DIMS;
+		enemies[i]->b.x = (rand() % 825) - 50;
+		enemies[i]->b.y = (rand() % 825) -50;
 
-		offset += PC_DIMS;
-	}
+		/* setup animations */
+		offset = 0; 
+		for(j = 0; j < 9; j++) {
+			enemies[i]->animHor[j].x = offset;
+			enemies[i]->animHor[j].y = 0;
+			enemies[i]->animHor[j].w = PC_DIMS;
+			enemies[i]->animHor[j].h = PC_DIMS;
+
+			offset += PC_DIMS;
+		}
 	
-	offset = 0;
-	for(i = 0; i < 9; i++) {
-		enemy->animVer[i].x = offset;
-		enemy->animVer[i].y = PC_DIMS;
-		enemy->animVer[i].w = PC_DIMS;
-		enemy->animVer[i].h = PC_DIMS;
+		offset = 0;
+		for(j = 0; j < 9; j++) {
+			enemies[i]->animVer[j].x = offset;
+			enemies[i]->animVer[j].y = PC_DIMS;
+			enemies[i]->animVer[j].w = PC_DIMS;
+			enemies[i]->animVer[j].h = PC_DIMS;
 
-		offset += PC_DIMS;
-	}
+			offset += PC_DIMS;
+		}
 
-	offset = 64;
-	for(i = 0; i < 2; i++) {
-		enemy->fx[i].x = offset;
-		enemy->fx[i].y = 0;
-		enemy->fx[i].w = 16;
-		enemy->fx[i].h = 16;
+		offset = 64;
+		for(j = 0; j < 2; j++) {
+			enemies[i]->fx[j].x = offset;
+			enemies[i]->fx[j].y = 0;
+			enemies[i]->fx[j].w = 16;
+			enemies[i]->fx[j].h = 16;
 
-		offset += 16;
+			offset += 16;
+		}
 	}
 	
 }
@@ -565,9 +577,9 @@ void draw_hud(void) {
 	for(i = 0; i < player->health; i++)
 		apply_surface(20+(32*i), 16, hudSurf, screen, NULL);
 
-	//debug
+	/*debug
 	for(i = 0; i < enemy->health; i++)
-		apply_surface(20+(32*i), 750, hudSurf, screen, NULL);
+		apply_surface(20+(32*i), 750, hudSurf, screen, NULL);*/
 }
 
 void handle_player_input() {
@@ -625,9 +637,9 @@ void move_player() {
 	}
 }
 
-void move_enemies() {
+void move_enemy(struct enemy *_enemy) {
 
-	if(enemy->health <= 0) 
+	if(_enemy->health <= 0) 
 		return;
 
 	int x1, y1, x2, y2;
@@ -635,26 +647,26 @@ void move_enemies() {
 	x1 = player->b.x;
 	y1 = player->b.y;
 
-	x2 = enemy->b.x; 
-	y2 = enemy->b.y;
+	x2 = _enemy->b.x; 
+	y2 = _enemy->b.y;
 
 	//calculate x distance to player, move towards
 	if((x1 - x2) < 0) {
-		enemy->dir = LEFT;
-		enemy->b.x -= EN_VEL;
+		_enemy->dir = LEFT;
+		_enemy->b.x -= EN_VEL;
 	}
 	else {
-		enemy->dir = RIGHT;
-		enemy->b.x += EN_VEL;
+		_enemy->dir = RIGHT;
+		_enemy->b.x += EN_VEL;
 	}
 	//calculate y distance, move towards
 	if((y1 - y2) < 0){
-		enemy->dir = UP;
-		enemy->b.y -= EN_VEL;
+		_enemy->dir = UP;
+		_enemy->b.y -= EN_VEL;
 	}
 	else {
-		enemy->dir = DOWN;
-		enemy->b.y += EN_VEL;
+		_enemy->dir = DOWN;
+		_enemy->b.y += EN_VEL;
 	}
 }
 

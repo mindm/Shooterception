@@ -154,8 +154,6 @@ void free_buttons() {
 	SDL_FreeSurface(up_button.image);
 	SDL_FreeSurface(down_button.image);
 
-	TTF_CloseFont(title_font);
-	TTF_CloseFont(text_font);
 }
 
 void free_itemlist(int n) {

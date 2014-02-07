@@ -9,6 +9,8 @@
 #ifndef __MAIN_H
 
 #include <stdio.h>
+#include <stdlib.h> 
+#include <time.h>
 #include "SDL/SDL.h"
 #include "SDL/SDL_image.h"
 #include "SDL/SDL_ttf.h"
@@ -35,8 +37,10 @@
 #define RANGE 400
 #define PC_DIMS 32
 #define PC_VEL 10
-#define EN_VEL 3
+#define EN_VEL 1
 #define FPS 20
+
+#define MAX_EN 20
 
 /* Declarations of graphics, sounds and text objects*/
 
@@ -90,8 +94,8 @@ struct enemy {
 	SDL_Rect fx[2];
 };
 
-struct enemy *enemy = NULL;
-//struct enemy *enemies[20];
+//struct enemy *enemy = NULL;
+struct enemy *enemies[MAX_EN];
 
 /* Function prototypes */
 SDL_Surface *load_image(char*);
@@ -107,7 +111,7 @@ void setup_enemy(void);
 
 void handle_player_input(void);
 void move_player(void);
-void move_enemies(void);
+void move_enemy(struct enemy*);
 void shoot_bullet(void);
 void draw_player(void);
 void draw_enemy(struct enemy*);
