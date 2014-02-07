@@ -36,10 +36,6 @@ SDL_Rect pl_num_box;
 
 struct item *server_list[3];
 
-TTF_Font *title_font = NULL;
-TTF_Font *text_font = NULL;
-SDL_Color textColor = { 255, 33, 0 };
-
 struct button join_menu_button;
 struct button create_menu_button;
 struct button quit_menu_button;
@@ -58,7 +54,5 @@ int handle_focus(struct item*, int, int);
 void focus(struct item*, int);
 
 void show_button(struct button);
-void print_text(int, int, char*);
-char* itoa(int, char[]);
 
 void free_buttons(void);

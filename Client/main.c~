@@ -9,6 +9,7 @@
 #include "main.h"
 #include "timer.c"
 #include "button.c"
+#include "input.c"
 
 /* Main loop */
 
@@ -35,7 +36,7 @@ int main(int argc, char* args[]) {
 	setup_buttons();
 	setup_player();
 	setup_enemy();
-
+	setup_string_input();
 	setup_itemlist();
 	
 	toggle_menu_music(); // toggle once = play
@@ -48,27 +49,29 @@ int main(int argc, char* args[]) {
 		if(state == MAIN_MENU) { 
 		    if(SDL_PollEvent(&event)) {
 
-			//if any button's hitbox is left-clicked
-			if(event.type == SDL_MOUSEBUTTONDOWN) {
-				if(event.button.button == SDL_BUTTON_LEFT) {
-					//temporal _state is used so we don't overwrite the actual state
-				    if(_state = handle_button(join_menu_button, event.button.x, event.button.y))
-						state = _state;
+				//if any button hitbox is left-clicked
+				if(event.type == SDL_MOUSEBUTTONDOWN) {
 
-				    if(_state = handle_button(create_menu_button, event.button.x, event.button.y))
-						state = _state;
+				    if(event.type == SDL_QUIT)
+				        quit = 1;
 
-				    if(_state = handle_button(quit_menu_button, event.button.x, event.button.y))
-						state = _state;
+					if(event.button.button == SDL_BUTTON_LEFT) {
+						//temporal _state is used so we don't overwrite the actual state
+						if(_state = handle_button(join_menu_button, event.button.x, event.button.y))
+							state = _state;
+
+						if(_state = handle_button(create_menu_button, event.button.x, event.button.y))
+							state = _state;
+
+						if(_state = handle_button(quit_menu_button, event.button.x, event.button.y))
+							state = _state;
+					}
 				}
-			}
-		        if(event.type == SDL_QUIT)
-		            quit = 1;
 		    }
 
 		    //bground and title
 		    SDL_FillRect(screen, &screen->clip_rect, SDL_MapRGB(screen->format, 0x66, 0x66, 0x66));
-			apply_surface(200, 100, main_title, screen, NULL);
+			print_title(200, 100, "Shooter shooter");
 
         	show_button(join_menu_button);
 			show_button(create_menu_button);
@@ -82,6 +85,10 @@ int main(int argc, char* args[]) {
 
 				//if any button's hitbox is left-clicked
 				if(event.type == SDL_MOUSEBUTTONDOWN) {
+
+				    if(event.type == SDL_QUIT)
+				        quit = 1;
+
 					if(event.button.button == SDL_BUTTON_LEFT) {
 
 						int x = event.button.x;
@@ -101,25 +108,23 @@ int main(int argc, char* args[]) {
 						for(i = 0; i < 3; i++) { focus(server_list[i], id); }
 					}
 				}
-
-				    if(event.type == SDL_QUIT)
-				        quit = 1;
 		    }
 
 		    //bground and title
 		    SDL_FillRect(screen, &screen->clip_rect, SDL_MapRGB(screen->format, 0x66, 0x66, 0x66));
-			apply_surface(300, 100, join_title, screen, NULL);
+			print_title(300, 100, "Join game");
 
 			//server list box
 			SDL_FillRect(screen, &server_list_box, SDL_MapRGB(screen->format, 0x00, 0x00, 0x00));
-			
-			
+			print_text(server_list_box.x, server_list_box.y+5, "|Name-------------------|Players|", textColor);
+			char mem = 'm';
 			for(i = 0; i < 3; i++) {
 
 				if(server_list[i]->focused)
 					SDL_FillRect(screen, &server_list[i]->box, SDL_MapRGB(screen->format, 0x00, 0x66, 0x00));
 
-				print_text(server_list[i]->box.x, server_list[i]->box.y, server_list[i]->name);
+				print_text(server_list[i]->box.x-20, server_list[i]->box.y, itoa(server_list[i]->id, mem), textColor);
+				print_text(server_list[i]->box.x, server_list[i]->box.y, server_list[i]->name, textColor);
 			}
 
         	show_button(join_button);
@@ -130,42 +135,52 @@ int main(int argc, char* args[]) {
 		if(state == CREATE_MENU) { 
 		    if(SDL_PollEvent(&event)) {
 
+				if(event.type == SDL_QUIT)
+					quit = 1;
+
+				//game name input
+				handle_string_input();
+
 				//if any button's hitbox is left-clicked
 				if(event.type == SDL_MOUSEBUTTONDOWN) {
+
 					if(event.button.button == SDL_BUTTON_LEFT) {
 
 						if(_state = handle_button(up_button, event.button.x, event.button.y)) {
-							if(pl_num < 4) pl_num++; else pl_num = 4;
+							if(pl_num < 4) pl_num++; //cap the size <= 4
+							else pl_num = 4;
 						}
 
 						if(_state = handle_button(down_button, event.button.x, event.button.y)) {
-							if(pl_num > 1) pl_num--; else pl_num = 1;
+							if(pl_num > 1) pl_num--; //cap the size >= 1
+							else pl_num = 1;
 						}
 
-						//there's only one state anyway
+						//there's only one possible state anyway
 						if(_state = handle_button(create_button, event.button.x, event.button.y))
 							state = _state;
 					}
 				}
-
-				if(event.type == SDL_QUIT)
-					quit = 1;
 		    }
 
 		    //bground and title
 		    SDL_FillRect(screen, &screen->clip_rect, SDL_MapRGB(screen->format, 0x66, 0x66, 0x66));
-			apply_surface(200, 100, create_title, screen, NULL);
+			print_title(200, 100, "Create game");
 			
-			//pl_num box
+			//pl_num box with prompt
 			SDL_FillRect(screen, &pl_num_box, SDL_MapRGB(screen->format, 0x00, 0x00, 0x00));
-			print_text(275, pl_num_box.y+30, "Max players:");
-			char dummy[1] = "a";
-			print_text(475, pl_num_box.y+30, itoa(pl_num, dummy));
+			print_text(275, pl_num_box.y+30, "Max players:", textColor);
+			
+			char mem = 'm'; //memory placeholder
+			print_text(475, pl_num_box.y+30, itoa(pl_num, mem), textColor);
 
-			//game name box
-			print_text(game_name_box.x, game_name_box.y-35, "Game name:");
+			//game name box with prompt
+			print_text(game_name_box.x, game_name_box.y-35, "Game name:", textColor);
 			SDL_FillRect(screen, &game_name_box, SDL_MapRGB(screen->format, 0x00, 0x00, 0x00));
-
+			
+			//show the name
+			print_string_input(game_name_box.x, game_name_box.y+10, textColor);
+			
 			show_button(create_button);
 			show_button(up_button);
 			show_button(down_button);
@@ -177,24 +192,37 @@ int main(int argc, char* args[]) {
 		if(state == GAME_LOBBY) { 
 		    if(SDL_PollEvent(&event)) {
 
-			//if any button's hitbox is left-clicked
-			if(event.type == SDL_MOUSEBUTTONDOWN) {
-				if(event.button.button == SDL_BUTTON_LEFT) {
-				    state = handle_button(start_button, event.button.x, event.button.y);
+				//if any button hitbox is left-clicked
+				if(event.type == SDL_MOUSEBUTTONDOWN) {
 
-					if(state == IN_GAME) { 
-						toggle_menu_music(); //menu music off
-						toggle_game_music(); //game music on
+				    if(event.type == SDL_QUIT)
+				        quit = 1;
+
+					if(event.button.button == SDL_BUTTON_LEFT) {
+						if(_state = handle_button(start_button, event.button.x, event.button.y))
+							state = _state;
+
+						if(state == IN_GAME) { //start was pressed, transition into game, therefore:
+							toggle_menu_music(); //menu music off
+							toggle_game_music(); //game music on
+						}
 					}
 				}
-			}
-		        if(event.type == SDL_QUIT)
-		            quit = 1;
 		    }
 
 		    //bground and title
 		    SDL_FillRect(screen, &screen->clip_rect, SDL_MapRGB(screen->format, 0x66, 0x66, 0x66));
-			apply_surface(300, 100, lobby_title, screen, NULL);
+			print_title(275, 100, "Game lobby");
+
+			//game lobby infobox (using server list box rectangle)
+			SDL_FillRect(screen, &server_list_box, SDL_MapRGB(screen->format, 0x00, 0x00, 0x00));
+
+			print_text(225, server_list_box.y+30, "Game name: ", textColor);
+			print_text(370, server_list_box.y+30, name_string, textColor);
+			print_text(225, server_list_box.y+60, "Max players: ", textColor);
+			char mem[1] = "m"; //memory placeholder
+			print_text(400, server_list_box.y+60, itoa(pl_num, mem), textColor);
+			print_text(225, server_list_box.y+90, "Players joined: ", textColor);
 
 			show_button(start_button);
 		}
@@ -216,7 +244,9 @@ int main(int argc, char* args[]) {
 				move_player();			
 				move_enemies();
 
-				draw_enemies();
+				//for(i = 0; i < en_num; i++)
+					draw_enemy(enemy);
+
 				draw_player();
 				
 				draw_hud(); // aka foreground
@@ -276,6 +306,8 @@ int init(void) {
         return 0;
     }
 
+	SDL_EnableUNICODE(SDL_ENABLE);
+	
 	//SDL_ttf
 	if(TTF_Init() == -1)
 		return 0;
@@ -293,15 +325,6 @@ int load_assets(void) {
 	enemySurf = load_image("enemy.gif");
 	fxSurf = load_image("fx.gif");
 	hudSurf = load_image("health.gif");
-
-	//texts and fonts
-	title_font = TTF_OpenFont("OCR", 36);
-	text_font = TTF_OpenFont("OCR", 16);
-
-	main_title = TTF_RenderText_Solid(title_font, "Shooterception", textColor);
-	join_title = TTF_RenderText_Solid(title_font, "Join game", textColor);
-	lobby_title = TTF_RenderText_Solid(title_font, "Game lobby", textColor);
-	create_title = TTF_RenderText_Solid(title_font, "Create a new game", textColor);
 
 	//musics
 	menu_music = Mix_LoadMUS("sh_menu.ogg");
@@ -346,20 +369,19 @@ void free_assets(void) {
 	SDL_FreeSurface(fxSurf);
 	SDL_FreeSurface(hudSurf);
 
-	SDL_FreeSurface(main_title);
-	SDL_FreeSurface(join_title);
-	SDL_FreeSurface(create_title);
-	SDL_FreeSurface(lobby_title);
-
 	Mix_CloseAudio();
 
+	free_fonts();
+
+	SDL_EnableUNICODE(SDL_DISABLE);
 	TTF_Quit();
     SDL_Quit();
 }
 
 void setup_player(void) {
 
-	player = malloc(sizeof(struct player));
+	if(!player)
+		player = malloc(sizeof(struct player));
 
 	player->frame = 4;
 	player->health = 3;
@@ -415,7 +437,8 @@ void setup_player(void) {
 
 void setup_enemy(void) {
 
- 	enemy = malloc(sizeof(struct enemy));
+	if(!enemy)
+ 		enemy = malloc(sizeof(struct enemy));
 
 	enemy->health = 3;
 	enemy->dir = DOWN;
@@ -426,7 +449,8 @@ void setup_enemy(void) {
 	enemy->b.y = 0;
 
 	/* setup animations */
-	int offset = 0, i;
+	int offset = 0; 
+	int i;
 	for(i = 0; i < 9; i++) {
 		enemy->animHor[i].x = offset;
 		enemy->animHor[i].y = 0;
@@ -461,7 +485,7 @@ void setup_enemy(void) {
 //handle damage inflicted BY ENEMY TO PLAYER
 void handle_player_damage(struct enemy *contact) {
 
-	if(contact->health <= 0) 
+	if(contact->health <= 0 || player->health <= 0) 
 		return;
 
 	if(check_collision(player->b, contact->b)) {
@@ -541,7 +565,7 @@ void draw_hud(void) {
 	for(i = 0; i < player->health; i++)
 		apply_surface(20+(32*i), 16, hudSurf, screen, NULL);
 
-	//turha lopullisessa versiossa
+	//debug
 	for(i = 0; i < enemy->health; i++)
 		apply_surface(20+(32*i), 750, hudSurf, screen, NULL);
 }
@@ -578,6 +602,9 @@ void handle_player_input() {
 }
 
 void move_player() {
+
+	if(player->health <= 0) 
+		return;
 
 	//left/right 
 	player->b.x += player->xVel; 
@@ -633,54 +660,66 @@ void move_enemies() {
 
 void draw_player() {
 
-	switch(player->dir){
-		case UP:
-			if(player->frame > 7) player->frame = 4;
-			apply_surface(player->b.x, player->b.y, playerSurf, screen, &player->animVer[player->frame++]);
-			break;
-		case DOWN:
-			if(player->frame > 3) player->frame = 0;
-			apply_surface(player->b.x, player->b.y, playerSurf, screen, &player->animVer[player->frame++]);
-			break;
-		case LEFT:
-			if(player->frame > 3) player->frame = 0;
-			apply_surface(player->b.x, player->b.y, playerSurf, screen, &player->animHor[player->frame++]);
-			break;
-		case RIGHT:
-			if(player->frame > 7) player->frame = 4;
-			apply_surface(player->b.x, player->b.y, playerSurf, screen, &player->animHor[player->frame++]);
-			break;
+	if(player->health <= 0) {
+		//draw corpse
+		apply_surface(player->b.x, player->b.y, playerSurf, screen, &player->animVer[8]);
+	}
+	else {
+		//draw movement
+		switch(player->dir){
+			case UP:
+				if(player->frame > 7) player->frame = 4;
+				apply_surface(player->b.x, player->b.y, playerSurf, screen, &player->animVer[player->frame++]);
+				break;
+			case DOWN:
+				if(player->frame > 3) player->frame = 0;
+				apply_surface(player->b.x, player->b.y, playerSurf, screen, &player->animVer[player->frame++]);
+				break;
+			case LEFT:
+				if(player->frame > 3) player->frame = 0;
+				apply_surface(player->b.x, player->b.y, playerSurf, screen, &player->animHor[player->frame++]);
+				break;
+			case RIGHT:
+				if(player->frame > 7) player->frame = 4;
+				apply_surface(player->b.x, player->b.y, playerSurf, screen, &player->animHor[player->frame++]);
+				break;
+		}
 	}
 }
 
-void draw_enemies() {
+void draw_enemy(struct enemy* _enemy) {
 
-	if(enemy->health <= 0) {
-		apply_surface(enemy->b.x, enemy->b.y, enemySurf, screen, &enemy->animVer[8]);
+	if(_enemy->health <= 0) {
+		//draw corpse
+		apply_surface(_enemy->b.x, _enemy->b.y, enemySurf, screen, &_enemy->animVer[8]);
 	}
 	else {
-		switch(enemy->dir){
+		//draw movement
+		switch(_enemy->dir){
 			case UP:
-				if(enemy->frame > 7) enemy->frame = 4;
-				apply_surface(enemy->b.x, enemy->b.y, enemySurf, screen, &enemy->animVer[enemy->frame++]);
+				if(_enemy->frame > 7) _enemy->frame = 4;
+				apply_surface(_enemy->b.x, _enemy->b.y, enemySurf, screen, &_enemy->animVer[_enemy->frame++]);
 				break;
 			case DOWN:
-				if(enemy->frame > 3) enemy->frame = 0;
-				apply_surface(enemy->b.x, enemy->b.y, enemySurf, screen, &enemy->animVer[enemy->frame++]);
+				if(_enemy->frame > 3) _enemy->frame = 0;
+				apply_surface(_enemy->b.x, _enemy->b.y, enemySurf, screen, &_enemy->animVer[_enemy->frame++]);
 				break;
 			case LEFT:
-				if(enemy->frame > 3) enemy->frame = 0;
-				apply_surface(enemy->b.x, enemy->b.y, enemySurf, screen, &enemy->animHor[enemy->frame++]);
+				if(_enemy->frame > 3) _enemy->frame = 0;
+				apply_surface(_enemy->b.x, _enemy->b.y, enemySurf, screen, &_enemy->animHor[_enemy->frame++]);
 				break;
 			case RIGHT:
-				if(enemy->frame > 7) enemy->frame = 4;
-				apply_surface(enemy->b.x, enemy->b.y, enemySurf, screen, &enemy->animHor[enemy->frame++]);
+				if(_enemy->frame > 7) _enemy->frame = 4;
+				apply_surface(_enemy->b.x, _enemy->b.y, enemySurf, screen, &_enemy->animHor[_enemy->frame++]);
 				break;
 		}
 	}
 }
 
 void shoot_bullet() {
+
+	if(player->health <= 0) 
+		return;
 
 	//fx position
 	int x = 0, y = 0;

@@ -42,10 +42,6 @@
 
 SDL_Surface *background = NULL;
 SDL_Surface *screen = NULL;
-SDL_Surface *main_title = NULL;
-SDL_Surface *join_title = NULL;
-SDL_Surface *lobby_title = NULL;
-SDL_Surface *create_title = NULL;
 SDL_Surface *playerSurf = NULL;
 SDL_Surface *enemySurf = NULL;
 SDL_Surface *fxSurf = NULL;
@@ -78,6 +74,7 @@ struct player {
 };
 
 struct player *player = NULL;
+//struct player *players[4];
 
 /* Player 1 shooting line (rectangle which height or width should be 1px) */
 SDL_Rect lineRect;
@@ -94,6 +91,7 @@ struct enemy {
 };
 
 struct enemy *enemy = NULL;
+//struct enemy *enemies[20];
 
 /* Function prototypes */
 SDL_Surface *load_image(char*);
@@ -112,7 +110,7 @@ void move_player(void);
 void move_enemies(void);
 void shoot_bullet(void);
 void draw_player(void);
-void draw_enemies(void);
+void draw_enemy(struct enemy*);
 
 void handle_enemy_damage(struct enemy*);
 void handle_player_damage(struct enemy*);

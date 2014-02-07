@@ -63,9 +63,6 @@ Mix_Chunk *en_death = NULL;
 
 SDL_Event event;
 
-TTF_Font *font = NULL;
-SDL_Color textColor = { 255, 33, 0 };
-
 /* Player 1 object */
 struct player {
 	int health;
@@ -115,7 +112,7 @@ void move_player(void);
 void move_enemies(void);
 void shoot_bullet(void);
 void draw_player(void);
-void draw_enemies(void);
+void draw_enemy(struct enemy*);
 
 void handle_enemy_damage(struct enemy*);
 void handle_player_damage(struct enemy*);

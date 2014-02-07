@@ -95,9 +95,9 @@ void setup_itemlist() {
 	int i;
 	for(i=0;i<3;i++){
 		server_list[i] = malloc(sizeof(struct item));
-		server_list[i]->box.x = 220;
-		server_list[i]->box.y = 170+32*i;
-		server_list[i]->box.w = 380;
+		server_list[i]->box.x = 240;
+		server_list[i]->box.y = 180+32*i;
+		server_list[i]->box.w = 350;
 		server_list[i]->box.h = 32;
 		server_list[i]->id = i+1;
 		server_list[i]->focused = 0;
@@ -122,7 +122,6 @@ int handle_focus(struct item *_focus, int x, int y) {
 
     if((x > _focus->box.x) && (x < _focus->box.x + _focus->box.w) 
 		&& (y > _focus->box.y) && (y < _focus->box.y + _focus->box.h)) {
-		//_focus->focused = 1;
 		return _focus->id;	
     }
 
@@ -142,18 +141,7 @@ void show_button(struct button _button) {
     apply_surface(_button.box.x, _button.box.y, _button.image, screen, NULL);
 }
 
-void print_text(int x, int y, char* string) {
-	
-	apply_surface(x, y, TTF_RenderText_Solid(text_font, string, textColor), screen, NULL);
-}
 
-char* itoa(int i, char c[]) {
-	
-	char* string = c; //memory placeholder c, no malloc() needed here
-	sprintf(string, "%d", i);
-
-	return string;
-}
 
 void free_buttons() {
 
@@ -166,8 +154,6 @@ void free_buttons() {
 	SDL_FreeSurface(up_button.image);
 	SDL_FreeSurface(down_button.image);
 
-	TTF_CloseFont(title_font);
-	TTF_CloseFont(text_font);
 }
 
 void free_itemlist(int n) {
