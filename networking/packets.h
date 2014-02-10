@@ -16,6 +16,7 @@
 //uint16_t getmessagetype(char *buf);
 int packMessageType(char *buf, uint8_t msgtype);
 int packAck();
+void cutSpace(char *ptr);
 
 
 /* Client to server messages */
