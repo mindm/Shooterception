@@ -9,19 +9,28 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <time.h>
+#include <unistd.h>
 
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 800
-
+#define maxEnemies 20
 #define COOLDOWN 0.5 // Cooldown for shooting
+
+// View direction
+#define UP 0
+#define DOWN 1
+#define LEFT 2
+#define RIGHT 3
 
 // Enemy struct
 typedef struct t_enemy {
     int xcoord; // X coordinate, upper left corner
     int ycoord; // Y coordinate, upper left corner
-    int viewDirection; // Direction the enemy is facing and moving
+    //int viewDirection; // Direction the enemy is facing and moving
     uint8_t health; // Enemy health - 0: Uninjured, 1: Injured, 2: Dead
     int following; // ID of the player the enemy is following
+    int speed; // Enemy speed
 } enemy;
 
 // Player character stuct 
@@ -38,8 +47,8 @@ typedef struct t_player {
 
 // Game struct
 typedef struct t_game {
-    player playerList; // List of PCs in game
-    enemy enemyList; // List of enemies in game
+    player playerList[3]; // List of PCs in game
+    enemy enemyList[19]; // List of enemies in game
     int playerCount; // Number of players in game
     int enemyCount; // Number of enemies in game
     int levelNumber; // Number of the game level, defines level parameters
@@ -83,5 +92,18 @@ int startGame(game*);
 void startLobby(game*);
 
 // Add new player to existing game lobby
-// Params: gameState struct, isHost, playerNumber, playerName
-game* addPlayer(game*, int, int, char[16]);
+// Params: gameState struct, playerNumber, playerName
+game* addPlayer(game*, int, char[16]);
+
+// Set game state to "inGame" when host ready
+game* hostReady(game*);
+
+// Add enemies to gameState
+//Params: game struct
+game* addEnemy(game*);
+
+//Function to set level parameters defined by level number
+game* setLevelParameters(game*);
+
+// Set players to initial positions
+game* setPlayerLocations(game*);

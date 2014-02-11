@@ -10,8 +10,25 @@
 
 int startGame(game* gameState){
 
+    int spawnTimer = 0;
+    
+    srand(time(NULL)); // Generate random seed for rand()
+    
+    // Set level parameters defined by LevelNumber
+    gameState = setLevelParameters(gameState);
+
+    // Set initial players locations
+    gameState = setPlayerLocations(gameState);
+
     while(1){
         // Main game logic loop
+
+        // Spawn enemy if spawn rate allows and maxEnemies is not full
+        if(spawnTimer >= gameState->enemySpawnRate && gameState->enemyCount < maxEnemies){
+            // Spawn enemy to random border coordinate with level base speed and PC to follow
+            gameState = addEnemy(gameState);
+            gameState->enemyCount += 1;
+        }
 
         // Update all player character locations
         //updatePlayerLocation();
@@ -34,10 +51,13 @@ int startGame(game* gameState){
         // Send game state to all clients
         //sendGameState();
         
+        
         // Framecap - implement without SDL_Delay
         /*if(delta_time() < 1000/FPS) {
             SDL_Delay((1000/FPS) - delta_time());
         } */
+        
+        sleep(1);
     }
 
     return 0;
@@ -87,15 +107,9 @@ game* newGame(void) {
     game *gameState = (game*)malloc(sizeof(game));
 
     // Set the game state
-    //gameState->playerList = NULL; // Clear player list
-    //gameState->enemyList = NULL; // Clear enemy list
     gameState->playerCount = 1; // Number of players after the host joins
-    gameState->enemyCount = 0; // Number of enemies when game is created
+    gameState->enemyCount = 0; // Number of enemies on the game board
     gameState->levelNumber = 1; // Number of the game level (1-3), new game starts from 1
-    gameState->enemyLimit = 10; // Enemy spawn limit for level 0
-    gameState->enemySpawnRate = 1; // Enemy spawn limit for level 1
-    gameState->enemyBaseSpeed = 1; // Enemy base speed for level 1
-    gameState->currentState = 0; // 0: Waiting game, 1: inLobby, 2: inGame
 
     return gameState;
 }
@@ -107,27 +121,126 @@ void freeGame(game* gameState) {
     }
 }
 
-game* addPlayer(game* gameState, int isHost, int playerNumber, char* playerName){
+game* addPlayer(game* gameState, int playerNumber, char* playerName){
 
     // Allocate new player struct
-    player *newPlayer = (player*)malloc(sizeof(player));
+    //player *newPlayer = (player*)malloc(sizeof(player));
+    player newPlayer[0];
     
     // Set new player parameters
-    newPlayer->xcoord = 0 ; // Initial X coordinate
-    newPlayer->ycoord = 0; // Initial Y coordinate
-    newPlayer->viewDirection = 0; // Initial direction the PC is facing
-    newPlayer->health = 3; // Initial Health points
-    newPlayer->hasShot = 0; // Player has not shot
-    newPlayer->isHost = isHost; // Is the player the host - 0: False, 1: True
-    newPlayer->playerNumber = playerNumber; // Player's number
-    newPlayer->playerName = playerName; // Player's name
+    newPlayer[0].xcoord = 0 ; // Initial X coordinate
+    newPlayer[0].ycoord = 0; // Initial Y coordinate
+    newPlayer[0].viewDirection = 0; // Initial direction the PC is facing
+    newPlayer[0].health = 3; // Initial Health points
+    newPlayer[0].hasShot = 0; // Player has not shot
     
-    //memset(gameState->playerList,newPlayer,sizeof(newPlayer));
-    //gameState->playerList[newPlayer->playerNumber] = newPlayer; // Allocate new player
+    if(playerNumber==0){
+        newPlayer[0].isHost = 1; // First player, mark as host
+    }
+    else{
+        newPlayer[0].isHost = 0;
+    }
+    
+    newPlayer[0].playerNumber = playerNumber; // Player's number
+    newPlayer[0].playerName = playerName; // Player's name
+    
+    gameState->playerList[playerNumber] = newPlayer[0]; // Allocate new player
     
     return gameState;
 }
 
+game* hostReady(game* gameState){
+    gameState->currentState = 2;
+    return gameState;
+}
+
+game* addEnemy(game* gameState){
+
+    int randomPlayer = rand() % gameState->playerCount+1; // Choose random player to follow
+    int randomXborder = rand() % 2; // Choose random border from x axis
+    int randomYborder = rand() % 2; // Choose random border from y axis
+    int randomXcoord = rand() % 800; // Choose random border from x axis
+    int randomYcoord = rand() % 800; // Choose random border from y axis
+    
+    enemy newEnemy[0];
+    
+    // Set new enemy parameters
+    
+    // Choose spawn border
+    if(randomXcoord == 0 && randomYcoord == 0){ // Top border
+        newEnemy[0].xcoord = randomXcoord;
+        newEnemy[0].ycoord = 0;
+    }
+    if(randomXcoord == 0 && randomYcoord == 1){ // Right border
+        newEnemy[0].xcoord = 800;
+        newEnemy[0].ycoord = randomYcoord;
+    }
+    if(randomXcoord == 1 && randomYcoord == 1){ // Bottom border
+        newEnemy[0].xcoord = randomXcoord;
+        newEnemy[0].ycoord = 800;
+    }
+    if(randomXcoord == 1 && randomYcoord == 0){ // Left border
+        newEnemy[0].xcoord = 0;
+        newEnemy[0].ycoord = randomYcoord;
+    }        
+    newEnemy[0].health = 3; // Initial Health points
+   
+    newEnemy[0].following = randomPlayer; // Player who enemy is following
+    
+    // TODO Changing base speed
+    newEnemy[0].speed = gameState->enemyBaseSpeed; // Player who enemy is following
+    
+    gameState->enemyList[gameState->enemyCount] = newEnemy[0]; // Allocate new enemy
+        
+    return gameState;
+}
+
+game* setLevelParameters(game* gameState){
+
+    // Set game parameters for game level
+    if(gameState->levelNumber == 1){
+        gameState->enemyLimit = 10; // How many enemies are spawned
+        gameState->enemySpawnRate = 1; // How fast the enemis are spawned
+        gameState->enemyBaseSpeed = 1; // How fast the enemies _atleast_ move
+    } 
+    else if(gameState->levelNumber == 2){
+        gameState->enemyLimit = 15; // How many enemies are spawned
+        gameState->enemySpawnRate = 1; // How fast the enemies are spawned
+        gameState->enemyBaseSpeed = 2; // How fast the enemies _atleast_ move
+    
+    } 
+    else if(gameState->levelNumber ==3){
+        gameState->enemyLimit = 20; // How many enemies are spawned
+        gameState->enemySpawnRate = 1; // How fast the enemies are spawned
+        gameState->enemyBaseSpeed = 3; // How fast the enemies _atleast_ move
+    }
+    
+    return gameState;
+}
+
+game* setPlayerLocations(game* gameState){
+
+    for(int i = 0; i <= gameState->playerCount; i++){
+        if(gameState->playerList[i].playerNumber == 1){
+            gameState->playerList[i].xcoord = 400;
+            gameState->playerList[i].ycoord = 360;            
+        }
+        else if(gameState->playerList[i].playerNumber == 2){
+            gameState->playerList[i].xcoord = 440;
+            gameState->playerList[i].ycoord = 400;            
+        }
+        else if(gameState->playerList[i].playerNumber == 3){
+            gameState->playerList[i].xcoord = 400;
+            gameState->playerList[i].ycoord = 440;           
+        }
+        else if(gameState->playerList[i].playerNumber == 4){
+            gameState->playerList[i].xcoord = 360;
+            gameState->playerList[i].ycoord = 400;           
+        }
+    
+    }
+    return gameState;
+}
 int main (void){
 
     game* gameState = NULL;
@@ -149,21 +262,19 @@ int main (void){
             player* newPlayer = NULL;
             
             // Add player to game
-            //addPlayer(game* gameState, int isHost, int playerNumber, char playerName[16]);
-            gameState = addPlayer(gameState, 1, 0, "asd");
+            //addPlayer(game* gameState, int playerNumber, char playerName[16]);
+            gameState = addPlayer(gameState, 0, "asd");
             
-            // Start the game when host is ready
-            //if(isHostReady() == 1){
-            //    break;
-            //}
+            // First player sends startGame and server calls hostReady function
+            // Function sets currentState to 2, "inGame"
+            if(gameState->currentState == 2){
+                break;
+            }
             
             // Wait 2 seconds before retry
             sleep(2);
         }
     }
-
-     
-     
      
     // Start the game
     startGame(gameState);
@@ -175,11 +286,7 @@ int main (void){
 }
 
 
-// Go to lobby state
-void startLobby(game* gameState){
 
-
-}
 
 /*
 
