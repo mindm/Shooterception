@@ -93,7 +93,7 @@ void setup_buttons() {
 
 void setup_itemlist() {
 	int i;
-	for(i = 0; i < 3; i++){
+	for(i=0;i<3;i++){
 		server_list[i] = malloc(sizeof(struct item));
 		server_list[i]->box.x = 240;
 		server_list[i]->box.y = 180+32*i;

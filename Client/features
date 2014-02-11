@@ -1,0 +1,8 @@
+Lista asioista, jotka on toteutettu Shooterception-peliin SDL-kirjastolla ja C:llä clientille. Makefile kääntää main-nimisen executablen, joka avaa pelin suoraan päävalikkoon.
+
+
+Päävalikko - Sisältää otsikon harmaalla taustalla sekä join, create game ja quit -napit. Tällä hetkellä join siirtyy clientin peliruutuun ja muut napit sammuttavat ohjelman.
+
+Peliruutu - 800x800px-ruudun taustalla ruohikko. Ruudulla on punapaitainen spritehahmo jota voi liikutella nuolinäppäimillä. Hahmolla on myös rintamasuunta, jota voi vaihtaa WASD-näppäimillä. Hahmo toistaa jatkuvasti 4 framen kävelyanimaatiota 4 eri rintamasuuntaan kääntyneenä. Välilyönnistä voi ampua rintamasuuntaan ja ruudulle ilmestyy 300px pitkä säde, joka kuvaa luodin matkaa ja aseen suuliekki piirretään myös. Säde toimii samalla törmäyksen havaitsemisessa.
+
+Ruudulla on vasemmassa yläkulmassa zombie, jonka yksinkertainen AI lähtee hitaasti kävelyttämään sitä pelaajahahmoa kohti. Pelaaja voi ampua zombien tähtäämällä ja painamalla välilyönti; olettaen että aseen säde osuu zombiin. Tämä on vasta kehitysvaiheen tekniikka ampua zombie, tullee muuttumaan. Zombiella on elämäpisteitä jota ampuminen kuluttaa, ja zombien kuollessa jäljelle jää verilammikko. Jos zombie menee pelaajan päälle, mitään ei tapahtu, koska hyökkäyskoodi puuttuu. Myös zombiella on 4 framen kävelyanimaatio.
