@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <netinet/in.h>
 
 /* ##### Packing functions #####*/
 
@@ -30,27 +31,26 @@ typedef struct t_player {
 /* Generic */
 //uint16_t getmessagetype(char *buf);
 int packMessageType(char *buf, uint8_t msgtype);
-int packAck();
+int packAck(char *buf);
 void cutSpace(char *ptr);
 
 
 /* Client to server messages */
-int packChatMessage(char *message);
-int packCreateGame(char *gameName, int maxPlayers, char *playerName);
-int packJoinGame(char *gameName, char *playerName);
-int packStartGame();
-int packClientState(int xcood, int ycood, int viewDirection,
-        bool hasShot, int messageNumber, int timeReply);
-int packClientExit();
+int packChatMessage(char *buf, char *message);
+int packCreateGame(char *buf, char *gameName, int maxPlayers, char *playerName);
+int packJoinGame(char *buf, char *gameName, char *playerName);
+int packStartGame(char *buf);
+int packClientState(char *buf, player playerInfo, int messageNumber/*, int timeReply*/);
+int packClientExit(char *buf);
 
 
 /* Server to client messages */
-int packLobbyState(); // Have to decide how to pack 1-4 namespace
-int packGameStart(int gameLevel);
-int packServerState(int playerCount, int enemyCount,
+int packLobbyState(char *buf, char *player1, char *player2, char *player3, char *player4); // Have to decide how to pack 1-4 namespace
+int packGameStart(char *buf, int gameLevel);
+int packServerState(char *buf, int playerCount, int enemyCount,
         int messageNumber, int timeSent); // Not ready
-int packChatRelay(char *message);
-int packError(int errorCode);
+int packChatRelay(char *buf, char *message);
+int packError(char *buf, int errorCode);
 
 
 /* Client to master messages */
@@ -65,7 +65,7 @@ int packServerName(int serverCount, char *IP, int port);
 
 /* Server to master messages */
 int packUpdateStats(int playerNumber);
-int packServerState(int serverAction);
+//int packServerState(int serverAction);
 
 
 /* ##### UnPacking functions #####*/
@@ -76,20 +76,20 @@ int packServerState(int serverAction);
 uint8_t getMessageType(char *buf);
 
 /* Client to server messages */
-void unpackChatMessage(char *message);
-void unpackCreateGame(char *gameName, int *maxPlayers, char *playerName);
-void unpackJoinGame(char *gameName, char *playerName);
-void unpackClientState(player *playerInfo, int *messageNumber); // Maybe a struct here??
+void unpackChatMessage(char *buf, char *message);
+void unpackCreateGame(char *buf, char *gameName, int *maxPlayers, char *playerName);
+void unpackJoinGame(char *buf, char *gameName, char *playerName);
+void unpackClientState(char *buf, player *playerInfo, int *messageNumber); // Maybe a struct here??
 
 
 
 /* Server to client messages */
-int unpackLobbyState(char *playernames ); // Not ready
-int unpackGameStart(int *gameLevel);
-int unpackServerState(int playerCount, int enemyCount,
+void unpackLobbyState(char *buf, char *name1, char *name2, char *name3, char *name4); // Not ready
+void unpackGameStart(char *buf, int *gameLevel);
+int unpackServerState(char *buf, int playerCount, int enemyCount,
         int messageNumber, int timeSent); // Struct here too
-int unpackChatRelay(char * message);
-int unpackError(int *errorCode);
+void unpackChatRelay(char *buf, char *message);
+int unpackError(char *buf, int *errorCode);
 
 
 /* Client to master messages */
@@ -103,7 +103,7 @@ int unpackServerName(int *serverCount, char *IP, int *port);
 
 /* Server to master messages */
 int unpackUpdateStats(int *playerNumber);
-int unpackServerState(int *serverAction);
+//int unpackServerState(int *serverAction);
 
 
 
