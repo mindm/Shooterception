@@ -86,18 +86,18 @@ int packStartGame()
     return 1;
 }
 
-int packClientState(struct playerInfo, int hasShot, int messageNumber, int timeReply)
+int packClientState(player playerInfo, int messageNumber/*, int timeReply*/)
 {
     uint8_t msgtype = 5; //change
     packmessagetype(buf, msgtype);
-    *(uint16_t*)&buf[1] = htons(playerInfo.xcood);
-    *(uint16_t*)&buf[3] = htons(playerInfo.ycood);
+    *(uint16_t*)&buf[1] = htons(playerInfo.xcoord);
+    *(uint16_t*)&buf[3] = htons(playerInfo.ycoord);
     *(uint16_t*)&buf[5] = htons(playerInfo.viewDirection);
     *(uint8_t*)&buf[7] = (playerInfo.hasShot);
     *(uint16_t*)&buf[8] = htons(messageNumber);
-    *(uint16_t*)&buf[10] = htons(timeReply);
+    //*(uint16_t*)&buf[10] = htons(timeReply);
     
-    return 12;
+    return 10;
 }
 
 int packClientExit()
@@ -112,14 +112,14 @@ int packClientExit()
 void unpackChatMessage(char *message)
 {
     memcpy(message, buf+1, 100);
-    cutSpace(message);
+    //cutSpace(message);
 }
 
 
 void unpackCreateGame(char *gameName, int *maxPlayers, char *playerName)
 {
     memcpy(gameName, buf+1, 16);
-    *maxPlayers = ntohs(*(uint8_t*)&buf[17]);
+    *maxPlayers = (*(uint8_t*)&buf[17]);
     memcpy(playerName, buf+18, 16);
     
     cutSpace(gameName);
@@ -135,10 +135,13 @@ void unpackJoinGame(char *gameName, char *playerName)
     cutSpace(playerName);
 }
     
-void unpackClientState(int *xcood, int *ycood, int *viewDirection,
-        bool *hasShot, int *messageNumber, int *timeReply)
+void unpackClientState(player *playerInfo, int *messageNumber/*, int *timeReply*/)
 {
-    /*not ready*/
+    playerInfo->xcoord = ntohs(*(uint16_t*)&buf[1]);
+    playerInfo->ycoord = ntohs(*(uint16_t*)&buf[3]);
+    playerInfo->viewDirection = ntohs(*(uint16_t*)&buf[5]);
+    playerInfo->hasShot = (*(uint8_t*)&buf[7]);
+    *messageNumber = ntohs(*(uint16_t*)&buf[8]);
 }
     
 
@@ -154,16 +157,35 @@ int packLobbyState(char *player1, char *player2, char *player3, char *player4)
     int p2_len = strlen(player2);
     int p3_len = strlen(player3);
     int p4_len = strlen(player4);
-    strcpy(buf+1, player1, p1_len);
-    memcpy(buf+1+p1_len, " ", 16 - p1_len);
-    strcpy(buf+17, player2, p2_len);
-    memcpy(buf+17+p2_len, " ", 16 - p2_len);
-    strcpy(buf+33, player3, p3_len);
-    memcpy(buf+33+p3_len, " ", 16 - p3_len);
-    strcpy(buf+49, player4, p4_len);
-    memcpy(buf+49+p4_len, " ", 16 - p4_len);
+    memcpy(buf+1, player1, p1_len);
+    memset(buf+1+p1_len, " ", 16 - p1_len);
+    memcpy(buf+17, player2, p2_len);
+    memset(buf+17+p2_len, " ", 16 - p2_len);
+    memcpy(buf+33, player3, p3_len);
+    memset(buf+33+p3_len, " ", 16 - p3_len);
+    memcpy(buf+49, player4, p4_len);
+    memset(buf+49+p4_len, " ", 16 - p4_len);
 
     return (1 + 16*4);
+}
+
+int packGameStart(int gameLevel)
+{
+    uint8_t msgtype = 5; //change
+    packmessagetype(buf, msgtype);
+    *(uint8_t*)&buf[1] = (gameLevel);
+    
+    return 2;
+}
+
+int packChatRelay(char *message)
+{
+    uint8_t msgtype = 5; //change
+    packmessagetype(buf, msgtype);
+    int msg_len = strlen(message);
+    memcpy(buf+1, message, msg_len+1);
+    
+    return 2+msg_len;
 }
 
 void unpackLobbyState(char *name1, char *name2, char *name3, char *name4)
@@ -184,8 +206,17 @@ void unpackLobbyState(char *name1, char *name2, char *name3, char *name4)
     
 }
 
+void unpackGameStart(int *gameLevel)
+{
+    *gameLevel = (*(uint8_t*)&buf[1]);
+}
 
-int packerror(char *buf, int code, char *message)
+void unpackChatRelay(char *message)
+{
+    strcpy(message, buf+1);
+}
+
+int packError(char *buf, int code, char *message)
 {
 	uint16_t msgtype = 1000;
 	packmessagetype(buf, msgtype);

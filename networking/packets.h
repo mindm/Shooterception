@@ -8,9 +8,24 @@
 #ifndef PACKETS_H_
 #define PACKETS_H_
 
-#include "generic.h"
+//#include "generic.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
 
 /* ##### Packing functions #####*/
+
+typedef struct t_player {
+    int xcoord; // X coordinate, upper left corner
+    int ycoord; // Y coordinate, upper left corner
+    int viewDirection; // Direction the PC is facing, 0-359 degrees
+    int health; // Three Health points, third hit kills
+    uint8_t hasShot; // Has the player shot after sending the last clientState
+    int isHost; // Is the player the host - 0: False, 1: True
+    int playerNumber; // Player's number
+    char* playerName; // Player's name
+} player;
 
 /* Generic */
 //uint16_t getmessagetype(char *buf);
@@ -34,7 +49,7 @@ int packLobbyState(); // Have to decide how to pack 1-4 namespace
 int packGameStart(int gameLevel);
 int packServerState(int playerCount, int enemyCount,
         int messageNumber, int timeSent); // Not ready
-int packChatRelay(char * message);
+int packChatRelay(char *message);
 int packError(int errorCode);
 
 
@@ -64,8 +79,7 @@ uint8_t getMessageType(char *buf);
 void unpackChatMessage(char *message);
 void unpackCreateGame(char *gameName, int *maxPlayers, char *playerName);
 void unpackJoinGame(char *gameName, char *playerName);
-void unpackClientState(int *xcood, int *ycood, int *viewDirection,
-        bool *hasShot, int *messageNumber, int *timeReply); // Maybe a struct here??
+void unpackClientState(player *playerInfo, int *messageNumber); // Maybe a struct here??
 
 
 
