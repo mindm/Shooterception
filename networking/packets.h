@@ -61,10 +61,10 @@ int packServerState(int serverAction);
 uint8_t getMessageType(char *buf);
 
 /* Client to server messages */
-int unpackChatMessage(char *message);
-int unpackCreateGame(char *gameName, int *maxPlayers, char *playerName);
-int unpackJoinGame(char *gameName, char *playerName);
-int unpackClientState(int *xcood, int *ycood, int *viewDirection,
+void unpackChatMessage(char *message);
+void unpackCreateGame(char *gameName, int *maxPlayers, char *playerName);
+void unpackJoinGame(char *gameName, char *playerName);
+void unpackClientState(int *xcood, int *ycood, int *viewDirection,
         bool *hasShot, int *messageNumber, int *timeReply); // Maybe a struct here??
 
 
