@@ -33,6 +33,7 @@ typedef struct t_player {
 //uint16_t getmessagetype(char *buf);
 int packMessageType(char *buf, uint8_t msgtype);
 int packAck(char *buf);
+uint8_t getmessagetype(char *buf);
 void cutSpace(char *ptr);
 
 

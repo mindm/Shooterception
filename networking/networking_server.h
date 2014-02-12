@@ -15,7 +15,7 @@
 #include "../generic.h"
 
 // The playerinfo struct
-typedef struct Player_n
+typedef struct player_n
 {
 	int number;
 	char address[INET6_ADDRSTRLEN];
@@ -23,7 +23,7 @@ typedef struct Player_n
 	struct sockaddr_storage their_addr;
 	int addr_size;
     
-} Player_n;
+} player_n;
 
 void *get_in_addr(struct sockaddr *sa);
 int get_in_port(struct sockaddr *sa);

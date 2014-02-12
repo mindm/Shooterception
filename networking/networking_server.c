@@ -6,7 +6,7 @@
 * Markku Painomaa (0358551) - markku.painomaa@lut.fi
 */
 
-#include "server.h"
+#include "networking_server.h"
 #include "packets.h"
 
 // I/O buffers
@@ -134,5 +134,7 @@ int main(int argc, char *argv[])
 		}
         
         int msgtype = getmessagetype(inbuf); // get messagetype
+        
+        printf("msgtype: %d\n", msgtype);
     
     }
