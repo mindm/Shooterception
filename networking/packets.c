@@ -1,21 +1,23 @@
-/* Joonas Blomberg 0342152 <joonas.blomberg@lut.fi>
- * packets.c
- *
- *
- * This file has all the packets, packing and unpacking
- */
+/*
+* CT30A5002 Games and Networking 2013-14
+* Authors:
+* Arttu Hanska (0342181) - arttu.hanska@lut.fi
+* Joonas Blomberg (0342152) - joonas.blomberg@lut.fi
+* Markku Painomaa (0358551) - markku.painomaa@lut.fi
+*/
+
 #include "packets.h"
 
 // Get messages type
 uint8_t getmessagetype(char *buf)
 {
-	uint8_t value = ntohs(*(uint8_t*)&buf[0]);
+	uint8_t value = (*(uint8_t*)&buf[0]);
 	return value;
 }
 // Pack messages type
 int packmessagetype(char *buf, uint8_t msgtype)
 {
-	*(uint8_t*)&buf[0] = htons(msgtype);
+	*(uint8_t*)&buf[0] = (msgtype);
 	return sizeof(uint8_t);
 }
 

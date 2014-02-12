@@ -31,125 +31,6 @@ int get_in_port(struct sockaddr *sa)
     return (((struct sockaddr_in6*)sa)->sin6_port);
 }
 
-// Structure for the "gamefield"
-struct Field {
-    char mat[6][7]; // The game matrix
-    int placed; // How many are placed to know when full
-};
-
-// This creates gamefield and sets all field cells to 'x'
-struct Field init_field(void){
-    struct Field gamefield;
-
-    int row, column;
-
-    for(column=0;column<7;column++)
-    {
-        for(row=0;row<6;row++)
-        {
-            gamefield.mat[row][column] = 'x';
-        }
-    }
-    return gamefield;
-}
-
-// Not my invention, got this from stackoverflow.com
-// http://stackoverflow.com/questions/4636575/win-conditions-for-a-connect-4-like-game
-// Adapted to C from C++
-int is_linear_match(struct Field *gamefield, int x, int y, int stepx, int stepy)
-{
-	// Value of starting position
-	char startvalue = gamefield->mat[x][y];
-	if (startvalue == 'x') return 0;
-
-	// Confirm if values after it match
-	for (int i = 1; i < 4; i++){
-		if (gamefield->mat[x+i * stepx][y + i * stepy] != startvalue)
-			return 0;
-	}
-	// If we got here then there was a match
-	return 1;
-}
-
-// These I made myself
-// Check horizontal from all possible starting points
-int is_horizontal_match(struct Field *gamefield)
-{
-	for(int i=0; i<6; i++)
-	{
-		for(int j=0; j<4; j++){
-			if (is_linear_match(gamefield, i, j, 0, 1) == 1)
-					return 1;
-		}
-	}
-	return 0;
-}
-// Check vertical from all possible starting points
-int is_vertical_match(struct Field *gamefield)
-{
-	for(int i=0; i<3; i++)
-	{
-		for(int j=0; j<7; j++){
-			if (is_linear_match(gamefield, i, j, 1, 0) == 1)
-					return 1;
-		}
-	}
-	return 0;
-}
-// Check diagonal down from all possible starting points
-int is_diagonal_down_match(struct Field *gamefield)
-{
-	for(int i=0; i<3; i++)
-	{
-		for(int j=0; j<4; j++){
-			if (is_linear_match(gamefield, i, j, 1, 1) == 1)
-					return 1;
-		}
-	}
-	return 0;
-}
-// Check diagonal up from all possible starting points
-int is_diagonal_up_match(struct Field *gamefield)
-{
-	for(int i=3; i<6; i++)
-	{
-		for(int j=0; j<4; j++){
-			if (is_linear_match(gamefield, i, j, -1, 1) == 1)
-					return 1;
-		}
-	}
-	return 0;
-}
-// Win condition check
-int win_condition_met(struct Field *gamefield)
-{
-	if (is_horizontal_match(gamefield) == 1) return 1;
-	if (is_vertical_match(gamefield) == 1) return 1;
-	if (is_diagonal_up_match(gamefield) == 1) return 1;
-	if (is_diagonal_down_match(gamefield) == 1) return 1;
-	return 0;
-}
-
-// Place game mark
-int insert_to_column(int col, struct Field *gamefield, Player player){
-
-	char marker;
-	if (player.number == 0) marker = '0';
-	else marker = '1';
-    int i;
-    int success = 0;
-    if(col >= 7) return 0;
-    for(i=5;i>=0;i--)
-    {
-        if (gamefield->mat[i][col] == 'x')
-        {
-            gamefield->mat[i][col] = marker;
-            success = 1;
-            break;
-        }
-    }
-    return success;
-}
 
 // Sends ok message
 void send_ok(Player player, int sock, int numplayers)
@@ -253,7 +134,6 @@ int main(int argc, char *argv[])
 	// who's turn
 	int turn = 0;
 
-	struct Field gamefield = init_field();
 
 	Player players[MAX_PLAYERS];
 	int numplayers = 0;
@@ -381,86 +261,9 @@ int main(int argc, char *argv[])
 			{
 				; // send errormessage
 			}
-		}
-		else if (msgtype == 2) // player ready
-		{
-			if(gamestate == 0){
-				//set player's state to ready
-				int pl = -1; // player
-				for (int i = 0; i<numplayers; i++)
-				{
-					// Which player
-					if(strcmp(ipstr, players[i].address) == 0 &&
-							p_port == players[i].port){
-						pl = i;
-						break;
-					}
-				}
-				if( pl != -1)
-				{
-					// Set status ready
-					players[pl].status = 1;
-					printf("player %d is ready\n", players[pl].number);
-				}
-				// next gamestate if all players are ready
-				if(all_ready(players, numplayers) == 1){
-					gamestate = 1;
-					printf("Game start\n");
-					send_start(players, sockfd, numplayers);
-					//send the turn message to the first player
-					send_turn(players[0], sockfd);
-
-				}
-			} else
-			{
-				; // send errormessage
-			}
-
-		}
-
-		else if (msgtype == 5){ //player placed mark
-			int pl = -1;
-			for (int i = 0; i<numplayers; i++)
-			{
-				// Which player
-				if(strcmp(ipstr, players[i].address) == 0 &&
-						p_port == players[i].port){
-					pl = i;
-					break;
-				}
-			}
-			// Check the right player turn
-			if (gamestate == 1 && turn == pl){
-				// Get column
-				int column;
-				column = unpackcolumn(inbuf);
-				// Place it
-				int success = insert_to_column(column, &gamefield, players[pl]);
-				if(success == 1)
-				{
-					// Check win after placement
-					if(win_condition_met(&gamefield) == 1){
-						gamestate = 2;
-						printf("Player %d won the game\n", turn);
-						// Send area
-						send_area(players, sockfd, numplayers, gamefield);
-						// Send win
-						send_win(players, sockfd, numplayers, turn);
-					}
-					else {
-						// Send area and turn
-						send_area(players, sockfd, numplayers, gamefield);
-						turn++;
-						if(turn == numplayers) turn = 0;
-						send_turn(players[turn], sockfd);
-					}
-				}
-			}
-			//wrong player
-			else{
-				; //send errormessage
-			}
 		}// end messagetype
+		
+		
 	} // end while
 
 	close(sockfd); // close socket
