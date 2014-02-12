@@ -29,15 +29,16 @@ int startGame(game* gameState){
             gameState = addEnemy(gameState);
             gameState->enemyCount += 1;
         }
-
-        // Update all player character locations
-        //updatePlayerLocation();
+        
+        // Update all player characters location, view direction and if the PC has shot
+        //gameState = updatePlayerInformation(gameState, xcoord, ycoord, viewDirection, hasShot);
+        gameState = updatePlayerInfo(gameState, 200, 200, UP, 0);
         
         // Update all enemy locations
-        //updateEnemyLocation();
+        gameState = updateEnemyLocations(gameState);
         
         // Have player character's shot and do they hit enemies
-        //checkHit();
+        gameState = checkHit(gameState);
         
         // Are player character and enemy colliding
         //checkCollision();
@@ -64,29 +65,180 @@ int startGame(game* gameState){
 }
 
 // Update PC location
-void updatePlayerLocation (void){
+game* updatePlayerInfo (game* gameState, int xcoord, int ycoord, int viewDirection, int hasShot){
 
+    int i = 0;
+/*  TODO: Implement with network integration
 
+    // Determine player number by comparing passed connectionInfo to variable in struct
+    for(i=0; i<gameState.playerCount;i++){
+        if(gameState->playerList[i].connectionInfo == passed connectionInfo{
+            break;
+    } 
+*/
+
+    // Check that PC is within game boundaries and update coordinates
+    if(xcoord==0){
+        gameState->playerList[i].xcoord = 0;
+    }
+    else if(xcoord==800){     
+        gameState->playerList[i].xcoord = 800;
+    }
+    else{
+        gameState->playerList[i].xcoord = xcoord;
+    }
+    if(ycoord==0){
+        gameState->playerList[i].ycoord = 0;
+    }
+    else if(ycoord==800){     
+        gameState->playerList[i].ycoord = 800;
+    }
+    else{
+        gameState->playerList[i].ycoord = ycoord;
+    }    
+
+    gameState->playerList[i].viewDirection = viewDirection;
+    gameState->playerList[i].hasShot = hasShot;
+
+    return gameState;
 }
 
 // Update enemy location
-void updateEnemyLocation (void){
+game* updateEnemyLocations (game* gameState){
 
+    for(int i = 0; i<gameState->enemyCount;i++){
+        // Calculate enemy distance to followed PC and move towards
+        if((gameState->playerList[gameState->enemyList[i].following].xcoord - gameState->enemyList[i].xcoord) < 0) {
+            gameState->enemyList[i].viewDirection = LEFT;            
+            gameState->enemyList[i].xcoord -= gameState->enemyList[i].speed;
+        } else{
+            gameState->enemyList[i].viewDirection = RIGHT;             
+            gameState->enemyList[i].xcoord += gameState->enemyList[i].speed;        
+        }
+        if((gameState->playerList[gameState->enemyList[i].following].ycoord - gameState->enemyList[i].ycoord) < 0) {
+            gameState->enemyList[i].viewDirection = UP;                        
+            gameState->enemyList[i].ycoord -= gameState->enemyList[i].speed;      
+        } else{
+            gameState->enemyList[i].viewDirection = DOWN;      
+            gameState->enemyList[i].ycoord += gameState->enemyList[i].speed;       
+        }
+    }
 
+    return gameState;
 }
 
 // Determine if enemy is shot - if PC has shot check if there are enemies on firing line
-void checkHit (void){
+game* checkHit (game* gameState){
+
+    int i = 0; // TODO Player number - this information is passed from networking
+    int k = 0;
+    int candidateNumber = 0;
+    int candidateDistance = 0;
+    enemy hitCandidates[19]; // Used to determine closest enemy
+        
+    // Check if PC hit enemy
+    for(int j=0;j<gameState->enemyCount;j++){
+   
+        // PC facing UP - same xcoord, PC has higher ycoord
+        if(gameState->playerList[i].viewDirection == UP){
+            if(gameState->playerList[i].xcoord == gameState->enemyList[j].xcoord && gameState->playerList[i].ycoord >= gameState->enemyList[j].ycoord){
+                // Enemy in hit line, add to hit candidates
+                hitCandidates[k] = gameState->enemyList[j];
+                k++;
+            }
+        }
+        // PC facing DOWN - same xcoord, PC has lower ycoord           
+        else if(gameState->playerList[i].viewDirection == DOWN){
+            if(gameState->playerList[i].xcoord == gameState->enemyList[j].xcoord && gameState->playerList[i].ycoord <= gameState->enemyList[j].ycoord){
+                // Enemy in hit line, add to hit candidates
+                hitCandidates[k] = gameState->enemyList[j];
+                k++;
+            }                
+        }
+        // PC facing RIGHT - same ycoord, PC has lower xcoord                
+        else if(gameState->playerList[i].viewDirection == RIGHT){
+            if(gameState->playerList[i].ycoord == gameState->enemyList[j].ycoord && gameState->playerList[i].xcoord <= gameState->enemyList[j].xcoord){
+                // Enemy in hit line, add to hit candidates
+                hitCandidates[k] = gameState->enemyList[j];
+                k++;
+            }                 
+        }
+        // PC facing LEFT - same ycoord, PC has higher xcoord              
+        else if(gameState->playerList[i].viewDirection == LEFT){
+            if(gameState->playerList[i].ycoord == gameState->enemyList[j].ycoord && gameState->playerList[i].xcoord >= gameState->enemyList[j].xcoord){
+                // Enemy in hit line, add to hit candidates
+                hitCandidates[k] = gameState->enemyList[j];
+                k++;
+            }             
+        }           
+    }
+    
+    // Determine closest enemy in range
 
 
+    // PC facing UP - closest enemy has highest ycoord 
+    if(gameState->playerList[i].viewDirection == UP){  
+        candidateDistance = 0;
+        for(int z=0;z<k;z++){     
+            if(hitCandidates[z].ycoord >= candidateDistance){
+                candidateDistance = hitCandidates[z].ycoord;
+                candidateNumber = z;
+            }
+        }
+    }
+    // PC facing DOWN - closest enemy has lowest ycoord
+    else if(gameState->playerList[i].viewDirection == DOWN){   
+        candidateDistance = 800;
+        for(int z=0;z<k;z++){       
+            if(hitCandidates[z].ycoord <= candidateDistance){
+                candidateDistance = hitCandidates[z].ycoord;
+                candidateNumber = z;                
+            }
+        }        
+    }    
+    // PC facing RIGHT - closest enemy has lowest xcoord
+    else if(gameState->playerList[i].viewDirection == RIGHT){    
+        candidateDistance = 800;
+        for(int z=0;z<k;z++){      
+            if(hitCandidates[z].xcoord <= candidateDistance){
+                candidateDistance = hitCandidates[z].xcoord;
+                candidateNumber = z;                
+            }
+        }    
+    }
+    // PC facing LEFT - closest enemy has highest xcoord
+    else if(gameState->playerList[i].viewDirection == LEFT){  
+        candidateDistance = 0;
+        for(int z=0;z<k;z++){        
+            if(hitCandidates[z].xcoord >= candidateDistance){
+                candidateDistance = hitCandidates[z].xcoord;
+                candidateNumber = z;                
+            }
+       }     
+    }     
+    // Enemy hit, reduce Health points by 1
+    gameState->enemyList[candidateNumber].health -= 1;                                                 
+
+    // TODO: Add enemy death
+
+    return gameState;
 }
 
 // Function to determine if player character and enemy collide
-void checkCollision (void){
+game* checkCollision (game* gameState){
+    
+    // Loop through enemies and PCs and check if they're in same coordinate
+    for(int i=0;i<gameState->enemyCount;i++){
+        for(int j=0;j<gameState->playerCount;j++){
+            if(gameState->enemyList[i].xcoord == gameState->playerList[j].xcoord && gameState->enemyList[i].ycoord == gameState->playerList[j].ycoord){
+                // Enemy and PC collide, reduce PC's Health points by 1
+                gameState->playerList[j].health -= 1;
+            }
+        }
+    }
 
-
+    return gameState;
 }
-
 
 // Check end condition: all PCs are dead or enemyLimit and enemyCount are zero
 void checkEnd (void){
@@ -167,21 +319,25 @@ game* addEnemy(game* gameState){
     // Set new enemy parameters
     
     // Choose spawn border
-    if(randomXcoord == 0 && randomYcoord == 0){ // Top border
+    if(randomXborder == 0 && randomYborder == 0){ // Top border
         newEnemy[0].xcoord = randomXcoord;
         newEnemy[0].ycoord = 0;
+        newEnemy[0].viewDirection = DOWN;
     }
-    if(randomXcoord == 0 && randomYcoord == 1){ // Right border
+    if(randomXborder == 0 && randomYborder == 1){ // Right border
         newEnemy[0].xcoord = 800;
         newEnemy[0].ycoord = randomYcoord;
+        newEnemy[0].viewDirection = LEFT;
     }
-    if(randomXcoord == 1 && randomYcoord == 1){ // Bottom border
+    if(randomXborder == 1 && randomYborder == 1){ // Bottom border
         newEnemy[0].xcoord = randomXcoord;
         newEnemy[0].ycoord = 800;
+        newEnemy[0].viewDirection = UP;
     }
-    if(randomXcoord == 1 && randomYcoord == 0){ // Left border
+    if(randomXborder == 1 && randomYborder == 0){ // Left border
         newEnemy[0].xcoord = 0;
-        newEnemy[0].ycoord = randomYcoord;
+        newEnemy[0].ycoord = randomYborder;
+        newEnemy[0].viewDirection = RIGHT;
     }        
     newEnemy[0].health = 3; // Initial Health points
    
@@ -243,6 +399,8 @@ game* setPlayerLocations(game* gameState){
 }
 int main (void){
 
+    // TODO Move these function calls to networking!
+
     game* gameState = NULL;
 
     // Game state for new game
@@ -259,7 +417,7 @@ int main (void){
         while(1){
         
             // Clean temporary variable
-            player* newPlayer = NULL;
+            //player* newPlayer = NULL;
             
             // Add player to game
             //addPlayer(game* gameState, int playerNumber, char playerName[16]);
@@ -290,60 +448,6 @@ int main (void){
 
 /*
 
-
-void move_enemies() {
-
-if(enemy->health <= 0)
-return;
-
-int x1, y1, x2, y2;
-
-x1 = player.b.x;
-y1 = player.b.y;
-
-x2 = enemy->b.x;
-y2 = enemy->b.y;
-
-//calculate x distance to player, move towards
-if((x1 - x2) < 0) {
-enemy->dir = LEFT;
-enemy->b.x -= EN_VEL;
-}
-else {
-enemy->dir = RIGHT;
-enemy->b.x += EN_VEL;
-}
-//calculate y distance, move towards
-if((y1 - y2) < 0){
-enemy->dir = UP;
-enemy->b.y -= EN_VEL;
-}
-else {
-enemy->dir = DOWN;
-enemy->b.y += EN_VEL;
-}
-}
-
-void move_player() {
-
-//left/right
-player.b.x += player.xVel;
-
-//screen left/right border
-if((player.b.x < 0) || (player.b.x + PC_DIMS > SCREEN_WIDTH)) {
-//move back
-player.b.x -= player.xVel;
-}
-
-// up/down
-player.b.y += player.yVel;
-
-//screen top/bottom border
-if((player.b.y < 0) || ( player.b.y + PC_DIMS > SCREEN_HEIGHT)) {
-//move back
-player.b.y -= player.yVel;
-}
-}
 
 int check_collision(SDL_Rect A, SDL_Rect B) {
 

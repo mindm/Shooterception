@@ -27,7 +27,7 @@
 typedef struct t_enemy {
     int xcoord; // X coordinate, upper left corner
     int ycoord; // Y coordinate, upper left corner
-    //int viewDirection; // Direction the enemy is facing and moving
+    int viewDirection; // Direction the enemy is facing and moving
     uint8_t health; // Enemy health - 0: Uninjured, 1: Injured, 2: Dead
     int following; // ID of the player the enemy is following
     int speed; // Enemy speed
@@ -43,6 +43,7 @@ typedef struct t_player {
     int isHost; // Is the player the host - 0: False, 1: True
     int playerNumber; // Player's number
     char* playerName; // Player's name
+    //player_n *connectionInfo; // pointer to struct containing sockaddr_storage
 } player;
 
 // Game struct
@@ -59,17 +60,18 @@ typedef struct t_game {
 } game;
 
 
-// Function to update enemy location
-void updateEnemyLocation (void);
-
 // Function to update PC location
-void updatePlayerLocation (void);
+// Params: game state, xcoord, ycoord, viewDirection, hasShot
+game* updatePlayerInfo (game*, int, int, int, int);
+
+// Function to update enemy location
+game* updateEnemyLocations (game*);
 
 // Funtion to determine if enemy is shot - if PC has shot check if there are enemies on firing line
-void checkHit (void);
+game* checkHit (game*);
 
 // Function to determine if player character and enemy collide
-void checkCollision (void);
+game* checkCollision (game*);
 
 // Check end condition: all PCs are dead or enemyLimit and enemyCount are zero
 void checkEnd (void);
