@@ -74,7 +74,7 @@ game* checkHit (game*);
 game* checkCollision (game*);
 
 // Check end condition: all PCs are dead or enemyLimit and enemyCount are zero
-void checkEnd (void);
+int checkEnd (game*);
 
 // Relay chat messages to all clients
 void relayChat (void); // Check if private message

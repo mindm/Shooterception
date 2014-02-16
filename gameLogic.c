@@ -41,16 +41,21 @@ int startGame(game* gameState){
         gameState = checkHit(gameState);
         
         // Are player character and enemy colliding
-        //checkCollision();
+        gameState = checkCollision(gameState);
         
         // Check end condition
-        //checkEnd();
+        if(checkEnd(gameState) == 1){
+            // Player's have won
+        }
+        else if(checkEnd(gameState) == 2){
+            // All PCs dead, game lost
+        }
         
         // Relay chat message to correct clients
         //relayChat();
         
         // Send game state to all clients
-        //sendGameState();
+        //sendGameState(gameState);
         
         
         // Framecap - implement without SDL_Delay
@@ -217,9 +222,17 @@ game* checkHit (game* gameState){
        }     
     }     
     // Enemy hit, reduce Health points by 1
-    gameState->enemyList[candidateNumber].health -= 1;                                                 
-
-    // TODO: Add enemy death
+    gameState->enemyList[candidateNumber].health -= 1;                 
+    
+    // Check if enemy dies
+    if(gameState->enemyList[candidateNumber].health == 0){
+        // Overwrite dead enemy and compress the array
+        for(int candidateNumber; candidateNumber < gameState->enemyCount; candidateNumber++){
+            gameState->enemyList[candidateNumber] = gameState->enemyList[candidateNumber+1];
+        }
+        gameState->enemyCount -= 1;
+        gameState->enemyLimit -= 1;
+    }                             
 
     return gameState;
 }
@@ -233,16 +246,40 @@ game* checkCollision (game* gameState){
             if(gameState->enemyList[i].xcoord == gameState->playerList[j].xcoord && gameState->enemyList[i].ycoord == gameState->playerList[j].ycoord){
                 // Enemy and PC collide, reduce PC's Health points by 1
                 gameState->playerList[j].health -= 1;
+                // Check if PC dies
+                if(gameState->playerList[j].health == 0;){
+                    // TODO: What happens when PC's health goes to 0?
+                }
             }
         }
     }
+
 
     return gameState;
 }
 
 // Check end condition: all PCs are dead or enemyLimit and enemyCount are zero
-void checkEnd (void){
+int checkEnd (game* gameState){
 
+    int deadPlayers = 0;
+    
+    // All enemies defeated, level completed
+    if(gameState->enemyLimit == 0){
+        return 1;
+    }
+    
+    for(int i=0;i<=gameState->playerCount;i++){
+        if(gameState->playerList[i].health == 0){
+            deadPlayers += 1;
+            // All PCs defeated, game lost
+            if (deadPlayers == gameState->playerCount){
+                return 2;
+            }
+        }
+    }
+    
+    // Game continues
+    return 0;
 
 }
 
