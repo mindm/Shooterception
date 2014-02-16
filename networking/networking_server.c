@@ -42,6 +42,7 @@ int main(int argc, char *argv[])
 	char ipstr[INET6_ADDRSTRLEN]; //Store ip-address
 	int p_port; //store port
 	int sockfd, numbytes;
+    int status, yes;
 
 	// For parsing options
 	extern char *optarg;
