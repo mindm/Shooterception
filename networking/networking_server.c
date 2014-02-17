@@ -161,16 +161,14 @@ int main(int argc, char *argv[])
 				buf[numbytes] = '\0';
 				uint8_t msgtype = getmessagetype(buf); //unpack messagetype
                                 
-                tempAddress.address = get_in_addr(their_addr);
-                tempAddress.port = get_in_port(their_addr);
-                tempAddress.their_addr = their_addr;
-                tempAddress.addr_size = sizeof(their_addr);
+                tempAddress[0].address = get_in_addr(their_addr);
+                tempAddress[0].port = get_in_port(their_addr);
+                tempAddress[0].their_addr = their_addr;
+                tempAddress[0].addr_size = sizeof(their_addr);
 
                 // Create game
                 if(msgtype == 1)
                 {
-
-                    
                     unpackCreateGame(inbuf, gameName, &maxPlayers, playerName);
 
                     // Game state for new game
@@ -181,21 +179,21 @@ int main(int argc, char *argv[])
                     
                     // Add player to game
                     //addPlayer(game* gameState, player_n, char playerName[16]);
-                    gameState = addPlayer(gameState, tempAddress, playerName);
+                    gameState = addPlayer(gameState, tempAddress[0], playerName);
                     
-                    // Send lobbyState
-                    packLobbyState(outbuf, char *player1, "", "", "")  
-                    sendto(sock, outbuf, packetSize, 0,(struct sockaddr *)&their_addr, player.addr_size);
-                          
+                    // Send lobbyState - only one player at the moment
+                    int size = packLobbyState(outbuf, char *player1, "", "", "")  
+                    setLenout(size);         
                 }
                 // Join game
                 else if(msgtype == 2)
                 {
-                    unpackJoinGame(inbuf, gameName, &maxPlayers, playerName);
+                    unpackJoinGame(inbuf, gameName, playerName);
+                    
                     // Add player to game
                     //addPlayer(game* gameState, int playerNumber, char playerName[16]);
                     gameState = addPlayer(gameState, tempAddress, playerName);
-                    updateLobby(gameState, outbuf);
+                    //updateLobby(gameState, outbuf);
                 
                 }
                 // Start game
