@@ -7,9 +7,10 @@
 */
 
 #define NAME_LEN 24
-#define CHAT_LEN 100
+#define MAX_LEN 100
+#define LOGSIZE 5
 
-/* Declarations */
+/* Fonts and colors */
 TTF_Font *title_font = NULL;
 TTF_Font *text_font = NULL;
 
@@ -17,23 +18,29 @@ SDL_Color textColor = { 255, 33, 0 };
 SDL_Color textShColor = { 0, 0, 0 };
 SDL_Color chatColor = { 0xFF, 0xFF, 0xFF };
 
-char textbuffer[NAME_LEN] = { 0 };
-char* name_string;
-char* chat_string;
-
+/* Text input */
 int textinput = 0;
 int textpos = 0;
 
+char textbuffer[MAX_LEN] = { 0 };
+char name_string[NAME_LEN] = { 0 };
+
+/* Chatlog */
+char chatlog[LOGSIZE][MAX_LEN];
+int logposition = 0;
+int logentries = 0;
+
 /* Functions */
 
-void setup_string_input(void);
-void handle_string_input(void);
+void setupStringInput(void);
+void handleStringInput(int);
+void addLog(char*, int);
+void printText(int, int, char*, SDL_Color);
+void printTitle(int, int, char*);
+void printStringInput(int, int, char*, SDL_Color);
+void resetInput(void);
 
-void print_text(int, int, char*, SDL_Color);
-void print_title(int, int, char*);
-void print_string_input(int, int, SDL_Color);
+char* itoa(int, char[]);
 
-char* itoa(int, char);
-
-void free_fonts(void);
+void freeFonts(void);
 

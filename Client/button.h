@@ -46,13 +46,13 @@ struct button start_button;
 struct button up_button;
 struct button down_button;
 
-void setup_buttons(void);
-void setup_itemlist(void);
+void setupButtons(void);
+void setupItemlist(void);
 
-int handle_button(struct button, int, int);
-int handle_focus(struct item*, int, int);
+int handleButton(struct button, int, int);
+int handleFocus(struct item*, int, int);
 void focus(struct item*, int);
 
-void show_button(struct button);
+void showButton(struct button);
 
-void free_buttons(void);
+void freeButtons(void);

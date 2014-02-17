@@ -9,11 +9,11 @@
 #include "SDL/SDL.h"
 #include "timer.h"
 
-void init_timer() {
+void initTimer() {
 	start_ticks = SDL_GetTicks();
 }
 
-Uint32 delta_time() {
+Uint32 deltaTime() {
 
 	if(!start_ticks)
 		return (SDL_GetTicks() - start_ticks)*0.001f;

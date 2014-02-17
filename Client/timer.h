@@ -8,7 +8,7 @@
 
 Uint32 start_ticks = 0;
 
-void init_timer(void);
+void initTimer(void);
 
-Uint32 delta_time();
+Uint32 deltaTime();
 

@@ -9,7 +9,7 @@
 #include "SDL/SDL.h"
 #include "button.h"
 
-void setup_buttons() {
+void setupButtons() {
 
 	/* change into join game menu */
  	join_menu_button.image = load_image("join.gif");
@@ -91,9 +91,9 @@ void setup_buttons() {
 
 }
 
-void setup_itemlist() {
+void setupItemlist() {
 	int i;
-	for(i=0;i<3;i++){
+	for(i = 0; i < 3; i++){
 		server_list[i] = malloc(sizeof(struct item));
 		server_list[i]->box.x = 240;
 		server_list[i]->box.y = 180+32*i;
@@ -106,7 +106,7 @@ void setup_itemlist() {
 }
 
 /* check if button hitbox is clicked and return the appropriate button.action */
-int handle_button(struct button _button, int x, int y) {
+int handleButton(struct button _button, int x, int y) {
 
     if((x > _button.box.x) && (x < _button.box.x + _button.box.w) 
 		&& (y > _button.box.y) && (y < _button.box.y + _button.box.h)) {
@@ -118,7 +118,7 @@ int handle_button(struct button _button, int x, int y) {
 }
 
 /* check if button hitbox is clicked and return the appropriate button.action */
-int handle_focus(struct item *_focus, int x, int y) {
+int handleFocus(struct item *_focus, int x, int y) {
 
     if((x > _focus->box.x) && (x < _focus->box.x + _focus->box.w) 
 		&& (y > _focus->box.y) && (y < _focus->box.y + _focus->box.h)) {
@@ -136,14 +136,14 @@ void focus(struct item *_focus, int id) {
 		_focus->focused = 0;
 }
 
-void show_button(struct button _button) {
+void showButton(struct button _button) {
 
     apply_surface(_button.box.x, _button.box.y, _button.image, screen, NULL);
 }
 
 
 
-void free_buttons() {
+void freeButtons() {
 
 	SDL_FreeSurface(join_menu_button.image);
 	SDL_FreeSurface(create_menu_button.image);
@@ -156,7 +156,7 @@ void free_buttons() {
 
 }
 
-void free_itemlist(int n) {
+void freeItemlist(int n) {
 	int i;
 	for(i = 0; i < n; i++){
 		free(server_list[i]);
