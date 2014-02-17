@@ -6,18 +6,26 @@
 * Markku Painomaa (0358551) - markku.painomaa@lut.fi
 */
 
-#ifndef SERVER_H_
-#define SERVER_H_
+#ifndef CLIENT_H_
+#define CLIENT_H_
 
 #define MAXDATASIZE 512
-#define MAX_PLAYERS 4
 
 #include "../generic.h"
+#include "packets.h"
+
+// The playerinfo struct
+typedef struct player_n
+{
+	int number;
+	char address[INET6_ADDRSTRLEN];
+	int port;
+	struct sockaddr_storage their_addr;
+	int addr_size;
+    
+} player_n;
 
 void *get_in_addr(struct sockaddr *sa);
-int get_in_port(struct sockaddr *sa);
-void setLenout(int size);
-void setSendMask(int mask);
 
 
 #endif /* SERVER_H_ */

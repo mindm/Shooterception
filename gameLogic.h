@@ -11,6 +11,9 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
+#include "generic.h"
+#include "networking/packets.h"
+#include "networking/networking_server.h"
 
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 800
@@ -43,7 +46,7 @@ typedef struct t_player {
     int isHost; // Is the player the host - 0: False, 1: True
     int playerNumber; // Player's number
     char* playerName; // Player's name
-    //player_n *connectionInfo; // pointer to struct containing sockaddr_storage
+    player_n connectionInfo[0]; // pointer to struct containing sockaddr_storage
 } player;
 
 // Game struct
@@ -57,6 +60,8 @@ typedef struct t_game {
     int enemySpawnRate; // How quickly new enemies are spawned
     int enemyBaseSpeed; // Base speed for enemies
     int currentState; // 0: Waiting game, 1: inLobby, 2: inGame
+    int maxPlayers; // Maximum amount of players, 1-4
+    char* gameName[16];
 } game;
 
 
@@ -66,6 +71,8 @@ game* updatePlayerInfo (game*, int, int, int, int);
 
 // Function to update enemy location
 game* updateEnemyLocations (game*);
+
+void updateLobby(game *)
 
 // Funtion to determine if enemy is shot - if PC has shot check if there are enemies on firing line
 game* checkHit (game*);
@@ -109,3 +116,6 @@ game* setLevelParameters(game*);
 
 // Set players to initial positions
 game* setPlayerLocations(game*);
+
+// Determine player number based on connection info
+int getPlayerNumber(game*, player_n*);
