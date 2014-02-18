@@ -20,7 +20,7 @@ int main(int argc, char* args[]) {
 	int quit = 0;
 
 	/* actual menu state and temporal menu state */
-	int state = CREATE_MENU, _state = MAIN_MENU;
+	int state = MAIN_MENU, _state = MAIN_MENU;
 	int id = NOTHING, _id = NOTHING;
 
 	//number of players in created game
@@ -59,8 +59,9 @@ int main(int argc, char* args[]) {
 
 					if(event.button.button == SDL_BUTTON_LEFT) {
 						//temporal _state is used so we don't overwrite the actual state
-						if(_state = handleButton(join_menu_button, event.button.x, event.button.y))
+						if(_state = handleButton(join_menu_button, event.button.x, event.button.y)) {
 							state = _state;
+						}
 
 						if(_state = handleButton(create_menu_button, event.button.x, event.button.y))
 							state = _state;
@@ -535,7 +536,7 @@ void handlePlayerDamage(struct enemy *contact) {
 //handle damage inflicted BY PLAYER TO ENEMY
 void handleEnemyDamage(struct enemy *target) {
 
-	if(target->health <= 0) 
+	if(target->health <= 0)
 		return;
 
 	if(checkCollision(lineRect, target->b)) {

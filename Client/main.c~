@@ -20,7 +20,7 @@ int main(int argc, char* args[]) {
 	int quit = 0;
 
 	/* actual menu state and temporal menu state */
-	int state = CREATE_MENU, _state = MAIN_MENU;
+	int state = MAIN_MENU, _state = MAIN_MENU;
 	int id = NOTHING, _id = NOTHING;
 
 	//number of players in created game
@@ -257,8 +257,6 @@ int main(int argc, char* args[]) {
 				}
 
 				drawBackground();
-
-				
 
 				for(i = 0; i < MAX_EN; i++)	{		
 					moveEnemy(enemies[i]);

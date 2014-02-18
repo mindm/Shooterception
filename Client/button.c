@@ -91,6 +91,7 @@ void setupButtons() {
 
 }
 
+/* setup dummy server list */
 void setupItemlist() {
 	int i;
 	for(i = 0; i < 3; i++){
@@ -103,6 +104,8 @@ void setupItemlist() {
 		server_list[i]->focused = 0;
 		server_list[i]->name = "rolol";
 	}
+
+	server_list[0]->focused = 1; //first item is focused
 }
 
 /* check if button hitbox is clicked and return the appropriate button.action */
