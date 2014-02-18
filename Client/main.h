@@ -46,7 +46,7 @@
 
 SDL_Surface *background = NULL;
 SDL_Surface *screen = NULL;
-SDL_Surface *playerSurf = NULL;
+//SDL_Surface *playerSurf[4];
 SDL_Surface *enemySurf = NULL;
 SDL_Surface *fxSurf = NULL;
 SDL_Surface *hudSurf = NULL;
@@ -75,10 +75,11 @@ struct player {
 	SDL_Rect animHor[8];
 	SDL_Rect animVer[8];
 	SDL_Rect fx[6];
+	SDL_Surface *playerSurf;
 };
 
-struct player *player = NULL;
-//struct player *players[4];
+//struct player *player = NULL;
+struct player *players[4];
 
 /* Player 1 shooting line (rectangle which height or width should be 1px) */
 SDL_Rect lineRect;
@@ -101,7 +102,7 @@ struct enemy *enemies[MAX_EN];
 SDL_Surface *loadImage(char*);
 void applySurface(int, int, SDL_Surface*, SDL_Surface*, SDL_Rect*);
 void drawBackground(void);
-void drawHud(void);
+void drawHud(int);
 int init(void);
 int loadAssets(void);
 void freeAssets(void); 
@@ -109,11 +110,11 @@ void freeAssets(void);
 void setupPlayer(void);
 void setupEnemy(void);
 
-void handlePlayerInput(void);
-void movePlayer(void);
-void moveEnemy(struct enemy*);
-void shootBullet(void);
-void drawPlayer(void);
+void handlePlayerInput(int);
+void movePlayer(struct player*);
+void moveEnemy(struct enemy*, int, int, int);
+void shootBullet(struct player*);
+void drawPlayer(struct player*);
 void drawEnemy(struct enemy*);
 
 void handleEnemyDamage(struct enemy*);

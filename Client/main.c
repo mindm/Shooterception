@@ -16,7 +16,7 @@
 int main(int argc, char* args[]) { 
 
 	//srand (time(NULL));
-
+	char mem[1] = "m"; //dummy
 	int quit = 0;
 
 	/* actual menu state and temporal menu state */
@@ -120,14 +120,15 @@ int main(int argc, char* args[]) {
 			//server list box
 			SDL_FillRect(screen, &server_list_box, SDL_MapRGB(screen->format, 0x00, 0x00, 0x00));
 			printText(server_list_box.x, server_list_box.y+5, "|Name-------------------|Players|", textColor);
-			char mem[1] = "m";
+			
 			for(i = 0; i < 3; i++) {
 
 				if(server_list[i]->focused)
 					SDL_FillRect(screen, &server_list[i]->box, SDL_MapRGB(screen->format, 0x00, 0x66, 0x00));
 
-				printText(server_list[i]->box.x-20, server_list[i]->box.y, itoa(server_list[i]->id, mem), textColor);
+				printText(server_list[i]->box.x-30, server_list[i]->box.y, itoa(server_list[i]->id, mem), textColor);
 				printText(server_list[i]->box.x, server_list[i]->box.y, server_list[i]->name, textColor);
+				printText(server_list[i]->box.x+280, server_list[i]->box.y, "5/5", textColor);
 			}
 
         	showButton(join_button);
@@ -176,7 +177,6 @@ int main(int argc, char* args[]) {
 			SDL_FillRect(screen, &pl_num_box, SDL_MapRGB(screen->format, 0x00, 0x00, 0x00));
 			printText(275, pl_num_box.y+30, "Max players:", textColor);
 			
-			char mem[1] = "m"; //memory placeholder
 			printText(475, pl_num_box.y+30, itoa(pl_num, mem), textColor);
 
 			//game name box with prompt
@@ -184,7 +184,7 @@ int main(int argc, char* args[]) {
 			SDL_FillRect(screen, &game_name_box, SDL_MapRGB(screen->format, 0x00, 0x00, 0x00));
 			
 			//show the name
-			printStringInput(game_name_box.x, game_name_box.y+10, &name_string[0],textColor);
+			printStringInput(game_name_box.x, game_name_box.y+10, &name_string[0], textColor);
 			
 			showButton(create_button);
 			showButton(up_button);
@@ -228,7 +228,6 @@ int main(int argc, char* args[]) {
 			printText(225, server_list_box.y+30, "Game name: ", textColor);
 			printText(370, server_list_box.y+30, &name_string[0], textColor);
 			printText(225, server_list_box.y+60, "Max players: ", textColor);
-			char mem[1] = "m"; //memory placeholder
 			printText(400, server_list_box.y+60, itoa(pl_num, mem), textColor);
 			printText(225, server_list_box.y+90, "Players joined: ", textColor);
 
@@ -251,7 +250,7 @@ int main(int argc, char* args[]) {
 				initTimer();
 			 	while(SDL_PollEvent(&event)) {
 
-					handlePlayerInput();
+					handlePlayerInput(0); //index of controller
 
 					if(event.type == SDL_QUIT)
 						quit = 1;
@@ -260,34 +259,34 @@ int main(int argc, char* args[]) {
 				drawBackground();
 
 				for(i = 0; i < MAX_EN; i++)	{		
-					moveEnemy(enemies[i]);
+					moveEnemy(enemies[i], LEFT, 0, 0);
 					drawEnemy(enemies[i]);
 				}
 
-				//for(i = 0; i < pl_num; i++)	{
-					movePlayer();
-					drawPlayer();
-				//}
-				
-				drawHud(); // aka foreground
+				for(i = 0; i < pl_num; i++)	{
+					movePlayer(players[i]);
+					drawPlayer(players[i]);
 
-				if(player->shooting) {
+					if(players[i]->shooting) {
 
-					player->shoot_time -= 0.19;
+						players[i]->shoot_time -= 0.19;
 
-					if(player->shoot_time <= 0.0f) {
-						player->shooting = 0; //could be also empty if 
-					}
-					else {
-						shootBullet(); //just gfx shot
+						if(players[i]->shoot_time <= 0.0f) {
+							players[i]->shooting = 0; //could be also empty if 
+						}
+						else {
+							shootBullet(players[i]); //just gfx shot
 
-						for(i = 0; i < 20; i++)
-							handleEnemyDamage(enemies[i]); //calculate real shot
+							/*for(i = 0; i < 20; i++)
+								handleEnemyDamage(enemies[i]);*/
+						}
 					}
 				}
+				
+				drawHud(0); // aka foreground
 
-				for(i = 0; i < 20; i++)
-					handlePlayerDamage(enemies[i]);
+				/*for(i = 0; i < 20; i++)
+					handlePlayerDamage(enemies[i]);*/
 
 				//framecap							
 				if(deltaTime() < 1000/FPS) {
@@ -344,7 +343,6 @@ int loadAssets(void) {
 
 	//load the images
     background = loadImage("grassd.gif");
-	playerSurf = loadImage("player1.gif");
 	enemySurf = loadImage("enemy.gif");
 	fxSurf = loadImage("fx.gif");
 	hudSurf = loadImage("health.gif");
@@ -361,7 +359,7 @@ int loadAssets(void) {
 	en_death = Mix_LoadWAV("en_death.wav");
 
     //check errors
-    if(!(background || playerSurf || enemySurf || fxSurf))
+    if(!(background || enemySurf || fxSurf))
         return 0;
 
     if(!(pl_bang || en_bite || en_hit || pl_death || en_death))
@@ -371,11 +369,14 @@ int loadAssets(void) {
 
 void freeAssets(void) {
 
-	free(player);
-
 	int i;
 	for(i = 0; i < MAX_EN; i++) 
 		free(enemies[i]);
+
+	for(i = 0; i < 4; i++) {
+		SDL_FreeSurface(players[i]->playerSurf);
+		free(players[i]);
+	}
 
  	Mix_FreeChunk(pl_bang);
  	Mix_FreeChunk(en_bite);
@@ -390,7 +391,6 @@ void freeAssets(void) {
 	freeItemlist(3);
 
     SDL_FreeSurface(background);
-	SDL_FreeSurface(playerSurf);
 	SDL_FreeSurface(enemySurf);
 	SDL_FreeSurface(fxSurf);
 	SDL_FreeSurface(hudSurf);
@@ -406,58 +406,70 @@ void freeAssets(void) {
 
 void setupPlayer(void) {
 
-	if(!player)
-		player = malloc(sizeof(struct player));
+	int i, j;
+	int offset;
+	for(i = 0; i < 4; i++) {
 
-	player->frame = 4;
-	player->health = 3;
-	player->xVel = 0;
-	player->yVel = 0;
-	player->shooting = 0;
-	player->shoot_time = S_TIME;
-	player->dir = UP;
+		if(!players[i])
+			players[i] = malloc(sizeof(struct player));
+
+		switch(i) {
+			case 0: players[i]->playerSurf = loadImage("player1.gif"); break;
+			case 1: players[i]->playerSurf = loadImage("player2.gif"); break;
+			case 2: players[i]->playerSurf = loadImage("player3.gif"); break;
+			case 3: players[i]->playerSurf = loadImage("player4.gif"); break;
+		}
+
+		players[i]->frame = 4;
+		players[i]->health = 3;
+		players[i]->xVel = 0;
+		players[i]->yVel = 0;
+		players[i]->shooting = 0;
+		players[i]->shoot_time = S_TIME;
+		players[i]->dir = UP;
 	
-	/* collider box */
-	player->b.w = PC_DIMS;
-	player->b.h = PC_DIMS;
-	player->b.x = SCREEN_CX;
-	player->b.y = SCREEN_CY;
+		/* position */
+		players[i]->b.w = PC_DIMS;
+		players[i]->b.h = PC_DIMS;
+		players[i]->b.x = SCREEN_CX;
+		players[i]->b.y = SCREEN_CY;
 
-	/* shooting line collider */
-	lineRect.x = player->b.x + PC_DIMS*0.5;
-	lineRect.y = player->b.y-300;
-	lineRect.w = 1;
-	lineRect.h = 300;
+		/* shooting line collider */
+		lineRect.x = players[i]->b.x + PC_DIMS*0.5;
+		lineRect.y = players[i]->b.y-RANGE;
+		lineRect.w = 1;
+		lineRect.h = RANGE;
 
-	/* setup animations */
-	int offset = 0, i;
-	for(i = 0; i < 8; i++) {
-		player->animHor[i].x = offset;
-		player->animHor[i].y = 0;
-		player->animHor[i].w = PC_DIMS;
-		player->animHor[i].h = PC_DIMS;
+		/* setup animations */
+		offset = 0;
+		for(j = 0; j < 8; j++) {
+			players[i]->animHor[j].x = offset;
+			players[i]->animHor[j].y = 0;
+			players[i]->animHor[j].w = PC_DIMS;
+			players[i]->animHor[j].h = PC_DIMS;
 
-		offset += PC_DIMS;
-	}
+			offset += PC_DIMS;
+		}
 	
-	offset = 0;
-	for(i = 0; i < 8; i++) {
-		player->animVer[i].x = offset;
-		player->animVer[i].y = PC_DIMS;
-		player->animVer[i].w = PC_DIMS;
-		player->animVer[i].h = PC_DIMS;
+		offset = 0;
+		for(j = 0; j < 8; j++) {
+			players[i]->animVer[j].x = offset;
+			players[i]->animVer[j].y = PC_DIMS;
+			players[i]->animVer[j].w = PC_DIMS;
+			players[i]->animVer[j].h = PC_DIMS;
 
-		offset += PC_DIMS;
-	}
+			offset += PC_DIMS;
+		}
 
-	offset = 0;
-	for(i = 0; i < 6; i++) {
-		player->fx[i].x = offset;
-		player->fx[i].y = 0;
-		player->fx[i].w = 16;
-		player->fx[i].h = 16;
+		offset = 0;
+		for(j = 0; j < 6; j++) {
+			players[i]->fx[j].x = offset;
+			players[i]->fx[j].y = 0;
+			players[i]->fx[j].w = 16;
+			players[i]->fx[j].h = 16;
 
-		offset += 16;
+			offset += 16;
+		}
 	}
 }
 
@@ -472,6 +484,8 @@ void setupEnemy(void) {
 		enemies[i]->health = 3;
 		enemies[i]->dir = DOWN;
 		enemies[i]->frame = 0;
+
+		/* position */
 		enemies[i]->b.w = PC_DIMS;
 		enemies[i]->b.h = PC_DIMS;
 		enemies[i]->b.x = 0;//(rand() % 825) - 50;
@@ -514,7 +528,7 @@ void setupEnemy(void) {
 //handle damage inflicted BY ENEMY TO PLAYER
 void handlePlayerDamage(struct enemy *contact) {
 
-	if(contact->health <= 0 || player->health <= 0) 
+	/*if(contact->health <= 0 || player->health <= 0) 
 		return;
 
 	if(checkCollision(player->b, contact->b)) {
@@ -530,7 +544,7 @@ void handlePlayerDamage(struct enemy *contact) {
 		}
 		else	
 			Mix_PlayChannel(-1, en_bite, 0);
-	}
+	}*/
 }
 
 //handle damage inflicted BY PLAYER TO ENEMY
@@ -539,7 +553,7 @@ void handleEnemyDamage(struct enemy *target) {
 	if(target->health <= 0)
 		return;
 
-	if(checkCollision(lineRect, target->b)) {
+	/*if(checkCollision(lineRect, target->b)) {
 
 		//draw blood spatter
 		applySurface(target->b.x, target->b.y, fxSurf, screen, &target->fx[0]);
@@ -552,7 +566,7 @@ void handleEnemyDamage(struct enemy *target) {
 		}
 		else	
 			Mix_PlayChannel(-1, en_hit, 0);
-	}
+	}*/
 }
 
 SDL_Surface *loadImage(char* filename) { 
@@ -588,10 +602,10 @@ void drawBackground(void) {
     applySurface(400, 400, background, screen, NULL);
 }
 
-void drawHud(void) {
+void drawHud(int j) {
 
 	int i;	
-	for(i = 0; i < player->health; i++)
+	for(i = 0; i < players[j]->health; i++)
 		applySurface(20+(32*i), 16, hudSurf, screen, NULL);
 
 	/*debug
@@ -599,19 +613,19 @@ void drawHud(void) {
 		applySurface(20+(32*i), 750, hudSurf, screen, NULL);*/
 }
 
-void handlePlayerInput() {
+void handlePlayerInput(int i) {
 	if(event.type == SDL_KEYDOWN) {
 		switch(event.key.keysym.sym) { 
 
-			case SDLK_UP: 		player->yVel -= PC_VEL; 	break; 
-			case SDLK_DOWN: 	player->yVel += PC_VEL; 	break; 
-			case SDLK_LEFT: 	player->xVel -= PC_VEL; 	break; 
-			case SDLK_RIGHT: 	player->xVel += PC_VEL; 	break;
-			case SDLK_w: 		player->dir = UP; 			break; 
-			case SDLK_s: 		player->dir = DOWN; 		break; 
-			case SDLK_a: 		player->dir = LEFT; 		break; 
-			case SDLK_d: 		player->dir = RIGHT; 		break;
-			case SDLK_SPACE: 	player->shooting = 1; 		break;
+			case SDLK_UP: 		players[i]->yVel -= PC_VEL; 	break; 
+			case SDLK_DOWN: 	players[i]->yVel += PC_VEL; 	break; 
+			case SDLK_LEFT: 	players[i]->xVel -= PC_VEL; 	break; 
+			case SDLK_RIGHT: 	players[i]->xVel += PC_VEL; 	break;
+			case SDLK_w: 		players[i]->dir = UP; 			break; 
+			case SDLK_s: 		players[i]->dir = DOWN; 		break; 
+			case SDLK_a: 		players[i]->dir = LEFT; 		break; 
+			case SDLK_d: 		players[i]->dir = RIGHT; 		break;
+			case SDLK_SPACE: 	players[i]->shooting = 1; 		break;
 
 			case SDLK_9:		toggleGameMusic();		break;
 			case SDLK_0:		Mix_HaltMusic();			break; 
@@ -620,46 +634,46 @@ void handlePlayerInput() {
 	else if(event.type == SDL_KEYUP) {
 		switch(event.key.keysym.sym) { 
 
-			case SDLK_UP: 		player->yVel += PC_VEL; 		break; 
-			case SDLK_DOWN: 	player->yVel -= PC_VEL; 		break; 
-			case SDLK_LEFT: 	player->xVel += PC_VEL; 		break; 
-			case SDLK_RIGHT: 	player->xVel -= PC_VEL; 		break;
-			case SDLK_SPACE:	player->shooting = 0; 
-								player->shoot_time = S_TIME;	break; 
+			case SDLK_UP: 		players[i]->yVel += PC_VEL; 		break; 
+			case SDLK_DOWN: 	players[i]->yVel -= PC_VEL; 		break; 
+			case SDLK_LEFT: 	players[i]->xVel += PC_VEL; 		break; 
+			case SDLK_RIGHT: 	players[i]->xVel -= PC_VEL; 		break;
+			case SDLK_SPACE:	players[i]->shooting = 0; 
+								players[i]->shoot_time = S_TIME;	break; 
 		}
 	}
 }
 
-void movePlayer() {
+void movePlayer(struct player* _player) {
 
-	if(player->health <= 0) 
+	if(_player->health <= 0) 
 		return;
 
 	//left/right 
-	player->b.x += player->xVel; 
+	_player->b.x += _player->xVel; 
 	
 	//screen left/right border 
-	if((player->b.x < 0) || (player->b.x + PC_DIMS > SCREEN_WIDTH)) { 
+	if((_player->b.x < 0) || (_player->b.x + PC_DIMS > SCREEN_WIDTH)) { 
 		//move back 
-		player->b.x -= player->xVel; 
+		_player->b.x -= _player->xVel; 
 	} 
 
 	// up/down 
-	player->b.y += player->yVel;
+	_player->b.y += _player->yVel;
 
 	//screen top/bottom border
-	if((player->b.y < 0) || ( player->b.y + PC_DIMS > SCREEN_HEIGHT)) { 
+	if((_player->b.y < 0) || (_player->b.y + PC_DIMS > SCREEN_HEIGHT)) { 
 		//move back 
-		player->b.y -= player->yVel; 
+		_player->b.y -= _player->yVel; 
 	}
 }
 
-void moveEnemy(struct enemy *_enemy) {
+void moveEnemy(struct enemy *_enemy, int dir, int x, int y) {
 
 	if(_enemy->health <= 0) 
 		return;
 
-	int x1, y1, x2, y2;
+	/*int x1, y1, x2, y2;
 	
 	x1 = player->b.x;
 	y1 = player->b.y;
@@ -684,33 +698,33 @@ void moveEnemy(struct enemy *_enemy) {
 	else {
 		_enemy->dir = DOWN;
 		_enemy->b.y += EN_VEL;
-	}
+	}*/
 }
 
-void drawPlayer() {
+void drawPlayer(struct player* _player) {
 
-	if(player->health <= 0) {
+	if(_player->health <= 0) {
 		//draw corpse
-		applySurface(player->b.x, player->b.y, playerSurf, screen, &player->animVer[8]);
+		applySurface(_player->b.x, _player->b.y, _player->playerSurf, screen, &_player->animVer[8]);
 	}
 	else {
 		//draw movement
-		switch(player->dir){
+		switch(_player->dir){
 			case UP:
-				if(player->frame > 7) player->frame = 4;
-				applySurface(player->b.x, player->b.y, playerSurf, screen, &player->animVer[player->frame++]);
+				if(_player->frame > 7) _player->frame = 4;
+				applySurface(_player->b.x, _player->b.y, _player->playerSurf, screen, &_player->animVer[_player->frame++]);
 				break;
 			case DOWN:
-				if(player->frame > 3) player->frame = 0;
-				applySurface(player->b.x, player->b.y, playerSurf, screen, &player->animVer[player->frame++]);
+				if(_player->frame > 3) _player->frame = 0;
+				applySurface(_player->b.x, _player->b.y, _player->playerSurf, screen, &_player->animVer[_player->frame++]);
 				break;
 			case LEFT:
-				if(player->frame > 3) player->frame = 0;
-				applySurface(player->b.x, player->b.y, playerSurf, screen, &player->animHor[player->frame++]);
+				if(_player->frame > 3) _player->frame = 0;
+				applySurface(_player->b.x, _player->b.y, _player->playerSurf, screen, &_player->animHor[_player->frame++]);
 				break;
 			case RIGHT:
-				if(player->frame > 7) player->frame = 4;
-				applySurface(player->b.x, player->b.y, playerSurf, screen, &player->animHor[player->frame++]);
+				if(_player->frame > 7) _player->frame = 4;
+				applySurface(_player->b.x, _player->b.y, _player->playerSurf, screen, &_player->animHor[_player->frame++]);
 				break;
 		}
 	}
@@ -745,48 +759,48 @@ void drawEnemy(struct enemy* _enemy) {
 	}
 }
 
-void shootBullet() {
+void shootBullet(struct player* _player) {
 
-	if(player->health <= 0) 
+	if(_player->health <= 0) 
 		return;
 
 	//fx position
 	int x = 0, y = 0;
 
-	switch(player->dir){
+	switch(_player->dir){
 
 		case UP:
-			lineRect.x = player->b.x + PC_DIMS*0.5;
-			lineRect.y = player->b.y - RANGE;
-			x = player->b.x + 10;
-			y = player->b.y - 12;
+			lineRect.x = _player->b.x + PC_DIMS*0.5;
+			lineRect.y = _player->b.y - RANGE;
+			x = _player->b.x + 10;
+			y = _player->b.y - 12;
 			lineRect.w = 1;
 			lineRect.h = RANGE;
 			break;
 
 		case DOWN:
-			lineRect.x = player->b.x + PC_DIMS*0.5;
-			lineRect.y = player->b.y + PC_DIMS;
-			x = player->b.x + 8;
-			y = player->b.y + 28;
+			lineRect.x = _player->b.x + PC_DIMS*0.5;
+			lineRect.y = _player->b.y + PC_DIMS;
+			x = _player->b.x + 8;
+			y = _player->b.y + 28;
 			lineRect.w = 1;
 			lineRect.h = RANGE;
 			break;
 
 		case LEFT:
-			lineRect.x = player->b.x - RANGE;
-			lineRect.y = player->b.y + PC_DIMS*0.5;
-			x = player->b.x - 12;
-			y = player->b.y + 8;
+			lineRect.x = _player->b.x - RANGE;
+			lineRect.y = _player->b.y + PC_DIMS*0.5;
+			x = _player->b.x - 12;
+			y = _player->b.y + 8;
 			lineRect.w = RANGE;
 			lineRect.h = 1;
 			break;
 
 		case RIGHT:
-			lineRect.x = player->b.x + PC_DIMS;
-			lineRect.y = player->b.y + PC_DIMS*0.5;
-			x = player->b.x + 28;
-			y = player->b.y + 8;
+			lineRect.x = _player->b.x + PC_DIMS;
+			lineRect.y = _player->b.y + PC_DIMS*0.5;
+			x = _player->b.x + 28;
+			y = _player->b.y + 8;
 			lineRect.w = RANGE;
 			lineRect.h = 1;
 			break;
@@ -795,7 +809,7 @@ void shootBullet() {
 	//debug
 	SDL_FillRect(screen, &lineRect, SDL_MapRGB(screen->format, 255, 255, 255));
 	
-	applySurface(x, y, fxSurf, screen, &player->fx[player->dir]);
+	applySurface(x, y, fxSurf, screen, &_player->fx[_player->dir]);
 	Mix_PlayChannel(-1, pl_bang, 0);
 }
 
