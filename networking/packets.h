@@ -15,10 +15,11 @@
 #include <stdint.h>
 #include <string.h>
 #include <netinet/in.h>
+#include "../generic.h"
 
 /* ##### Packing functions #####*/
 
-typedef struct t_player {
+/*typedef struct t_player {
     int xcoord; // X coordinate, upper left corner
     int ycoord; // Y coordinate, upper left corner
     int viewDirection; // Direction the PC is facing, 0-359 degrees
@@ -27,6 +28,19 @@ typedef struct t_player {
     int isHost; // Is the player the host - 0: False, 1: True
     int playerNumber; // Player's number
     char* playerName; // Player's name
+} player; */
+
+// Player character stuct 
+typedef struct t_player {
+    int xcoord; // X coordinate, upper left corner
+    int ycoord; // Y coordinate, upper left corner
+    int viewDirection; // Direction the PC is facing, 0-359 degrees
+    int health; // Three Health points, third hit kills
+    uint8_t hasShot; // Has the player shot after sending the last clientState
+    int isHost; // Is the player the host - 0: False, 1: True
+    int playerNumber; // Player's number
+    char playerName[16]; // Player's name
+    player_n* connectionInfo; // pointer to struct containing sockaddr_storage
 } player;
 
 /* Generic */

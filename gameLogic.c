@@ -8,9 +8,9 @@
 
 #include "gameLogic.h"
 
-int startGame(game* gameState){
+int startGame(game* gameState, char outbuf[MAXDATASIZE]){
 
-    int spawnTimer = 0;
+    //int spawnTimer = 0;
     
     srand(time(NULL)); // Generate random seed for rand()
     
@@ -66,7 +66,7 @@ int startGame(game* gameState){
         //sleep(1);
     //}
     
-    int size = packGameStart(buf, 1);
+    int size = packStartGame(outbuf);
     setLenout(size);
 
     return 0;
@@ -242,7 +242,7 @@ game* checkCollision (game* gameState){
                 // Enemy and PC collide, reduce PC's Health points by 1
                 gameState->playerList[j].health -= 1;
                 // Check if PC dies
-                if(gameState->playerList[j].health == 0;){
+                if(gameState->playerList[j].health == 0){
                     // TODO: What happens when PC's health goes to 0?
                 }
             }
@@ -285,7 +285,7 @@ void relayChat (void){ // Check if private message
 }
 
 // New game state
-game* newGame(char *gameName, int maxPlayers) {
+game* newGame(char* gameName, int maxPlayers) {
 
     // Allocate game struct
     game *gameState = (game*)malloc(sizeof(game));
@@ -295,8 +295,8 @@ game* newGame(char *gameName, int maxPlayers) {
     gameState->playerCount = 1; // Number of players after the host joins
     gameState->enemyCount = 0; // Number of enemies on the game board
     gameState->levelNumber = 1; // Number of the game level (1-3), new game starts from 1
-    gameState->gameName = *gameName;
-    gameState->maxPlayers;
+    memcpy(gameState->gameName, gameName, strlen(gameName)+1);
+    gameState->maxPlayers = maxPlayers;
 
     return gameState;
 }
@@ -310,13 +310,12 @@ void freeGame(game* gameState) {
 
 game* addPlayer(game* gameState, player_n* connectionInfo, char* playerName){
 
-    // Allocate new player struct
-    //player *newPlayer = (player*)malloc(sizeof(player));
-
-    if(gameState->playerCount < 4){
+    // Check if player limit is full
+    if(gameState->playerCount < gameState->maxPlayers){
         player newPlayer[0];
         
-        playerNumber = getPlayerNumber(gameState, *connectionInfo);
+        // Get player number from connectionInfo
+        int playerNumber = getPlayerNumber(gameState, connectionInfo);
 
         // Set new player parameters
         newPlayer[0].xcoord = 0 ; // Initial X coordinate
@@ -325,6 +324,7 @@ game* addPlayer(game* gameState, player_n* connectionInfo, char* playerName){
         newPlayer[0].health = 3; // Initial Health points
         newPlayer[0].hasShot = 0; // Player has not shot
         newPlayer[0].connectionInfo = connectionInfo; // sockaddr_storage struct
+        //strcpy(newPlayer[0].connectionInfo, playerName);
         
         if(gameState->playerCount==0){
             newPlayer[0].isHost = 1; // First player, mark as host
@@ -334,7 +334,8 @@ game* addPlayer(game* gameState, player_n* connectionInfo, char* playerName){
         }
         
         newPlayer[0].playerNumber = gameState->playerCount; // Player's number
-        newPlayer[0].playerName = playerName; // Player's name     
+        //newPlayer[0].playerName = playerName; // Player's name  
+        memcpy(newPlayer[0].playerName, playerName, strlen(playerName)+1);   
         gameState->playerList[playerNumber] = newPlayer[0]; // Allocate new player
         
         // Increase number of players
@@ -347,16 +348,17 @@ game* addPlayer(game* gameState, player_n* connectionInfo, char* playerName){
 
 
 // Updates the lobby state to every player
-void udpateLobby(gameState *game char *buf){
+void updateLobby(game* gameState, char* buf){
     
     //Set array of array of chars and set values to \0
     char nameArray[4][16];
     memset(nameArray, '\0', 4*16*sizeof(char));
     
     // Write player names to array
-    for (int i = 0; i < game->playerCount; i++)
+    for (int i = 0; i < gameState->playerCount; i++)
     {
-        nameArray[i] = game->playerList[i].playerName;
+        memcpy(nameArray[i], gameState->playerList[i].playerName, strlen(gameState->playerList[i].playerName)+1);   
+        //nameArray[i] = gameState->playerList[i].playerName;
     }
 
     //Pack names
@@ -463,16 +465,16 @@ game* setPlayerLocations(game* gameState){
 
 int getPlayerNumber(game* gameState, player_n* connectionInfo){
 
+    int playerNumber = 100;
     for(int i=0;i<gameState->playerCount;i++){
         if(gameState->playerList[i].connectionInfo == connectionInfo){
             playerNumber = gameState->playerList[i].playerNumber;
             break;
         }
-
     }
-
     return playerNumber;
 }
+
 /*int main (void){
 
     // TODO Move these function calls to networking!
