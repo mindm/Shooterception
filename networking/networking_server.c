@@ -16,42 +16,58 @@ char inbuf[MAXDATASIZE];
 int lenout = 0;
 int sendMask = 100; // Mask to determine clients receiving packets - 100 = all
 
-// This handles IPv4 and IPv6 addresses dynamically
-void *get_in_addr(struct sockaddr *sa)
+// Get non-binary address, IPv4 or IPv6
+char* getInAddr(struct sockaddr *sa, char* ipstr)
 {
-    if (sa->sa_family == AF_INET) {
-        return &(((struct sockaddr_in*)sa)->sin_addr);
-    }
+    printf("Get address in non-binary form\n");
 
-    return &(((struct sockaddr_in6*)sa)->sin6_addr);
+    if (sa->sa_family == AF_INET) {
+        inet_ntop(AF_INET,&(((struct sockaddr_in*)sa)->sin_addr), ipstr, INET_ADDRSTRLEN);
+        
+    }
+    else if(sa->sa_family == AF_INET6){
+        inet_ntop(AF_INET6,&(((struct sockaddr_in6*)sa)->sin6_addr), ipstr, INET6_ADDRSTRLEN);
+    }
+    return ipstr;
 }
-// Same for port
-int get_in_port(struct sockaddr *sa)
+// Get port, IPv4 or IPv6
+int getInPort(struct sockaddr *sa, int p_port)
 {
+    printf("Get port\n");
+
     if (sa->sa_family == AF_INET) {
-        return (((struct sockaddr_in*)sa)->sin_port);
+        p_port = (((struct sockaddr_in*)sa)->sin_port);
     }
-
-    return (((struct sockaddr_in6*)sa)->sin6_port);
+    else if (sa->sa_family == AF_INET) {
+        p_port = (((struct sockaddr_in6*)sa)->sin6_port);
+    }
+    return p_port;
 }
-
-
 
 int main(int argc, char *argv[])
 {
+    printf("Start main\n");
+
 	// Some variables for connection
 	struct addrinfo hints, *res, *iter;
 	struct sockaddr_storage their_addr; // connector's address information
-	player_n tempAddress[0]; 
+	player_n* tempAddress = NULL; 
 	socklen_t sin_size; // address size
 	
     game* gameState = NULL; // Create game struct
-    
+  
+    fd_set readfds; // File descriptor sets for select
+    fd_set writefds;
+    int fdmax; // Maximum file descriptor number
+        
 	char ipstr[INET6_ADDRSTRLEN]; //Store ip-address
-	int p_port; //store port
-	int sockfd, numbytes;
-    int status, yes;
-
+	int p_port = 0; //store port
+	int sockfd = 0;
+	int size = 0;
+	int sentbytes = 0;
+    int status = 0;
+    int yes = 0;
+    int rval = 0;
     
 	// For parsing options
 	extern char *optarg;
@@ -93,7 +109,7 @@ int main(int argc, char *argv[])
     
 	if (!port)
 	{
-		printf("Some parameter is missing\n");
+		printf("Port is missing, give -p <port>\n");
 		return -1;
 	}
     
@@ -134,8 +150,10 @@ int main(int argc, char *argv[])
 	}
     
     freeaddrinfo(res); // Done with addrinfo
-
-	while(running)
+    
+    printf("Enter main loop\n");
+	
+	while(1)
 	{
 		FD_ZERO(&readfds); // Clear the sets of file descriptors
 		FD_ZERO(&writefds);
@@ -152,19 +170,26 @@ int main(int argc, char *argv[])
 			FD_SET(sockfd, &writefds);
 		}
 		// Block until input (no timeval)
+		// TODO: Add timeout
 		if ((rval = select(fdmax+1,&readfds,&writefds,NULL, NULL)) > 0) {
 
 			//listening socket got something
 			if(FD_ISSET(sockfd,&readfds)){
 			    sin_size = sizeof(their_addr);
-				numbytes = recvfrom(sockfd, buf, MAXDATASIZE-1, 0, (struct sockaddr *) &their_addr, &sin_size);
-				buf[numbytes] = '\0';
-				uint8_t msgtype = getmessagetype(buf); //unpack messagetype
-                                
-                tempAddress[0].address = get_in_addr(their_addr);
-                tempAddress[0].port = get_in_port(their_addr);
-                tempAddress[0].their_addr = their_addr;
-                tempAddress[0].addr_size = sizeof(their_addr);
+				sentbytes = recvfrom(sockfd, inbuf, MAXDATASIZE-1, 0, (struct sockaddr *) &their_addr, &sin_size);
+				inbuf[sentbytes] = '\0';
+				uint8_t msgtype = getmessagetype(inbuf); //unpack messagetype
+				
+				// Get non-binary address
+				getInAddr((struct sockaddr *) &their_addr,ipstr); 
+                memcpy(tempAddress->address, ipstr, INET6_ADDRSTRLEN);  
+                
+                // Get port
+                getInPort((struct sockaddr *) &their_addr,p_port);
+                tempAddress->port = p_port;
+                
+                tempAddress->their_addr = their_addr;
+                tempAddress->addr_size = sizeof(their_addr);				
 
                 // Create game
                 if(msgtype == 1)
@@ -177,13 +202,11 @@ int main(int argc, char *argv[])
                     // Change to inLobby state
                     gameState->currentState = 1;
                     
-                    // Add player to game
-                    //addPlayer(game* gameState, player_n, char playerName[16]);
-                    gameState = addPlayer(gameState, tempAddress[0], playerName);
+                    // Add first player to game
+                    gameState = addPlayer(gameState, tempAddress, playerName);
                     
-                    // Send lobbyState - only one player at the moment
-                    int size = packLobbyState(outbuf, char *player1, "", "", "")  
-                    setLenout(size);         
+                    // Update lobby and send lobbyState
+                    updateLobby(gameState, outbuf);       
                 }
                 // Join game
                 else if(msgtype == 2)
@@ -191,16 +214,15 @@ int main(int argc, char *argv[])
                     unpackJoinGame(inbuf, gameName, playerName);
                     
                     // Add player to game
-                    //addPlayer(game* gameState, int playerNumber, char playerName[16]);
                     gameState = addPlayer(gameState, tempAddress, playerName);
-                    //updateLobby(gameState, outbuf);
-                
+                    
+                    // Update lobby and send lobbyState
+                    updateLobby(gameState, outbuf);       
                 }
                 // Start game
                 else if(msgtype == 3)
                 {
-                    Startgame(gameState, outbuf);
-                    
+                    startGame(gameState, outbuf);
                 }
                 // Client state
                 else if(msgtype == 4)
@@ -226,35 +248,68 @@ int main(int argc, char *argv[])
 				printf("%d\n", msgtype);
 				
 			} // end read inputsocket
+			
 			// if something to output ->  send
 			if(FD_ISSET(sockfd,&writefds)){
 			    if(sendMask == 100){
-			        for(int i=0;i<=gameLogic->playerCount;i++){
-				        numbytes = sendto(sockfd, outbuf, lenout, 0, (struct sockaddr *) &(gameLogic->playerList[i].connectionInfo.their_addr), &(gameLogic->playerList[i].connectionInfo.addr_size);
+			        for(int i=0;i<=gameState->playerCount;i++){
+				        sentbytes = sendto(sockfd, outbuf, lenout, 0, (struct sockaddr *) &(gameState->playerList[i].connectionInfo->their_addr), gameState->playerList[i].connectionInfo->addr_size);
 			        }
-				    memset(outbuffer,'\0', MAXDATASIZE);
+				    memset(outbuf,'\0', MAXDATASIZE);
 				    lenout = 0;
 				} else{
-				    numbytes = sendto(sockfd, outbuf, lenout, 0, (struct sockaddr *) &(gameLogic->playerList[sendMask].connectionInfo.their_addr), &(gameLogic->playerList[sendMask].connectionInfo.addr_size);	
+				    sentbytes = sendto(sockfd, outbuf, lenout, 0, (struct sockaddr *) &(gameState->playerList[sendMask].connectionInfo->their_addr), gameState->playerList[sendMask].connectionInfo->addr_size);	
 				    sendMask = 100; // Reset value  			
 				    
 				} 
-			}
+			} 
 
-			// User gave some input
-			if(FD_ISSET(fileno(stdin),&readfds)){
-
-                //Input ??
-			}
-
-			// do game logic things here
+			// Game Logic here
+			
+         /*   // Spawn enemy if spawn rate allows and MAXENEMIES is not full
+            if(spawnTimer >= gameState->enemySpawnRate && gameState->enemyCount < MAXENEMIES){
+                // Spawn enemy to random border coordinate with level base speed and PC to follow
+                gameState = addEnemy(gameState);
+                gameState->enemyCount += 1;
+            }
+            
+            // Update all player characters location, view direction and if the PC has shot
+            //gameState = updatePlayerInformation(gameState, xcoord, ycoord, viewDirection, hasShot);
+            gameState = updatePlayerInfo(gameState, 200, 200, UP, 0);
+            
+            // Update all enemy locations
+            gameState = updateEnemyLocations(gameState);
+            
+            // Have player character's shot and do they hit enemies
+            gameState = checkHit(gameState);
+            
+            // Are player character and enemy colliding
+            gameState = checkCollision(gameState);
+            
+            // Check end condition
+            if(checkEnd(gameState) == 1){
+                // Player's have won
+            }
+            else if(checkEnd(gameState) == 2){
+                // All PCs dead, game lost
+            }
+            
+            // Relay chat message to correct clients
+            //relayChat();
+            
+            // Send game state to all clients
+            //sendGameState(gameState); */
 
 		}
 		// timeout not needed
 		//set new timevalues
 		//tv.tv_usec = 10000; //seconds
 		//ui_draw_console(cswin);
-	}
+		
+	} // End while loop
+	
+    // Cleanup after the game ends
+    freeGame(gameState);
     
 /*    while(1)
     {

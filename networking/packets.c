@@ -36,7 +36,7 @@ void cutSpace(char *ptr)
 // Pack acknowledgement message
 int packAck(char *buf)
 {
-    int msgtype = 0; //Whatever is type of ack
+    int msgtype = ACK;
     packmessagetype(buf, msgtype);
     return sizeof(uint8_t);
 }
@@ -44,7 +44,7 @@ int packAck(char *buf)
 //---Client methods---
 int packChatMessage(char *buf, char *message)
 {
-	uint8_t msgtype = 5; //change
+	uint8_t msgtype = CHATMESSAGE;
 	packmessagetype(buf, msgtype);
 	int msg_size = strlen(message);
 	memcpy(&buf[1], message, msg_size+1);
@@ -54,7 +54,7 @@ int packChatMessage(char *buf, char *message)
 
 int packCreateGame(char *buf, char *gameName, int maxPlayers, char *playerName)
 {
-    uint8_t msgtype = 5; //change
+    uint8_t msgtype = CREATEGAME;
     packmessagetype(buf, msgtype);
     int g_name_size = strlen(gameName);
     int p_name_size = strlen(playerName);
@@ -69,7 +69,7 @@ int packCreateGame(char *buf, char *gameName, int maxPlayers, char *playerName)
 
 int packJoinGame(char *buf, char *gameName, char *playerName)
 {
-    uint8_t msgtype = 5; //change
+    uint8_t msgtype = JOINGAME;
     packmessagetype(buf, msgtype);
     int g_name_size = strlen(gameName);
     int p_name_size = strlen(playerName);
@@ -83,14 +83,14 @@ int packJoinGame(char *buf, char *gameName, char *playerName)
 
 int packStartGame(char *buf)
 {
-    uint8_t msgtype = 5; //change
+    uint8_t msgtype = STARTGAME;
     packmessagetype(buf, msgtype);
     return 1;
 }
 
 int packClientState(char *buf, player playerInfo, int messageNumber/*, int timeReply*/)
 {
-    uint8_t msgtype = 5; //change
+    uint8_t msgtype = CLIENTSTATE;
     packmessagetype(buf, msgtype);
     *(uint16_t*)&buf[1] = htons(playerInfo.xcoord);
     *(uint16_t*)&buf[3] = htons(playerInfo.ycoord);
@@ -104,7 +104,7 @@ int packClientState(char *buf, player playerInfo, int messageNumber/*, int timeR
 
 int packClientExit(char *buf)
 {
-    uint8_t msgtype = 5; //change
+    uint8_t msgtype = CLIENTEXIT;
     packmessagetype(buf, msgtype);
     return 1;
 }
@@ -146,14 +146,13 @@ void unpackClientState(char *buf, player *playerInfo, int *messageNumber/*, int 
     *messageNumber = ntohs(*(uint16_t*)&buf[8]);
 }
     
-
-
+    
 
 /* Server messages */
 
 int packLobbyState(char *buf, char *player1, char *player2, char *player3, char *player4)
 {
-    uint8_t msgtype = 5; //change
+    uint8_t msgtype = LOBBYSTATE;
     packmessagetype(buf, msgtype);
     int p1_len = strlen(player1);
     int p2_len = strlen(player2);
@@ -173,7 +172,7 @@ int packLobbyState(char *buf, char *player1, char *player2, char *player3, char 
 
 int packGameStart(char *buf, int gameLevel)
 {
-    uint8_t msgtype = 5; //change
+    uint8_t msgtype = GAMESTART;
     packmessagetype(buf, msgtype);
     *(uint8_t*)&buf[1] = (gameLevel);
     
@@ -182,7 +181,7 @@ int packGameStart(char *buf, int gameLevel)
 
 int packChatRelay(char *buf, char *message)
 {
-    uint8_t msgtype = 5; //change
+    uint8_t msgtype = CHATRELAY;
     packmessagetype(buf, msgtype);
     int msg_len = strlen(message);
     memcpy(buf+1, message, msg_len+1);
@@ -193,6 +192,7 @@ int packChatRelay(char *buf, char *message)
 int packServerState(char *buf, int playerCount, int enemyCount,
         int messageNumber, int timeSent)
 {
+    //uint8_t msgtype = SERVERSTATE;
     printf("Not ready\n");
     
     return 0;
@@ -228,7 +228,7 @@ void unpackChatRelay(char *buf, char *message)
 
 int packError(char *buf, int errorCode)
 {
-    uint8_t msgtype = 5; //change
+    uint8_t msgtype = ERROR;
     packmessagetype(buf, msgtype);
     
     *(uint8_t*)&buf[1] = (errorCode);

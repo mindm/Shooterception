@@ -10,7 +10,8 @@
 
 int startGame(game* gameState, char outbuf[MAXDATASIZE]){
 
-    //int spawnTimer = 0;
+    // Change to state inGame
+    gameState->currentState = 2;
     
     srand(time(NULL)); // Generate random seed for rand()
     
@@ -19,52 +20,6 @@ int startGame(game* gameState, char outbuf[MAXDATASIZE]){
 
     // Set initial players locations
     gameState = setPlayerLocations(gameState);
-/*
-    while(1){
-        // Main game logic loop
-
-        // Spawn enemy if spawn rate allows and maxEnemies is not full
-        if(spawnTimer >= gameState->enemySpawnRate && gameState->enemyCount < maxEnemies){
-            // Spawn enemy to random border coordinate with level base speed and PC to follow
-            gameState = addEnemy(gameState);
-            gameState->enemyCount += 1;
-        }
-        
-        // Update all player characters location, view direction and if the PC has shot
-        //gameState = updatePlayerInformation(gameState, xcoord, ycoord, viewDirection, hasShot);
-        gameState = updatePlayerInfo(gameState, 200, 200, UP, 0);
-        
-        // Update all enemy locations
-        gameState = updateEnemyLocations(gameState);
-        
-        // Have player character's shot and do they hit enemies
-        gameState = checkHit(gameState);
-        
-        // Are player character and enemy colliding
-        gameState = checkCollision(gameState);
-        
-        // Check end condition
-        if(checkEnd(gameState) == 1){
-            // Player's have won
-        }
-        else if(checkEnd(gameState) == 2){
-            // All PCs dead, game lost
-        }
-        
-        // Relay chat message to correct clients
-        //relayChat();
-        
-        // Send game state to all clients
-        //sendGameState(gameState);
-        
-        */
-        // Framecap - implement without SDL_Delay
-        /*if(delta_time() < 1000/FPS) {
-            SDL_Delay((1000/FPS) - delta_time());
-        } */
-        
-        //sleep(1);
-    //}
     
     int size = packStartGame(outbuf);
     setLenout(size);
@@ -295,7 +250,7 @@ game* newGame(char* gameName, int maxPlayers) {
     gameState->playerCount = 1; // Number of players after the host joins
     gameState->enemyCount = 0; // Number of enemies on the game board
     gameState->levelNumber = 1; // Number of the game level (1-3), new game starts from 1
-    memcpy(gameState->gameName, gameName, strlen(gameName)+1);
+    memcpy(gameState->gameName, gameName, GAMENAME_LENGTH);
     gameState->maxPlayers = maxPlayers;
 
     return gameState;
@@ -312,7 +267,7 @@ game* addPlayer(game* gameState, player_n* connectionInfo, char* playerName){
 
     // Check if player limit is full
     if(gameState->playerCount < gameState->maxPlayers){
-        player newPlayer[0];
+        player newPlayer[1];
         
         // Get player number from connectionInfo
         int playerNumber = getPlayerNumber(gameState, connectionInfo);
@@ -323,8 +278,6 @@ game* addPlayer(game* gameState, player_n* connectionInfo, char* playerName){
         newPlayer[0].viewDirection = 0; // Initial direction the PC is facing
         newPlayer[0].health = 3; // Initial Health points
         newPlayer[0].hasShot = 0; // Player has not shot
-        newPlayer[0].connectionInfo = connectionInfo; // sockaddr_storage struct
-        //strcpy(newPlayer[0].connectionInfo, playerName);
         
         if(gameState->playerCount==0){
             newPlayer[0].isHost = 1; // First player, mark as host
@@ -334,8 +287,8 @@ game* addPlayer(game* gameState, player_n* connectionInfo, char* playerName){
         }
         
         newPlayer[0].playerNumber = gameState->playerCount; // Player's number
-        //newPlayer[0].playerName = playerName; // Player's name  
-        memcpy(newPlayer[0].playerName, playerName, strlen(playerName)+1);   
+        memcpy(newPlayer[0].playerName, playerName, PLAYERNAME_LENGTH); // Player's name
+        newPlayer[0].connectionInfo = connectionInfo; // sockaddr_storage struct        
         gameState->playerList[playerNumber] = newPlayer[0]; // Allocate new player
         
         // Increase number of players
@@ -345,7 +298,6 @@ game* addPlayer(game* gameState, player_n* connectionInfo, char* playerName){
   
     return gameState;
 }
-
 
 // Updates the lobby state to every player
 void updateLobby(game* gameState, char* buf){
@@ -357,18 +309,12 @@ void updateLobby(game* gameState, char* buf){
     // Write player names to array
     for (int i = 0; i < gameState->playerCount; i++)
     {
-        memcpy(nameArray[i], gameState->playerList[i].playerName, strlen(gameState->playerList[i].playerName)+1);   
-        //nameArray[i] = gameState->playerList[i].playerName;
+        memcpy(nameArray[i], gameState->playerList[i].playerName, PLAYERNAME_LENGTH);   
     }
 
     //Pack names
     int size = packLobbyState(buf, nameArray[0], nameArray[1], nameArray[2], nameArray[3]);
     setLenout(size);
-}
-
-game* hostReady(game* gameState){
-    gameState->currentState = 2;
-    return gameState;
 }
 
 game* addEnemy(game* gameState){
@@ -379,7 +325,7 @@ game* addEnemy(game* gameState){
     int randomXcoord = rand() % 800; // Choose random border from x axis
     int randomYcoord = rand() % 800; // Choose random border from y axis
     
-    enemy newEnemy[0];
+    enemy newEnemy[1];
     
     // Set new enemy parameters
     
@@ -474,49 +420,3 @@ int getPlayerNumber(game* gameState, player_n* connectionInfo){
     }
     return playerNumber;
 }
-
-/*int main (void){
-
-    // TODO Move these function calls to networking!
-
-    game* gameState = NULL;
-
-    // Game state for new game
-    gameState = newGame();  
-
-    // Change to inLobby state
-    gameState->currentState = 1;
-
-    
-    // Check if in lobby state
-    if(gameState->currentState == 1){
-    
-        // Waiting in lobby for players and game start
-        while(1){
-        
-            // Clean temporary variable
-            //player* newPlayer = NULL;
-            
-            // Add player to game
-            //addPlayer(game* gameState, int playerNumber, char playerName[16]);
-            gameState = addPlayer(gameState, 0, "asd");
-            
-            // First player sends startGame and server calls hostReady function
-            // Function sets currentState to 2, "inGame"
-            if(gameState->currentState == 2){
-                break;
-            }
-            
-            // Wait 2 seconds before retry
-            sleep(2);
-        }
-    }
-     
-    // Start the game
-    startGame(gameState);
-    
-    // Cleanup after the game ends
-    freeGame(gameState);
-    
-    return 0;
-} */

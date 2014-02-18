@@ -6,7 +6,6 @@
 *   Markku Painomaa (0358551) - markku.painomaa@lut.fi
 */
 
-
 #ifndef __TCPEX_GEN_H
 #define __TCPEX_GEN_H
 
@@ -22,16 +21,83 @@
 #include <string.h>
 #include <stdint.h>
 
-// The playerinfo struct
+#define SCREEN_WIDTH 800
+#define SCREEN_HEIGHT 800
+#define MAXENEMIES 20
+#define COOLDOWN 0.5 // Cooldown for shooting
+
+// View directions
+#define UP 0
+#define DOWN 1
+#define LEFT 2
+#define RIGHT 3
+
+#define GAMENAME_LENGTH 16
+#define PLAYERNAME_LENGTH 16
+#define CHATMESSAGE_LENGTH 100
+
+// Packet types
+// Client
+#define CHATMESSAGE 6
+#define CREATEGAME 1
+#define JOINGAME 2
+#define STARTGAME 3
+#define CLIENTSTATE 4
+#define CLIENTEXIT 5
+// Server
+#define LOBBYSTATE 21
+#define GAMESTART 22
+#define SERVERSTATE 23
+#define CHATRELAY 24
+#define ERROR 100
+//Both
+#define ACK 0
+
+// connectionInfo struct
 typedef struct player_n
 {
 	char address[INET6_ADDRSTRLEN];
 	int port;
 	struct sockaddr_storage their_addr;
-	int addr_size;
+	socklen_t addr_size;
 } player_n;
 
+// Enemy struct
+typedef struct t_enemy {
+    int xcoord; // X coordinate, upper left corner
+    int ycoord; // Y coordinate, upper left corner
+    int viewDirection; // Direction the enemy is facing and moving
+    uint8_t health; // Enemy health - 0: Uninjured, 1: Injured, 2: Dead
+    int following; // ID of the player the enemy is following
+    int speed; // Enemy speed
+} enemy;
+
+// Player character stuct 
+typedef struct t_player {
+    int xcoord; // X coordinate, upper left corner
+    int ycoord; // Y coordinate, upper left corner
+    int viewDirection; // Direction the PC is facing, 0-359 degrees
+    int health; // Three Health points, third hit kills
+    uint8_t hasShot; // Has the player shot after sending the last clientState
+    int isHost; // Is the player the host - 0: False, 1: True
+    int playerNumber; // Player's number
+    char* playerName; // Player's name
+    player_n* connectionInfo; // pointer to struct containing sockaddr_storage
+} player;
+
+// Game struct
+typedef struct t_game {
+    player playerList[3]; // List of PCs in game
+    enemy enemyList[19]; // List of enemies in game
+    int playerCount; // Number of players in game
+    int enemyCount; // Number of enemies in game
+    int levelNumber; // Number of the game level, defines level parameters
+    int enemyLimit; // How many enemies current level will spawn
+    int enemySpawnRate; // How quickly new enemies are spawned
+    int enemyBaseSpeed; // Base speed for enemies
+    int currentState; // 0: Waiting game, 1: inLobby, 2: inGame
+    int maxPlayers; // Maximum amount of players, 1-4
+    char gameName[16];
+} game;
 
 #endif
-
-
