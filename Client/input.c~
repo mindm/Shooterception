@@ -9,24 +9,21 @@
 #include "SDL/SDL.h"
 #include "input.h"
 
-void setup_string_input(){
-
-	name_string = malloc(sizeof(char)*NAME_LEN);
-	name_string = textbuffer;
+void setupStringInput(){
 
 	//texts and fonts
 	title_font = TTF_OpenFont("OCR", 36);
 	text_font = TTF_OpenFont("OCR", 16);
 }
 
-void handle_string_input() {
+void handleStringInput(int length) {
 
     if(event.type == SDL_KEYDOWN) {
 
-        if(textpos < NAME_LEN) {
+        if(textpos < length) {
 
 			//space
-            if(event.key.keysym.unicode == (Uint16)' ' ){
+            if(event.key.keysym.unicode == (Uint16)' ') {
                 textbuffer[textpos] = (char)event.key.keysym.unicode;
 				textpos++;
 			}
@@ -48,6 +45,15 @@ void handle_string_input() {
                 textbuffer[textpos] = (char)event.key.keysym.unicode;
 				textpos++;
 			}
+
+			//enter (if this is chat, then add log, otherwise ignore)
+            else if(event.key.keysym.sym == SDLK_RETURN && length == MAX_LEN) {
+				textinput = 0;
+				if(textpos > 0) 
+					addLog(textbuffer, textpos);
+				textpos = 0;
+				memset(&textbuffer, 0, MAX_LEN);
+			}
         }
 
         //remove
@@ -56,17 +62,19 @@ void handle_string_input() {
 				textbuffer[textpos] = '\0';
 		}
 
-		if(textpos == NAME_LEN-1) {
-			textpos = 0;
+		//restrict length
+		if(textpos == length-1) {
+			textpos--;
 			textinput = 0;
 		}
 
-		name_string = textbuffer;
+		if(length == NAME_LEN)
+			memcpy(&name_string[0], textbuffer, textpos);
     }
 }
 
 /* add log from ncurses example */
-/*void add_log(char* message, int msglen) {
+void addLog(char* message, int msglen) {
 	// Log is less than maximum
 	if(logposition < LOGSIZE) {
 		memset(&chatlog[logposition][0], 0, MAX_LEN);
@@ -83,42 +91,47 @@ void handle_string_input() {
 		memcpy(&chatlog[LOGSIZE-1][0], message, msglen); // Replace the last with the new one
 		logentries++; // Increase counter
 	}
-}*/
+}
+
+void resetStringInput(void) { 
+	textpos = 0;
+	memset(&textbuffer, 0, MAX_LEN);
+}
 
 //prints size 16 font
-void print_text(int x, int y, char* str, SDL_Color color) {
+void printText(int x, int y, char* str, SDL_Color color) {
 
 	SDL_Surface* temp = TTF_RenderText_Solid(text_font, str, color);
 	
-	apply_surface(x, y, temp, screen, NULL);
+	applySurface(x, y, temp, screen, NULL);
 	
 	SDL_FreeSurface(temp);
 }
 
 //prints size 16 font
-void print_string_input(int x, int y, SDL_Color color) {
+void printStringInput(int x, int y, char* string, SDL_Color color) {
 
 
-	SDL_Surface* temp = TTF_RenderText_Solid(text_font, name_string, color);
+	SDL_Surface* temp = TTF_RenderText_Solid(text_font, string, color);
 	
-	apply_surface(x, y, temp, screen, NULL);
+	applySurface(x, y, temp, screen, NULL);
 	
 	SDL_FreeSurface(temp);
 }
 
 //prints size 36 font with cast shadow effect
-void print_title(int x, int y, char* str) {
+void printTitle(int x, int y, char* str) {
 
 	SDL_Surface* temp = TTF_RenderText_Solid(title_font, str, textShColor);
 	SDL_Surface* temp2 = TTF_RenderText_Solid(title_font, str, textColor);
 
-	apply_surface(x-2, y-2, temp, screen, NULL);
-	apply_surface(x, y, temp2, screen, NULL);
+	applySurface(x-2, y-2, temp, screen, NULL);
+	applySurface(x, y, temp2, screen, NULL);
 	
 	SDL_FreeSurface(temp); SDL_FreeSurface(temp2);
 }
 
-char* itoa(int i, char c) {
+char* itoa(int i, char c[]) {
 	
 	char* s = c;
 	sprintf(s, "%d", i);
@@ -126,8 +139,7 @@ char* itoa(int i, char c) {
 	return s;
 }
 
-void free_fonts() {
-
+void freeFonts() {
 
 	//free(name_string);
 

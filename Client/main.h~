@@ -9,6 +9,8 @@
 #ifndef __MAIN_H
 
 #include <stdio.h>
+#include <stdlib.h> 
+//#include <time.h>
 #include "SDL/SDL.h"
 #include "SDL/SDL_image.h"
 #include "SDL/SDL_ttf.h"
@@ -44,7 +46,7 @@
 
 SDL_Surface *background = NULL;
 SDL_Surface *screen = NULL;
-SDL_Surface *playerSurf = NULL;
+SDL_Surface *playerSurf[4];
 SDL_Surface *enemySurf = NULL;
 SDL_Surface *fxSurf = NULL;
 SDL_Surface *hudSurf = NULL;
@@ -75,8 +77,8 @@ struct player {
 	SDL_Rect fx[6];
 };
 
-struct player *player = NULL;
-//struct player *players[4];
+//struct player *player = NULL;
+struct player *players[4];
 
 /* Player 1 shooting line (rectangle which height or width should be 1px) */
 SDL_Rect lineRect;
@@ -96,29 +98,29 @@ struct enemy {
 struct enemy *enemies[MAX_EN];
 
 /* Function prototypes */
-SDL_Surface *load_image(char*);
-void apply_surface(int, int, SDL_Surface*, SDL_Surface*, SDL_Rect*);
-void draw_bground(void);
-void draw_hud(void);
+SDL_Surface *loadImage(char*);
+void applySurface(int, int, SDL_Surface*, SDL_Surface*, SDL_Rect*);
+void drawBackground(void);
+void drawHud(int);
 int init(void);
-int load_assets(void);
-void free_assets(void); 
+int loadAssets(void);
+void freeAssets(void); 
 
-void setup_player(void);
-void setup_enemy(void);
+void setupPlayer(void);
+void setupEnemy(void);
 
-void handle_player_input(void);
-void move_player(void);
-void move_enemy(struct enemy*);
-void shoot_bullet(void);
-void draw_player(void);
-void draw_enemy(struct enemy*);
+void handlePlayerInput(int);
+void movePlayer(struct player*);
+void moveEnemy(struct enemy*, int, int, int);
+void shootBullet(struct player*);
+void drawPlayer(struct player*);
+void drawEnemy(struct enemy*);
 
-void handle_enemy_damage(struct enemy*);
-void handle_player_damage(struct enemy*);
-int check_collision(SDL_Rect, SDL_Rect);
+void handleEnemyDamage(struct enemy*);
+void handlePlayerDamage(struct enemy*);
+int checkCollision(SDL_Rect, SDL_Rect);
 
-void toggle_menu_music(void);
-void toggle_game_music(void);
+void toggleMenuMusic(void);
+void toggleGameMusic(void);
 
 #endif

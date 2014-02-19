@@ -9,10 +9,10 @@
 #include "SDL/SDL.h"
 #include "button.h"
 
-void setup_buttons() {
+void setupButtons() {
 
 	/* change into join game menu */
- 	join_menu_button.image = load_image("join.gif");
+ 	join_menu_button.image = loadImage("join.gif");
 	join_menu_button.box.x = SCREEN_CX-125;
 	join_menu_button.box.y = 225;
 	join_menu_button.box.w = 250;
@@ -20,7 +20,7 @@ void setup_buttons() {
 	join_menu_button.action = JOIN_MENU;
 
 	/*join selected game button*/
- 	join_button.image = load_image("join.gif");
+ 	join_button.image = loadImage("join.gif");
 	join_button.box.x = SCREEN_CX-125;
 	join_button.box.y = 650;
 	join_button.box.w = 250;
@@ -28,7 +28,7 @@ void setup_buttons() {
 	join_button.action = GAME_LOBBY;
 
 	/* change into create game menu */
- 	create_menu_button.image = load_image("create.gif");
+ 	create_menu_button.image = loadImage("create.gif");
 	create_menu_button.box.x = SCREEN_CX-125;
 	create_menu_button.box.y = 350;
 	create_menu_button.box.w = 250;
@@ -36,14 +36,14 @@ void setup_buttons() {
 	create_menu_button.action = CREATE_MENU;
 
 	/* create game */
- 	create_button.image = load_image("create.gif");
+ 	create_button.image = loadImage("create.gif");
 	create_button.box.x = SCREEN_CX-125;
 	create_button.box.y = 650;
 	create_button.box.w = 250;
 	create_button.box.h = 100;
 	create_button.action = GAME_LOBBY;
 
- 	quit_menu_button.image = load_image("quit.gif");
+ 	quit_menu_button.image = loadImage("quit.gif");
 	quit_menu_button.box.x = SCREEN_CX-125;
 	quit_menu_button.box.y = 475;
 	quit_menu_button.box.w = 250;
@@ -51,7 +51,7 @@ void setup_buttons() {
 	quit_menu_button.action = QUIT;
 
 	/* start joined game from game lobby */
- 	start_button.image = load_image("start.gif");
+ 	start_button.image = loadImage("start.gif");
 	start_button.box.x = SCREEN_CX-125;
 	start_button.box.y = 650;
 	start_button.box.w = 250;
@@ -59,14 +59,14 @@ void setup_buttons() {
 	start_button.action = IN_GAME;
 
 	/* switch buttons for changing the num of players in create game menu*/
- 	up_button.image = load_image("arrow_up.gif");
+ 	up_button.image = loadImage("arrow_up.gif");
 	up_button.box.x = SCREEN_CX+130;
 	up_button.box.y = 268;
 	up_button.box.w = 48;
 	up_button.box.h = 43;
 	up_button.action = INC;
 
- 	down_button.image = load_image("arrow_down.gif");
+ 	down_button.image = loadImage("arrow_down.gif");
 	down_button.box.x = SCREEN_CX+130;
 	down_button.box.y = 353;
 	down_button.box.w = 48;
@@ -91,22 +91,23 @@ void setup_buttons() {
 
 }
 
-void setup_itemlist() {
+/* setup dummy server list */
+void setupItemlist() {
 	int i;
-	for(i=0;i<3;i++){
+	for(i = 0; i < 3; i++){
 		server_list[i] = malloc(sizeof(struct item));
 		server_list[i]->box.x = 240;
 		server_list[i]->box.y = 180+32*i;
 		server_list[i]->box.w = 350;
 		server_list[i]->box.h = 32;
 		server_list[i]->id = i+1;
-		server_list[i]->focused = 0;
+		server_list[i]->focused = 1;
 		server_list[i]->name = "rolol";
 	}
 }
 
 /* check if button hitbox is clicked and return the appropriate button.action */
-int handle_button(struct button _button, int x, int y) {
+int handleButton(struct button _button, int x, int y) {
 
     if((x > _button.box.x) && (x < _button.box.x + _button.box.w) 
 		&& (y > _button.box.y) && (y < _button.box.y + _button.box.h)) {
@@ -118,7 +119,7 @@ int handle_button(struct button _button, int x, int y) {
 }
 
 /* check if button hitbox is clicked and return the appropriate button.action */
-int handle_focus(struct item *_focus, int x, int y) {
+int handleFocus(struct item *_focus, int x, int y) {
 
     if((x > _focus->box.x) && (x < _focus->box.x + _focus->box.w) 
 		&& (y > _focus->box.y) && (y < _focus->box.y + _focus->box.h)) {
@@ -136,14 +137,14 @@ void focus(struct item *_focus, int id) {
 		_focus->focused = 0;
 }
 
-void show_button(struct button _button) {
+void showButton(struct button _button) {
 
-    apply_surface(_button.box.x, _button.box.y, _button.image, screen, NULL);
+    applySurface(_button.box.x, _button.box.y, _button.image, screen, NULL);
 }
 
 
 
-void free_buttons() {
+void freeButtons() {
 
 	SDL_FreeSurface(join_menu_button.image);
 	SDL_FreeSurface(create_menu_button.image);
@@ -156,7 +157,7 @@ void free_buttons() {
 
 }
 
-void free_itemlist(int n) {
+void freeItemlist(int n) {
 	int i;
 	for(i = 0; i < n; i++){
 		free(server_list[i]);

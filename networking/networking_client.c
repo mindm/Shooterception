@@ -2,7 +2,7 @@
  * client.c
  *
  *
- *
+ * readparams for connect
  */
 
 #include "networking_client.h"
@@ -23,7 +23,71 @@ void *get_in_addr(struct sockaddr *sa)
     return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
-int main(int argc, char *argv[])
+
+playerNames players;
+
+char player1[16];
+char player2[16];
+char player3[16];
+char player4[16];
+
+playerNames *getPlayers()
+{
+    return &players;
+}
+
+
+void sendChatMsg(char *message, int msglen)
+{
+    lenout = packChatMessage(message, msglen);
+}
+
+void sendJoinGame(int id)
+{
+    int i;
+    for (i = 0; i < 9; i++)
+    {
+        if (serverList[i])
+        {
+            if (serverList[i].id == id)
+                break;
+        }
+    }
+    
+    
+}
+
+void setPlayerNames(player1, player2, player3, player4)
+{
+    players.playerCount = 0;
+    if (strlen(player1) > 0)
+    {
+        memcpy(players.name[0][0], player1, 16);
+        players.playerCount = 1;
+    }
+    if (strlen(player2) > 0)
+    {
+        memcpy(players.name[1][0], player2, 16);
+        players.playerCount = 2;
+    }
+    if (strlen(player3) > 0)
+    {
+        memcpy(players.name[2][0], player3, 16);
+        players.playerCount = 3;
+    }
+    if (strlen(player4) > 0)
+    {
+        memcpy(players.name[3][0], player4, 16);
+        players.playerCount = 4;
+    }
+}
+
+void readParams(char *ip_a, char *port)
+{
+    
+}
+
+void *networking_thread(char *dest_address)
 {
 	// Some variables for connection
 	struct addrinfo hints, *res, *iter;
@@ -60,8 +124,10 @@ int main(int argc, char *argv[])
 	memset(&hints, 0, sizeof(hints));
 	hints.ai_family = AF_UNSPEC; // Don't force IPv4 or v6
 	hints.ai_socktype = SOCK_DGRAM;
+	hints.ai_family=PF_INET;
 
 	// Check command line options
+	/*
 	while ((optc = getopt(argc,argv,":64h:p:")) != -1) {
 		switch (optc) {
 			case 'h':
@@ -82,7 +148,7 @@ int main(int argc, char *argv[])
 				printf("Unknown parameter\n");
 				break;
 		}
-	}
+	}*/
 
 	// Are both given?
 	if(!host || !port) {
@@ -165,6 +231,24 @@ int main(int argc, char *argv[])
 				// ok
 				printf("%d\n", msgtype);
 				
+				if( msgtype == 23)
+				{
+				    //
+				}
+				
+				else if (msgtype == 21)
+				{
+				    unpackLobbyState(buf, player1, player2, player3, player4);
+				    setPlayerNames(player1, player2, player3, player4);
+				    
+				}
+				else if (msgtype == 6)
+				{   
+				    int msglen;
+				    unpackChatRelay(buf, newMessage, &msglen);
+				    addLog(newMessage, msglen);
+				}
+				
 			} // end read inputsocket
 			// if something to output ->  send
 			if(FD_ISSET(sockfd,&writefds)){
@@ -190,5 +274,5 @@ int main(int argc, char *argv[])
 
 	close(sockfd);
 
-	return 0;
+	return NULL;
 }

@@ -6,11 +6,18 @@
 *   Markku Painomaa (0358551) - markku.painomaa@lut.fi
 */
 
+#ifndef GAMELOGIC_H_
+#define GAMELOGIC_H_
+
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
+
+#include "generic.h"
+#include "networking/packets.h"
+#include "networking/networking_server.h"
 
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 800
@@ -34,7 +41,7 @@ typedef struct t_enemy {
 } enemy;
 
 // Player character stuct 
-typedef struct t_player {
+/*typedef struct t_player {
     int xcoord; // X coordinate, upper left corner
     int ycoord; // Y coordinate, upper left corner
     int viewDirection; // Direction the PC is facing, 0-359 degrees
@@ -43,8 +50,8 @@ typedef struct t_player {
     int isHost; // Is the player the host - 0: False, 1: True
     int playerNumber; // Player's number
     char* playerName; // Player's name
-    //player_n *connectionInfo; // pointer to struct containing sockaddr_storage
-} player;
+    player_n connectionInfo[0]; // pointer to struct containing sockaddr_storage
+} player; */
 
 // Game struct
 typedef struct t_game {
@@ -57,18 +64,22 @@ typedef struct t_game {
     int enemySpawnRate; // How quickly new enemies are spawned
     int enemyBaseSpeed; // Base speed for enemies
     int currentState; // 0: Waiting game, 1: inLobby, 2: inGame
+    int maxPlayers; // Maximum amount of players, 1-4
+    char gameName[16];
 } game;
 
 
 // Function to update PC location
-// Params: game state, xcoord, ycoord, viewDirection, hasShot
-game* updatePlayerInfo (game*, int, int, int, int);
+// Params: game state, connection info, xcoord, ycoord, viewDirection, hasShot
+game* updatePlayerInfo (game*, player_n*, int, int, int, int);
 
 // Function to update enemy location
 game* updateEnemyLocations (game*);
 
+void updateLobby(game*, char*);
+
 // Funtion to determine if enemy is shot - if PC has shot check if there are enemies on firing line
-game* checkHit (game*);
+game* checkHit (game*, player_n*);
 
 // Function to determine if player character and enemy collide
 game* checkCollision (game*);
@@ -83,19 +94,19 @@ void relayChat (void); // Check if private message
 void sendGameState(void);
 
 // New game struct
-// Params:
-game* newGame(void);
+// Params: gameName, maxPlayers
+game* newGame(char[16], int);
 void freeGame(game*);
 
 // Start new game
-int startGame(game*);
+int startGame(game*, char[MAXDATASIZE]);
 
 // Go to lobby state
 void startLobby(game*);
 
 // Add new player to existing game lobby
 // Params: gameState struct, playerNumber, playerName
-game* addPlayer(game*, int, char[16]);
+game* addPlayer(game*, player_n*, char[16]);
 
 // Set game state to "inGame" when host ready
 game* hostReady(game*);
@@ -109,3 +120,8 @@ game* setLevelParameters(game*);
 
 // Set players to initial positions
 game* setPlayerLocations(game*);
+
+// Determine player number based on connection info
+int getPlayerNumber(game*, player_n*);
+
+#endif /* GAMELOGIC_H_ */

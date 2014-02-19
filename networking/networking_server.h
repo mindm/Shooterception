@@ -14,19 +14,10 @@
 
 #include "../generic.h"
 
-// The playerinfo struct
-typedef struct player_n
-{
-	int number;
-	char address[INET6_ADDRSTRLEN];
-	int port;
-	struct sockaddr_storage their_addr;
-	int addr_size;
-    
-} player_n;
-
 void *get_in_addr(struct sockaddr *sa);
 int get_in_port(struct sockaddr *sa);
+void setLenout(int size);
+void setSendMask(int mask);
 
 
 #endif /* SERVER_H_ */
