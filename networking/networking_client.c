@@ -231,23 +231,34 @@ void *networking_thread(char *dest_address)
 				// ok
 				printf("%d\n", msgtype);
 				
-				if( msgtype == 23)
+				
+				if( msgtype == SERVERSTATE)
 				{
 				    //
 				}
 				
-				else if (msgtype == 21)
+				else if (msgtype == LOBBYSTATE)
 				{
 				    unpackLobbyState(buf, player1, player2, player3, player4);
 				    setPlayerNames(player1, player2, player3, player4);
 				    
 				}
-				else if (msgtype == 6)
+				else if (msgtype == CHATRELAY)
 				{   
 				    int msglen;
 				    unpackChatRelay(buf, newMessage, &msglen);
 				    addLog(newMessage, msglen);
 				}
+				else if (msgtype == GAMESTART)
+				{
+				    int gameLevel;
+				    unpackGameStart(buf, &gameLevel);
+				}
+				else if (msgtype == ERROR)
+			    {
+			        int errorCode;
+			        unpackError(buf, &errorCode)
+			    }
 				
 			} // end read inputsocket
 			// if something to output ->  send

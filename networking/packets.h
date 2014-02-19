@@ -78,10 +78,10 @@ void unpackClientState(char *buf, player *playerInfo, int *messageNumber); // Ma
 /* Server to client messages */
 void unpackLobbyState(char *buf, char *name1, char *name2, char *name3, char *name4); // Not ready
 void unpackGameStart(char *buf, int *gameLevel);
-int unpackServerState(char *buf, int playerCount, int enemyCount,
+void unpackServerState(char *buf, int playerCount, int enemyCount,
         int messageNumber, int timeSent); // Struct here too
 void unpackChatRelay(char *buf, char *message, int *msglen);
-int unpackError(char *buf, int *errorCode);
+void unpackError(char *buf, int *errorCode);
 
 
 /* Client to master messages */
