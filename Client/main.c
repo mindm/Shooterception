@@ -10,6 +10,8 @@
 #include "timer.c"
 #include "button.c"
 #include "input.c"
+#include <pthread.h>
+#include "networking/networking_client.h"
 
 /* Main loop */
 
@@ -18,6 +20,10 @@ int main(int argc, char* args[]) {
 	//srand (time(NULL));
 	char mem[1] = "m"; //dummy
 	int quit = 0;
+	
+	pthread_t networking;
+
+    playerNames* joined;
 
 	/* actual menu state and temporal menu state */
 	int state = MAIN_MENU, _state = MAIN_MENU;
@@ -98,8 +104,15 @@ int main(int argc, char* args[]) {
 						int y = event.button.y;
 
 						if(_state = handleButton(join_button, x, y))
+<<<<<<< HEAD
+						{
+=======
+>>>>>>> 78f55058daa7a00abb6ad6d6adb89169a7d4c6aa
 							state = _state;
-
+							pthread_create(&networking, NULL, networking_thread, NULL);
+							sendJoinGame(id);
+                        }
+                        
 						for(i = 0; i < 3; i++) {
 							if(_id = handleFocus(server_list[i], x, y)) {
 								id = _id;				
@@ -231,6 +244,12 @@ int main(int argc, char* args[]) {
 			printText(400, server_list_box.y+60, itoa(pl_num, mem), textColor);
 			printText(225, server_list_box.y+90, "Players joined: ", textColor);
 
+<<<<<<< HEAD
+            joined = getPlayers();
+            for(i=0; i < joined->playerCount; i++){
+                printText(225, server_list_box.y+120+(30*i), &(joined->name[i]), textColor);
+            }
+
 			//show chat input
 			printText(225, server_list_box.h+100, "Chat: ", textColor);
 			printStringInput(225, server_list_box.h+120, &textbuffer[0], textColor);
@@ -241,6 +260,18 @@ int main(int argc, char* args[]) {
 					printText(225, server_list_box.h+(20*i), &chatlog[i][0], textColor);
 			}
 
+=======
+			//show chat input
+			printText(225, server_list_box.h+100, "Chat: ", textColor);
+			printStringInput(225, server_list_box.h+120, &textbuffer[0], textColor);
+
+			/* CHAT */
+			for(i = 0; i < LOGSIZE; i++) {
+				if(strlen(&chatlog[i][0]) > 0) 
+					printText(225, server_list_box.h+(20*i), &chatlog[i][0], textColor);
+			}
+
+>>>>>>> 78f55058daa7a00abb6ad6d6adb89169a7d4c6aa
 			showButton(start_button);
 		}
 		/* game lobby end */
@@ -405,6 +436,7 @@ void freeAssets(void) {
 }
 
 void setupPlayer(void) {
+<<<<<<< HEAD
 
 	int i, j;
 	int offset;
@@ -413,6 +445,16 @@ void setupPlayer(void) {
 		if(!players[i])
 			players[i] = malloc(sizeof(struct player));
 
+=======
+
+	int i, j;
+	int offset;
+	for(i = 0; i < 4; i++) {
+
+		if(!players[i])
+			players[i] = malloc(sizeof(struct player));
+
+>>>>>>> 78f55058daa7a00abb6ad6d6adb89169a7d4c6aa
 		switch(i) {
 			case 0: players[i]->playerSurf = loadImage("player1.gif"); break;
 			case 1: players[i]->playerSurf = loadImage("player2.gif"); break;

@@ -25,7 +25,24 @@ typedef struct player_n
     
 } player_n;
 
-void *get_in_addr(struct sockaddr *sa);
 
+typedef struct playerNames {
+    int playerCount;
+    char name[4][16];
+} playerNames;
+
+typedef struct serverInfo {
+    int id;
+    int port;
+    char address[40];
+}
+
+
+serverInfo serverList[10];
+
+
+playerNames *getPlayers();
+void *get_in_addr(struct sockaddr *sa);
+void sendChatMsg(char *message, int msglen);
 
 #endif /* SERVER_H_ */
