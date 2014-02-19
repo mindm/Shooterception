@@ -14,8 +14,10 @@
 
 #include "../generic.h"
 
-void *get_in_addr(struct sockaddr *sa);
-int get_in_port(struct sockaddr *sa);
+char *getInAddr(struct sockaddr *sa, char*);
+int getInPort(struct sockaddr *sa, int);
+void setLenout(int size);
+void setSendMask(int mask);
 void setLenout(int size);
 void setSendMask(int mask);
 
