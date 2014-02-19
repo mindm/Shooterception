@@ -189,7 +189,9 @@ game* checkHit (game* gameState, player_n* connectionInfo){
 
 // Function to determine if player character and enemy collide
 game* checkCollision (game* gameState){
-    
+   
+   
+    // TODO: 2s invulnerability to PC after hit - add parameter to struct
     // Loop through enemies and PCs and check if they're in same coordinate
     for(int i=0;i<gameState->enemyCount;i++){
         for(int j=0;j<gameState->playerCount;j++){
@@ -364,6 +366,7 @@ game* addEnemy(game* gameState){
 
 game* setLevelParameters(game* gameState){
 
+    // TODO: Reset PC health back to 3
     // Set game parameters for game level
     if(gameState->levelNumber == 1){
         gameState->enemyLimit = 10; // How many enemies are spawned

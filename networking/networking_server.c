@@ -194,6 +194,7 @@ int main(int argc, char *argv[])
                 // Create game
                 if(msgtype == 1)
                 {
+                    //TODO: Verify game state and if the game is running that only joined players send packets
                     unpackCreateGame(inbuf, gameName, &maxPlayers, playerName);
 
                     // Game state for new game
