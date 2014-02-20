@@ -44,5 +44,7 @@ serverInfo serverList[10];
 playerNames *getPlayers();
 void *get_in_addr(struct sockaddr *sa);
 void sendChatMsg(char *message, int msglen);
+void readParams(char *full_address, char *host, char *port);
+char *createFullAddress(char *host, char *port);
 
 #endif /* SERVER_H_ */

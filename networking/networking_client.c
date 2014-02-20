@@ -82,9 +82,22 @@ void setPlayerNames(player1, player2, player3, player4)
     }
 }
 
-void readParams(char *ip_a, char *port)
+//Full_address length should be 46+17 = 63 bits
+//Copies full address into host and port
+void readParams(char *full_address, char *host, char *port)
 {
+    memcpy(host, full_address, 46);
+    memcpy(port, full_address+46, 17);
+}
+
+char *createFullAddress(char *host, char *port)
+{       
+    char *full_address = malloc(63);
     
+    memcpy(full_address, host, 46);
+    memcpy(full_address+46, port, 17);
+    
+    return full_address;
 }
 
 void *networking_thread(char *dest_address)
