@@ -221,9 +221,10 @@ void unpackGameStart(char *buf, int *gameLevel)
     *gameLevel = (*(uint8_t*)&buf[1]);
 }
 
-void unpackChatRelay(char *buf, char *message)
+void unpackChatRelay(char *buf, char *message, int *msglen)
 {
     strcpy(message, buf+1);
+    *msglen = strlen(message);
 }
 
 int packError(char *buf, int errorCode)
