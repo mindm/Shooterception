@@ -100,16 +100,4 @@ typedef struct t_game {
     char gameName[16];
 } game;
 
-// The playerinfo struct
-typedef struct player_n
-{
-	char address[INET6_ADDRSTRLEN];
-	int port;
-	struct sockaddr_storage their_addr;
-	int addr_size;
-} player_n;
-
-
 #endif
-
-

@@ -1,4 +1,4 @@
-un/*
+/*
 * CT30A5002 Games and Networking 2013-14
 * Authors:
 * Arttu Hanska (0342181) - arttu.hanska@lut.fi
@@ -221,10 +221,9 @@ void unpackGameStart(char *buf, int *gameLevel)
     *gameLevel = (*(uint8_t*)&buf[1]);
 }
 
-void unpackChatRelay(char *buf, char *message, int *msglen)
+void unpackChatRelay(char *buf, char *message)
 {
     strcpy(message, buf+1);
-    *msglen = strlen(message);
 }
 
 int packError(char *buf, int errorCode)
