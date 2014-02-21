@@ -433,7 +433,7 @@ int getPlayerNumber(game* gameState, player_n* connectionInfo){
 game* checkShotCooldown(game* gameState, int playerNumber){
 
     struct timeval tempTime = getCurrentTime();
-    double currentTime = tempTime.tv_sec + (tempTime.tv_usec / 1000000);
+    long currentTime = tempTime.tv_sec + tempTime.tv_usec;
 
     // Cooldown not running
     if(gameState->playerList[playerNumber].shotCooldown - currentTime <= 0){
@@ -448,7 +448,7 @@ game* checkShotCooldown(game* gameState, int playerNumber){
 game* checkSpawnTimer(game* gameState){
 
     struct timeval tempTime = getCurrentTime();
-    double currentTime = tempTime.tv_sec + (tempTime.tv_usec / 1000000);
+    long currentTime = tempTime.tv_sec + tempTime.tv_usec;
 
     // Enemy spawn allowed
     if(gameState->enemySpawnRate - currentTime <= 0){
