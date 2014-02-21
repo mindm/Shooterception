@@ -30,30 +30,38 @@ int startGame(game* gameState, char outbuf[MAXDATASIZE]){
 // Update PC location
 game* updatePlayerInfo (game* gameState, player_n* connectionInfo, int xcoord, int ycoord, int viewDirection, int hasShot){
 
-    int i = getPlayerNumber(gameState, connectionInfo);
+     int playerNumber = getPlayerNumber(gameState, connectionInfo);
 
     // Check that PC is within game boundaries and update coordinates
     if(xcoord==0){
-        gameState->playerList[i].xcoord = 0;
+        gameState->playerList[playerNumber].xcoord = 0;
     }
     else if(xcoord==800){     
-        gameState->playerList[i].xcoord = 800;
+        gameState->playerList[playerNumber].xcoord = 800;
     }
     else{
-        gameState->playerList[i].xcoord = xcoord;
+        gameState->playerList[playerNumber].xcoord = xcoord;
     }
     if(ycoord==0){
-        gameState->playerList[i].ycoord = 0;
+        gameState->playerList[playerNumber].ycoord = 0;
     }
     else if(ycoord==800){     
-        gameState->playerList[i].ycoord = 800;
+        gameState->playerList[playerNumber].ycoord = 800;
     }
     else{
-        gameState->playerList[i].ycoord = ycoord;
+        gameState->playerList[playerNumber].ycoord = ycoord;
     }    
 
-    gameState->playerList[i].viewDirection = viewDirection;
-    gameState->playerList[i].hasShot = hasShot;
+    gameState->playerList[playerNumber].viewDirection = viewDirection;
+    gameState->playerList[playerNumber].hasShot = hasShot;
+
+    gameState = checkShotCooldown(gameState, playerNumber);
+
+    // If PC has shot and cooldown timer isn't running, check for hit
+    if(gameState->playerList[playerNumber].hasShot == 1 && gameState->playerList[playerNumber].shotCooldown == 0){
+        gameState = checkHit(gameState, playerNumber);   
+        gameState->playerList[playerNumber].shotCooldown = COOLDOWN;    
+    }  
 
     return gameState;
 }
@@ -83,9 +91,8 @@ game* updateEnemyLocations (game* gameState){
 }
 
 // Determine if enemy is shot - if PC has shot check if there are enemies on firing line
-game* checkHit (game* gameState, player_n* connectionInfo){
+game* checkHit (game* gameState, int playerNumber){
 
-    int i = getPlayerNumber(gameState, connectionInfo);
     int k = 0;
     int candidateNumber = 0;
     int candidateDistance = 0;
@@ -95,32 +102,32 @@ game* checkHit (game* gameState, player_n* connectionInfo){
     for(int j=0;j<gameState->enemyCount;j++){
    
         // PC facing UP - same xcoord, PC has higher ycoord
-        if(gameState->playerList[i].viewDirection == UP){
-            if(gameState->playerList[i].xcoord == gameState->enemyList[j].xcoord && gameState->playerList[i].ycoord >= gameState->enemyList[j].ycoord){
+        if(gameState->playerList[playerNumber].viewDirection == UP){
+            if(gameState->playerList[playerNumber].xcoord == gameState->enemyList[j].xcoord && gameState->playerList[playerNumber].ycoord >= gameState->enemyList[j].ycoord){
                 // Enemy in hit line, add to hit candidates
                 hitCandidates[k] = gameState->enemyList[j];
                 k++;
             }
         }
         // PC facing DOWN - same xcoord, PC has lower ycoord           
-        else if(gameState->playerList[i].viewDirection == DOWN){
-            if(gameState->playerList[i].xcoord == gameState->enemyList[j].xcoord && gameState->playerList[i].ycoord <= gameState->enemyList[j].ycoord){
+        else if(gameState->playerList[playerNumber].viewDirection == DOWN){
+            if(gameState->playerList[playerNumber].xcoord == gameState->enemyList[j].xcoord && gameState->playerList[playerNumber].ycoord <= gameState->enemyList[j].ycoord){
                 // Enemy in hit line, add to hit candidates
                 hitCandidates[k] = gameState->enemyList[j];
                 k++;
             }                
         }
         // PC facing RIGHT - same ycoord, PC has lower xcoord                
-        else if(gameState->playerList[i].viewDirection == RIGHT){
-            if(gameState->playerList[i].ycoord == gameState->enemyList[j].ycoord && gameState->playerList[i].xcoord <= gameState->enemyList[j].xcoord){
+        else if(gameState->playerList[playerNumber].viewDirection == RIGHT){
+            if(gameState->playerList[playerNumber].ycoord == gameState->enemyList[j].ycoord && gameState->playerList[playerNumber].xcoord <= gameState->enemyList[j].xcoord){
                 // Enemy in hit line, add to hit candidates
                 hitCandidates[k] = gameState->enemyList[j];
                 k++;
             }                 
         }
         // PC facing LEFT - same ycoord, PC has higher xcoord              
-        else if(gameState->playerList[i].viewDirection == LEFT){
-            if(gameState->playerList[i].ycoord == gameState->enemyList[j].ycoord && gameState->playerList[i].xcoord >= gameState->enemyList[j].xcoord){
+        else if(gameState->playerList[playerNumber].viewDirection == LEFT){
+            if(gameState->playerList[playerNumber].ycoord == gameState->enemyList[j].ycoord && gameState->playerList[playerNumber].xcoord >= gameState->enemyList[j].xcoord){
                 // Enemy in hit line, add to hit candidates
                 hitCandidates[k] = gameState->enemyList[j];
                 k++;
@@ -132,7 +139,7 @@ game* checkHit (game* gameState, player_n* connectionInfo){
 
 
     // PC facing UP - closest enemy has highest ycoord 
-    if(gameState->playerList[i].viewDirection == UP){  
+    if(gameState->playerList[playerNumber].viewDirection == UP){  
         candidateDistance = 0;
         for(int z=0;z<k;z++){     
             if(hitCandidates[z].ycoord >= candidateDistance){
@@ -142,7 +149,7 @@ game* checkHit (game* gameState, player_n* connectionInfo){
         }
     }
     // PC facing DOWN - closest enemy has lowest ycoord
-    else if(gameState->playerList[i].viewDirection == DOWN){   
+    else if(gameState->playerList[playerNumber].viewDirection == DOWN){   
         candidateDistance = 800;
         for(int z=0;z<k;z++){       
             if(hitCandidates[z].ycoord <= candidateDistance){
@@ -152,7 +159,7 @@ game* checkHit (game* gameState, player_n* connectionInfo){
         }        
     }    
     // PC facing RIGHT - closest enemy has lowest xcoord
-    else if(gameState->playerList[i].viewDirection == RIGHT){    
+    else if(gameState->playerList[playerNumber].viewDirection == RIGHT){    
         candidateDistance = 800;
         for(int z=0;z<k;z++){      
             if(hitCandidates[z].xcoord <= candidateDistance){
@@ -162,7 +169,7 @@ game* checkHit (game* gameState, player_n* connectionInfo){
         }    
     }
     // PC facing LEFT - closest enemy has highest xcoord
-    else if(gameState->playerList[i].viewDirection == LEFT){  
+    else if(gameState->playerList[playerNumber].viewDirection == LEFT){  
         candidateDistance = 0;
         for(int z=0;z<k;z++){        
             if(hitCandidates[z].xcoord >= candidateDistance){
@@ -278,6 +285,7 @@ game* addPlayer(game* gameState, player_n* connectionInfo, char* playerName){
         newPlayer[0].viewDirection = 0; // Initial direction the PC is facing
         newPlayer[0].health = 3; // Initial Health points
         newPlayer[0].hasShot = 0; // Player has not shot
+        newPlayer[0].shotCooldown = 0; // Player has not shot
         
         if(gameState->playerCount==0){
             newPlayer[0].isHost = 1; // First player, mark as host
@@ -419,4 +427,42 @@ int getPlayerNumber(game* gameState, player_n* connectionInfo){
         }
     }
     return playerNumber;
+}
+
+// Check if cooldown is running
+game* checkShotCooldown(game* gameState, int playerNumber){
+
+    struct timeval tempTime = getCurrentTime();
+    double currentTime = tempTime.tv_sec + (tempTime.tv_usec / 1000000);
+
+    // Cooldown not running
+    if(gameState->playerList[playerNumber].shotCooldown - currentTime <= 0){
+        gameState->playerList[playerNumber].shotCooldown = 0;
+    // Cooldown running
+    } else {
+        gameState->playerList[playerNumber].shotCooldown = currentTime;
+    } 
+    
+    return gameState;
+}
+game* checkSpawnTimer(game* gameState){
+
+    struct timeval tempTime = getCurrentTime();
+    double currentTime = tempTime.tv_sec + (tempTime.tv_usec / 1000000);
+
+    // Enemy spawn allowed
+    if(gameState->enemySpawnRate - currentTime <= 0){
+        gameState->enemySpawnRate = 0;
+    // Enemy spawn not allowed
+    } else {
+        gameState->enemySpawnRate = currentTime;
+    } 
+    
+    return gameState;
+}
+
+struct timeval getCurrentTime(){
+    struct timeval currentTime;
+    gettimeofday(&currentTime, NULL);
+    return currentTime;
 }

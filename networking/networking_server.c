@@ -55,7 +55,8 @@ int main(int argc, char *argv[])
 	socklen_t sin_size; // address size
 	
     game* gameState = NULL; // Create game struct
-  
+    player* playerInfo = NULL; // Create player struct for parameter passing
+    
     fd_set readfds; // File descriptor sets for select
     fd_set writefds;
     int fdmax; // Maximum file descriptor number
@@ -63,11 +64,12 @@ int main(int argc, char *argv[])
 	char ipstr[INET6_ADDRSTRLEN]; //Store ip-address
 	int p_port = 0; //store port
 	int sockfd = 0;
-	int size = 0;
+	//int size = 0;
 	int sentbytes = 0;
     int status = 0;
     int yes = 0;
     int rval = 0;
+    int messageNumber = 0;
     
 	// For parsing options
 	extern char *optarg;
@@ -227,7 +229,11 @@ int main(int argc, char *argv[])
                 // Client state
                 else if(msgtype == 4)
                 {
+                    unpackClientState(inbuf, playerInfo, &messageNumber/*, int *timeReply*/);
                     
+                    // Update player characters location, view direction and if the PC has shot
+                    gameState = updatePlayerInfo(gameState, tempAddress, playerInfo->xcoord, playerInfo->ycoord, playerInfo->viewDirection, playerInfo->hasShot);             
+                     
                 }
                 // clientExit
                 else if(msgtype == 5)
@@ -265,23 +271,16 @@ int main(int argc, char *argv[])
 			} 
 
 			// Game Logic here
-			
-         /*   // Spawn enemy if spawn rate allows and MAXENEMIES is not full
-            if(spawnTimer >= gameState->enemySpawnRate && gameState->enemyCount < MAXENEMIES){
+			gameState = checkSpawnTimer(gameState);
+            // Spawn enemy if spawn rate allows and MAXENEMIES is not full
+            if((gameState->enemySpawnRate = 0) && (gameState->enemyCount < MAXENEMIES)){
                 // Spawn enemy to random border coordinate with level base speed and PC to follow
                 gameState = addEnemy(gameState);
                 gameState->enemyCount += 1;
             }
             
-            // Update all player characters location, view direction and if the PC has shot
-            //gameState = updatePlayerInformation(gameState, xcoord, ycoord, viewDirection, hasShot);
-            gameState = updatePlayerInfo(gameState, 200, 200, UP, 0);
-            
             // Update all enemy locations
             gameState = updateEnemyLocations(gameState);
-            
-            // Have player character's shot and do they hit enemies
-            gameState = checkHit(gameState);
             
             // Are player character and enemy colliding
             gameState = checkCollision(gameState);
@@ -298,14 +297,9 @@ int main(int argc, char *argv[])
             //relayChat();
             
             // Send game state to all clients
-            //sendGameState(gameState); */
+            //sendGameState(gameState);
 
-		}
-		// timeout not needed
-		//set new timevalues
-		//tv.tv_usec = 10000; //seconds
-		//ui_draw_console(cswin);
-		
+		}	
 	} // End while loop
 	
     // Cleanup after the game ends

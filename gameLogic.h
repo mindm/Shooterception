@@ -12,7 +12,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include <time.h>
+#include <time.h> 
 #include <unistd.h>
 
 #include "generic.h"
@@ -29,7 +29,8 @@ game* updateEnemyLocations (game*);
 void updateLobby(game*, char*);
 
 // Funtion to determine if enemy is shot - if PC has shot check if there are enemies on firing line
-game* checkHit (game*, player_n*);
+// Params: game state, playerNumber
+game* checkHit (game*, int);
 
 // Function to determine if player character and enemy collide
 game* checkCollision (game*);
@@ -70,5 +71,15 @@ game* setPlayerLocations(game*);
 
 // Determine player number based on connection info
 int getPlayerNumber(game*, player_n*);
+
+// Check shotCooldown for player
+// Params: game state, playerNumber
+game* checkShotCooldown(game*, int);
+
+// Get current time for timers
+struct timeval getCurrentTime(void);
+
+// Check level spawnTimer
+game* checkSpawnTimer(game*);
 
 #endif /* GAMELOGIC_H_ */
