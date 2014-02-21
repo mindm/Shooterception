@@ -1,4 +1,4 @@
-un/*
+/*
 * CT30A5002 Games and Networking 2013-14
 * Authors:
 * Arttu Hanska (0342181) - arttu.hanska@lut.fi

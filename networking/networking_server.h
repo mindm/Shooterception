@@ -18,8 +18,6 @@ char *getInAddr(struct sockaddr *sa, char*);
 int getInPort(struct sockaddr *sa, int);
 void setLenout(int size);
 void setSendMask(int mask);
-void setLenout(int size);
-void setSendMask(int mask);
 
 
 #endif /* SERVER_H_ */

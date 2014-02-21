@@ -44,8 +44,6 @@ int getInPort(struct sockaddr *sa, int p_port)
     return p_port;
 }
 
-
-
 int main(int argc, char *argv[])
 {
     printf("Start main\n");
@@ -70,7 +68,6 @@ int main(int argc, char *argv[])
     int status = 0;
     int yes = 0;
     int rval = 0;
-    
     
 	// For parsing options
 	extern char *optarg;
@@ -153,129 +150,10 @@ int main(int argc, char *argv[])
 	}
     
     freeaddrinfo(res); // Done with addrinfo
-
+    
     printf("Enter main loop\n");
 	
 	while(1)
-		FD_ZERO(&writefds);
-		// Socket to the server
-		FD_SET(sockfd, &readfds);
-		if(sockfd > fdmax) fdmax = sockfd;
-
-		// STDIN
-		FD_SET(fileno(stdin),&readfds);
-		if(fileno(stdin) > fdmax) fdmax = fileno(stdin);
-
-		// WRITESOCKET
-		if (lenout > 0){
-			FD_SET(sockfd, &writefds);
-		}
-		// Block until input (no timeval)
-		if ((rval = select(fdmax+1,&readfds,&writefds,NULL, NULL)) > 0) {
-
-			//listening socket got something
-			if(FD_ISSET(sockfd,&readfds)){
-			    sin_size = sizeof(their_addr);
-				numbytes = recvfrom(sockfd, buf, MAXDATASIZE-1, 0, (struct sockaddr *) &their_addr, &sin_size);
-				buf[numbytes] = '\0';
-				uint8_t msgtype = getmessagetype(buf); //unpack messagetype
-                                
-                tempAddress[0].address = get_in_addr(their_addr);
-                tempAddress[0].port = get_in_port(their_addr);
-                tempAddress[0].their_addr = their_addr;
-                tempAddress[0].addr_size = sizeof(their_addr);
-
-                // Create game
-                if(msgtype == 1)
-                {
-                    unpackCreateGame(inbuf, gameName, &maxPlayers, playerName);
-
-                    // Game state for new game
-                    gameState = newGame(gameName, maxPlayers);  
-
-                    // Change to inLobby state
-                    gameState->currentState = 1;
-                    
-                    // Add player to game
-                    //addPlayer(game* gameState, player_n, char playerName[16]);
-                    gameState = addPlayer(gameState, tempAddress[0], playerName);
-                    
-                    // Send lobbyState - only one player at the moment
-                    int size = packLobbyState(outbuf, char *player1, "", "", "")  
-                    setLenout(size);         
-                }
-                // Join game
-                else if(msgtype == 2)
-                {
-                    unpackJoinGame(inbuf, gameName, playerName);
-                    
-                    // Add player to game
-                    //addPlayer(game* gameState, int playerNumber, char playerName[16]);
-                    gameState = addPlayer(gameState, tempAddress, playerName);
-                    //updateLobby(gameState, outbuf);
-                
-                }
-                // Start game
-                else if(msgtype == 3)
-                {
-                    Startgame(gameState, outbuf);
-                    
-                }
-                // Client state
-                else if(msgtype == 4)
-                {
-                    
-                }
-                // clientExit
-                else if(msgtype == 5)
-                {
-                
-                }
-                // Chat message
-                else if(msgtype == 6)
-                {
-                
-                }              
-                // Ack 
-                else if(msgtype == 0)
-                {
-                
-                }                                                                                 
-				// ok
-				printf("%d\n", msgtype);
-				
-			} // end read inputsocket
-			// if something to output ->  send
-			if(FD_ISSET(sockfd,&writefds)){
-			    if(sendMask == 100){
-			        for(int i=0;i<=gameLogic->playerCount;i++){
-				        numbytes = sendto(sockfd, outbuf, lenout, 0, (struct sockaddr *) &(gameLogic->playerList[i].connectionInfo.their_addr), &(gameLogic->playerList[i].connectionInfo.addr_size);
-			        }
-				    memset(outbuffer,'\0', MAXDATASIZE);
-				    lenout = 0;
-				} else{
-				    numbytes = sendto(sockfd, outbuf, lenout, 0, (struct sockaddr *) &(gameLogic->playerList[sendMask].connectionInfo.their_addr), &(gameLogic->playerList[sendMask].connectionInfo.addr_size);	
-				    sendMask = 100; // Reset value  			
-				    
-				} 
-			}
-
-			// User gave some input
-			if(FD_ISSET(fileno(stdin),&readfds)){
-
-                //Input ??
-			}
-
-			// do game logic things here
-
-		}
-		// timeout not needed
-		//set new timevalues
-		//tv.tv_usec = 10000; //seconds
-		//ui_draw_console(cswin);
-	}
-    
-/*    while(1)
 	{
 		FD_ZERO(&readfds); // Clear the sets of file descriptors
 		FD_ZERO(&writefds);
@@ -316,7 +194,6 @@ int main(int argc, char *argv[])
                 // Create game
                 if(msgtype == 1)
                 {
-                    //TODO: Verify game state and if the game is running that only joined players send packets
                     unpackCreateGame(inbuf, gameName, &maxPlayers, playerName);
 
                     // Game state for new game
