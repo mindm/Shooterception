@@ -53,8 +53,12 @@ int main(int argc, char *argv[])
 	struct sockaddr_storage their_addr; // connector's address information
 	player_n* tempAddress = NULL; 
 	socklen_t sin_size; // address size
+	game* gameState = NULL;
 	
-    game* gameState = NULL; // Create game struct
+    if(gameState == NULL){ // If game doesn't exist, create it
+        gameState = initGame();    
+    }
+    
     player* playerInfo = NULL; // Create player struct for parameter passing
     
     fd_set readfds; // File descriptor sets for select
@@ -199,7 +203,7 @@ int main(int argc, char *argv[])
                     unpackCreateGame(inbuf, gameName, &maxPlayers, playerName);
 
                     // Game state for new game
-                    gameState = newGame(gameName, maxPlayers);  
+                    gameState = newGame(gameState, gameName, maxPlayers);  
 
                     // Change to inLobby state
                     gameState->currentState = 1;
