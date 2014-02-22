@@ -299,7 +299,11 @@ int main(int argc, char *argv[])
             //relayChat();
             
             // Send game state to all clients
+            // This sent twice?
             //sendGameState(gameState);
+    
+            gameState = resetEnemyHits(gameState);
+            gameState = resetPlayerCollisions(gameState);
 
 		}	
 	} // End while loop

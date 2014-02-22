@@ -179,8 +179,10 @@ game* checkHit (game* gameState, int playerNumber){
        }     
     }     
     // Enemy hit, reduce Health points by 1
-    gameState->enemyList[candidateNumber].health -= 1;                 
-    
+    gameState->enemyList[candidateNumber].health -= 1; 
+    // Mark the enemy as being hit                 
+    gameState->enemyList[candidateNumber].isShot = 1;
+                         
     // Check if enemy dies
     if(gameState->enemyList[candidateNumber].health == 0){
         // Overwrite dead enemy and compress the array
@@ -203,6 +205,8 @@ game* checkCollision (game* gameState){
             if(gameState->enemyList[i].xcoord == gameState->playerList[j].xcoord && gameState->enemyList[i].ycoord == gameState->playerList[j].ycoord){
                 // Enemy and PC collide, reduce PC's Health points by 1
                 gameState->playerList[j].health -= 1;
+                // Mark PC as being colliding with enemy
+                gameState->playerList[j].isColliding = 1;
                 // Check if PC dies
                 if(gameState->playerList[j].health == 0){
                     // TODO: What happens when PC's health goes to 0?
@@ -296,7 +300,8 @@ game* addPlayer(game* gameState, player_n* connectionInfo, char* playerName){
         
         newPlayer[0].playerNumber = gameState->playerCount; // Player's number
         memcpy(newPlayer[0].playerName, playerName, PLAYERNAME_LENGTH); // Player's name
-        newPlayer[0].connectionInfo = connectionInfo; // sockaddr_storage struct        
+        newPlayer[0].connectionInfo = connectionInfo; // sockaddr_storage struct  
+        newPlayer[0].isColliding = 0; // New player not colliding with enemies, yet              
         gameState->playerList[playerNumber] = newPlayer[0]; // Allocate new player
         
         // Increase number of players
@@ -364,7 +369,8 @@ game* addEnemy(game* gameState){
     
     // TODO Changing base speed
     newEnemy[0].speed = gameState->enemyBaseSpeed; // Player who enemy is following
-    
+    newEnemy[0].isShot = 0; // New enemy has not been shot, yet
+      
     gameState->enemyList[gameState->enemyCount] = newEnemy[0]; // Allocate new enemy
         
     return gameState;
@@ -465,4 +471,20 @@ struct timeval getCurrentTime(){
     struct timeval currentTime;
     gettimeofday(&currentTime, NULL);
     return currentTime;
+}
+
+game* resetEnemyHits(game* gameState){
+    for(int i=0;i<gameState->enemyCount;i++){
+        gameState->enemyList[i].isShot = 0;
+    }
+    
+    return gameState;
+}
+
+game* resetPlayerCollisions(game* gameState){
+    for(int i=0;i<gameState->playerCount;i++){
+        gameState->playerList[i].isColliding = 0;
+    }
+    
+    return gameState;
 }

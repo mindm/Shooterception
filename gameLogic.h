@@ -82,4 +82,10 @@ struct timeval getCurrentTime(void);
 // Check level spawnTimer
 game* checkSpawnTimer(game*);
 
+// Reset enemies isShot back to 0
+game* resetEnemyHits(game*);
+
+// Reset players isColliding back to 0
+game* resetPlayerCollisions(game*);
+
 #endif /* GAMELOGIC_H_ */
