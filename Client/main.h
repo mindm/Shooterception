@@ -64,7 +64,7 @@ Mix_Chunk *en_death = NULL;
 SDL_Event event;
 
 /* Player 1 object */
-struct player {
+struct SDLplayer {
 	int health;
 	int xVel, yVel;
 	int shooting;
@@ -79,13 +79,13 @@ struct player {
 };
 
 //struct player *player = NULL;
-struct player *players[4];
+struct SDLplayer *players[4];
 
 /* Player 1 shooting line (rectangle which height or width should be 1px) */
 SDL_Rect lineRect;
 
 /* Generic enemy object */
-struct enemy {
+struct SDLenemy {
 	int health;
 	int dir;
 	int frame;
@@ -96,7 +96,7 @@ struct enemy {
 };
 
 //struct enemy *enemy = NULL;
-struct enemy *enemies[MAX_EN];
+struct SDLenemy *enemies[MAX_EN];
 
 /* Function prototypes */
 SDL_Surface *loadImage(char*);
@@ -111,14 +111,14 @@ void setupPlayer(void);
 void setupEnemy(void);
 
 void handlePlayerInput(int);
-void movePlayer(struct player*);
-void moveEnemy(struct enemy*, int, int, int);
-void shootBullet(struct player*);
-void drawPlayer(struct player*);
-void drawEnemy(struct enemy*);
+void movePlayer(struct SDLplayer*);
+void moveEnemy(struct SDLenemy*);
+void shootBullet(struct SDLplayer*);
+void drawPlayer(struct SDLplayer*);
+void drawEnemy(struct SDLenemy*);
 
-void handleEnemyDamage(struct enemy*);
-void handlePlayerDamage(struct enemy*);
+void handleEnemyDamage(struct SDLenemy*);
+void handlePlayerDamage(struct SDLenemy*);
 int checkCollision(SDL_Rect, SDL_Rect);
 
 void toggleMenuMusic(void);

@@ -23,7 +23,7 @@ int main(int argc, char* args[]) {
 	
 	pthread_t networking;
 
-    //playerNames* joined;
+    playerNames* joined;
 
 	/* actual menu state and temporal menu state */
 	int state = MAIN_MENU, _state = MAIN_MENU, previous_state = MAIN_MENU;
@@ -146,6 +146,7 @@ int main(int argc, char* args[]) {
 						{
 							state = _state;
 							pthread_create(&networking, NULL, networking_thread, NULL);
+							SDL_Delay(1000);
 							sendJoinGame(id);
                         }
                         
@@ -281,10 +282,10 @@ int main(int argc, char* args[]) {
 			printText(225, server_list_box.y+90, "Players joined: ", textColor);
 
 
-            /*joined = getPlayers();
+            joined = getPlayers();
             for(i=0; i < joined->playerCount; i++){
-                printText(225, server_list_box.y+120+(30*i), &(joined->name[i]), textColor);
-            }*/
+                printText(225, server_list_box.y+120+(30*i), &joined->name[i], textColor);
+            }
 
 			//show chat input
 			printText(225, server_list_box.h+100, "Chat: ", textColor);
@@ -314,10 +315,11 @@ int main(int argc, char* args[]) {
 				drawBackground();
 
 				for(i = 0; i < MAX_EN; i++)	{		
-					moveEnemy(enemies[i], LEFT, 0, 0);
+					moveEnemy(enemies[i]);
 					drawEnemy(enemies[i]);
 				}
-
+				
+				sendClientState(players[0], 1);
 				for(i = 0; i < pl_num; i++)	{
 					movePlayer(players[i]);
 					drawPlayer(players[i]);
@@ -492,7 +494,7 @@ void setupPlayer(void) {
 	for(i = 0; i < 4; i++) {
 
 		if(!players[i])
-			players[i] = malloc(sizeof(struct player));
+			players[i] = malloc(sizeof(struct SDLplayer));
 
 		switch(i) {
 			case 0: players[i]->playerSurf = loadImage("player1.gif"); break;
@@ -559,7 +561,7 @@ void setupEnemy(void) {
 	int offset;
 	for(i = 0; i < MAX_EN; i++) {
 
-	 	enemies[i] = malloc(sizeof(struct enemy));
+	 	enemies[i] = malloc(sizeof(struct SDLenemy));
 
 		enemies[i]->health = 3;
 		enemies[i]->dir = DOWN;
@@ -606,7 +608,7 @@ void setupEnemy(void) {
 }
 
 //handle damage inflicted BY ENEMY TO PLAYER
-void handlePlayerDamage(struct enemy *contact) {
+void handlePlayerDamage(struct SDLenemy *contact) {
 
 	/*if(contact->health <= 0 || player->health <= 0) 
 		return;
@@ -628,7 +630,7 @@ void handlePlayerDamage(struct enemy *contact) {
 }
 
 //handle damage inflicted BY PLAYER TO ENEMY
-void handleEnemyDamage(struct enemy *target) {
+void handleEnemyDamage(struct SDLenemy *target) {
 
 	if(target->health <= 0)
 		return;
@@ -724,7 +726,7 @@ void handlePlayerInput(int i) {
 	}
 }
 
-void movePlayer(struct player* _player) {
+void movePlayer(struct SDLplayer* _player) {
 
 	if(_player->health <= 0) 
 		return;
@@ -748,7 +750,7 @@ void movePlayer(struct player* _player) {
 	}
 }
 
-void moveEnemy(struct enemy *_enemy, int dir, int x, int y) {
+void moveEnemy(struct SDLenemy *_enemy) {
 
 	if(_enemy->health <= 0) 
 		return;
@@ -781,7 +783,7 @@ void moveEnemy(struct enemy *_enemy, int dir, int x, int y) {
 	}*/
 }
 
-void drawPlayer(struct player* _player) {
+void drawPlayer(struct SDLplayer* _player) {
 
 	if(_player->health <= 0) {
 		//draw corpse
@@ -810,7 +812,7 @@ void drawPlayer(struct player* _player) {
 	}
 }
 
-void drawEnemy(struct enemy* _enemy) {
+void drawEnemy(struct SDLenemy* _enemy) {
 
 	if(_enemy->health <= 0) {
 		//draw corpse
@@ -839,7 +841,7 @@ void drawEnemy(struct enemy* _enemy) {
 	}
 }
 
-void shootBullet(struct player* _player) {
+void shootBullet(struct SDLplayer* _player) {
 
 	if(_player->health <= 0) 
 		return;
