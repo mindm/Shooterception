@@ -104,4 +104,14 @@ typedef struct t_game {
     char gameName[17];
 } game;
 
+//Struct for server info
+typedef struct server {
+    char host[46];
+    char port[17];
+    int serverState;
+    int playerNumber;
+    int maxPlayers;
+    int gameName;
+} server;
+
 #endif
