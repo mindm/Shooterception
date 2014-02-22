@@ -328,6 +328,6 @@ int packError(char *buf, int errorCode)
 
 void unpackError(char *buf, int *errorCode)
 {    
-    *(uint8_t*)&buf[1] = (errorCode);
-    *errorCode =  *(uint8_t*)&buf[1]
+    
+    *errorCode =  *(uint8_t*)&buf[1];
 }
