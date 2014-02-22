@@ -89,8 +89,8 @@ typedef struct t_player {
 
 // Game struct
 typedef struct t_game {
-    player playerList[3]; // List of PCs in game
-    enemy enemyList[19]; // List of enemies in game
+    player playerList[4]; // List of PCs in game
+    enemy enemyList[20]; // List of enemies in game
     int playerCount; // Number of players in game
     int enemyCount; // Number of enemies in game
     int levelNumber; // Number of the game level, defines level parameters
@@ -99,7 +99,7 @@ typedef struct t_game {
     int enemyBaseSpeed; // Base speed for enemies
     int currentState; // 0: Waiting game, 1: inLobby, 2: inGame
     int maxPlayers; // Maximum amount of players, 1-4
-    char gameName[16];
+    char gameName[17];
 } game;
 
 #endif

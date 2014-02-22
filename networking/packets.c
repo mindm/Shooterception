@@ -21,6 +21,17 @@ int packmessagetype(char *buf, uint8_t msgtype)
 	return sizeof(uint8_t);
 }
 
+int getPlayerCount(char *buf)
+{
+    uint8_t value = (*(uint8_t*)&buf[1]);
+	return value;   
+}
+int getEnemyCount(char *buf)
+{
+    uint8_t value = (*(uint8_t*)&buf[2]);
+	return value;
+}
+
 
 void cutSpace(char *ptr)
 {
@@ -189,13 +200,53 @@ int packChatRelay(char *buf, char *message)
     return 2+msg_len;
 }
 
+/*
 int packServerState(char *buf, int playerCount, int enemyCount,
         int messageNumber, int timeSent)
+*/
+int packServerState(char *buf, game *gameState, int msgNumber)
 {
-    //uint8_t msgtype = SERVERSTATE;
-    printf("Not ready\n");
+    uint8_t msgtype = SERVERSTATE;
+    packmessagetype(buf, msgtype);
     
-    return 0;
+    int players = gameState->playerCount;
+    int enemies = gameState->enemyCount;
+    *(uint8_t*)&buf[1] = (players);
+    *(uint8_t*)&buf[2] = (enemies);
+    *(uint16_t*)&buf[3] = htons(msgNumber);
+    
+    int i, cur;
+    cur = 5; // cursor for buffer
+    
+    for (i=0; i < players; i++)
+    {   
+        *(uint16_t*)&buf[cur] = htons(gameState->playerList[i].xcoord);
+        cur += 2;
+        *(uint16_t*)&buf[cur] = htons(gameState->playerList[i].ycoord);
+        cur += 2;
+        *(uint16_t*)&buf[cur] = htons(gameState->playerList[i].viewDirection);
+        cur += 2;
+        *(uint8_t*)&buf[cur] = (gameState->playerList[i].health);
+        cur += 1;
+        *(uint8_t*)&buf[cur] = (gameState->playerList[i].hasShot);
+        cur += 1;
+    }
+        for (i=0; i < enemies; i++)
+    {   
+        *(uint16_t*)&buf[cur] = htons(gameState->enemyList[i].xcoord);
+        cur += 2;
+        *(uint16_t*)&buf[cur] = htons(gameState->enemyrList[i].ycoord);
+        cur += 2;
+        *(uint16_t*)&buf[cur] = htons(gameState->enemyrList[i].viewDirection);
+        cur += 2;
+        *(uint8_t*)&buf[cur] = (gameState->enemyList[i].health);
+        cur += 1;
+        *(uint8_t*)&buf[cur] = (gameState->enemyList[i].isShot);
+        cur += 1;
+    }
+    
+    
+    return cur;
 }
 
 void unpackLobbyState(char *buf, char *name1, char *name2, char *name3, char *name4)
@@ -225,6 +276,44 @@ void unpackChatRelay(char *buf, char *message, int *msglen)
 {
     strcpy(message, buf+1);
     *msglen = strlen(message);
+}
+
+void unpackServerState(char *buf, game *gameState, int msgNumber)
+{
+    
+    int players = getPlayerCount(buf);
+    int enemies = getEnemyCount(buf);
+    *msgNumber = ntohs(*(uint16_t*)&buf[3]);
+    
+    int i, cur;
+    cur = 5; // cursor for buffer
+    
+    for (i=0; i < players; i++)
+    {   
+        gameState->playerList[i].xcoord = ntohs(*(uint16_t*)&buf[cur]);
+        cur += 2;
+        gameState->playerList[i].ycoord = ntohs(*(uint16_t*)&buf[cur]);
+        cur += 2;
+        gameState->playerList[i].viewDirection = ntohs(*(uint16_t*)&buf[cur]);
+        cur += 2;
+        gameState->playerList[i].health = (*(uint8_t*)&buf[cur]);
+        cur += 1;
+        gameState->playerList[i].hasShot = (*(uint8_t*)&buf[cur]);
+        cur += 1;
+    }
+        for (i=0; i < enemies; i++)
+    {   
+        gameState->enemyList[i].xcoord = ntohs(*(uint16_t*)&buf[cur]);
+        cur += 2;
+        gameState->enemyList[i].ycoord = ntohs(*(uint16_t*)&buf[cur]);
+        cur += 2;
+        gameState->enemyList[i].viewDirection = ntohs(*(uint16_t*)&buf[cur]);
+        cur += 2;
+        gameState->enemyList[i].health = (*(uint8_t*)&buf[cur]);
+        cur += 1;
+        gameState->enemyList[i].isShot = (*(uint8_t*)&buf[cur]);
+        cur += 1;
+    }
 }
 
 int packError(char *buf, int errorCode)

@@ -25,6 +25,8 @@ int packMessageType(char *buf, uint8_t msgtype);
 int packAck(char *buf);
 uint8_t getmessagetype(char *buf);
 void cutSpace(char *ptr);
+int getPlayerCount(char *buf);
+int getEnemyCount(char *buf);
 
 
 /* Client to server messages */
@@ -39,8 +41,7 @@ int packClientExit(char *buf);
 /* Server to client messages */
 int packLobbyState(char *buf, char *player1, char *player2, char *player3, char *player4); // Have to decide how to pack 1-4 namespace
 int packGameStart(char *buf, int gameLevel);
-int packServerState(char *buf, int playerCount, int enemyCount,
-        int messageNumber, int timeSent); // Not ready
+int packServerState(char *buf, game *gameState); // Not ready
 int packChatRelay(char *buf, char *message);
 int packError(char *buf, int errorCode);
 
