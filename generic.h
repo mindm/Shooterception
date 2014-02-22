@@ -118,7 +118,7 @@ typedef struct server {
     int serverState;
     int playerNumber;
     int maxPlayers;
-    int gameName;
+    char gameName[17];
 } server;
 
 // Holds different servers
