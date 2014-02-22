@@ -86,6 +86,7 @@ typedef struct t_player {
     int playerNumber; // Player's number
     char* playerName; // Player's name
     player_n* connectionInfo; // pointer to struct containing sockaddr_storage
+    int isColliding; // Is the PC colliding with enemy?
 } player;
 
 // Game struct
