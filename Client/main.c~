@@ -10,6 +10,8 @@
 #include "timer.c"
 #include "button.c"
 #include "input.c"
+#include <pthread.h>
+//#include "../networking/networking_client.h"
 
 /* Main loop */
 
@@ -18,9 +20,13 @@ int main(int argc, char* args[]) {
 	//srand (time(NULL));
 	char mem[1] = "m"; //dummy
 	int quit = 0;
+	
+	//pthread_t networking;
+
+    //playerNames* joined;
 
 	/* actual menu state and temporal menu state */
-	int state = MAIN_MENU, _state = MAIN_MENU;
+	int state = MAIN_MENU, _state = MAIN_MENU, previous_state = MAIN_MENU;
 	int id = NOTHING, _id = NOTHING;
 
 	//number of players in created game
@@ -46,6 +52,44 @@ int main(int argc, char* args[]) {
 
 	//gamestate loop
 	while(!quit) {
+
+		/* name entering menu */
+		if(state == NAME_MENU) { 
+		    if(SDL_PollEvent(&event)) {
+
+				//player name input
+				handleStringInput(state, NAME_LEN);
+
+				//if any button hitbox is left-clicked
+				if(event.type == SDL_MOUSEBUTTONDOWN) {
+
+				    if(event.type == SDL_QUIT)
+				        quit = 1;
+
+					if(event.button.button == SDL_BUTTON_LEFT) {
+						if(_state = handleButton(ok_prompt_button, event.button.x, event.button.y)) {
+							state = MAIN_MENU;
+							resetStringInput();
+						}
+					}
+				}
+		    }
+
+		    //bground and title
+		    SDL_FillRect(screen, &screen->clip_rect, SDL_MapRGB(screen->format, 0x66, 0x66, 0x66));
+			printTitle(200, 100, "Shooter shooter");
+
+			//game name box with prompt
+			printText(game_name_box.x, game_name_box.y-35, "Your name:", textColor);
+			SDL_FillRect(screen, &game_name_box, SDL_MapRGB(screen->format, 0x00, 0x00, 0x00));
+			
+			//show the name
+			printStringInput(game_name_box.x, game_name_box.y+10, &pl_name_str[0], textColor);
+
+        	showButton(ok_prompt_button);
+			//showButton(cancel_prompt_button);
+		}
+		/* name entering menu ends */
 		
 		/* main menu */
 		if(state == MAIN_MENU) { 
@@ -98,8 +142,13 @@ int main(int argc, char* args[]) {
 						int y = event.button.y;
 
 						if(_state = handleButton(join_button, x, y))
-							state = _state;
 
+						{
+							state = _state;
+							//pthread_create(&networking, NULL, networking_thread, NULL);
+							//sendJoinGame(id);
+                        }
+                        
 						for(i = 0; i < 3; i++) {
 							if(_id = handleFocus(server_list[i], x, y)) {
 								id = _id;				
@@ -143,7 +192,7 @@ int main(int argc, char* args[]) {
 					quit = 1;
 
 				//game name input
-				handleStringInput(NAME_LEN);
+				handleStringInput(state, NAME_LEN);
 
 				//if any button's hitbox is left-clicked
 				if(event.type == SDL_MOUSEBUTTONDOWN) {
@@ -201,7 +250,7 @@ int main(int argc, char* args[]) {
 			        quit = 1;
 
 				//game name input
-				handleStringInput(MAX_LEN);
+				handleStringInput(state, MAX_LEN);
 
 				//if any button hitbox is left-clicked
 				if(event.type == SDL_MOUSEBUTTONDOWN) {
@@ -228,9 +277,25 @@ int main(int argc, char* args[]) {
 			printText(225, server_list_box.y+30, "Game name: ", textColor);
 			printText(370, server_list_box.y+30, &name_string[0], textColor);
 			printText(225, server_list_box.y+60, "Max players: ", textColor);
-			char mem[1] = "m"; //memory placeholder
 			printText(400, server_list_box.y+60, itoa(pl_num, mem), textColor);
 			printText(225, server_list_box.y+90, "Players joined: ", textColor);
+
+
+            joined = getPlayers();
+            for(i=0; i < joined->playerCount; i++){
+                printText(225, server_list_box.y+120+(30*i), &(joined->name[i]), textColor);
+            }
+
+			//show chat input
+			printText(225, server_list_box.h+100, "Chat: ", textColor);
+			printStringInput(225, server_list_box.h+120, &textbuffer[0], textColor);
+
+			/* CHAT */
+			for(i = 0; i < LOGSIZE; i++) {
+				if(strlen(&chatlog[i][0]) > 0) 
+					printText(225, server_list_box.h+(20*i), &chatlog[i][0], textColor);
+			}
+
 
 			//show chat input
 			printText(225, server_list_box.h+100, "Chat: ", textColor);
@@ -296,7 +361,33 @@ int main(int argc, char* args[]) {
 			}
 			/* in game end */
 
-		if(state == QUIT) quit = 1;
+		if(state == QUIT) { 
+			if(SDL_PollEvent(&event)) {
+
+				//player name input
+				handleStringInput(state, NAME_LEN);
+
+				//if any button hitbox is left-clicked
+				if(event.type == SDL_MOUSEBUTTONDOWN) {
+					if(event.button.button == SDL_BUTTON_LEFT) {
+						if(_state = handleButton(ok_prompt_button, event.button.x, event.button.y)) {
+							quit = 1;
+						}
+
+						if(_state = handleButton(cancel_prompt_button, event.button.x, event.button.y)) {
+							state = previous_state;
+						}
+					}
+				}
+		    }
+
+		    //bground and title
+		    SDL_FillRect(screen, &screen->clip_rect, SDL_MapRGB(screen->format, 0x66, 0x66, 0x66));
+			printTitle(100, 100, "Quitting. Are you sure?");
+
+        	showButton(ok_prompt_button);
+			showButton(cancel_prompt_button); 
+		}
 
 		//update screen
 		if(SDL_Flip(screen) == -1)
@@ -473,7 +564,6 @@ void setupPlayer(void) {
 		}
 	}
 }
-
 void setupEnemy(void) {
 
 	int i, j;

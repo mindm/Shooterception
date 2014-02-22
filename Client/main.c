@@ -11,7 +11,7 @@
 #include "button.c"
 #include "input.c"
 #include <pthread.h>
-#include "networking/networking_client.h"
+//#include "../networking/networking_client.h"
 
 /* Main loop */
 
@@ -21,12 +21,12 @@ int main(int argc, char* args[]) {
 	char mem[1] = "m"; //dummy
 	int quit = 0;
 	
-	pthread_t networking;
+	//pthread_t networking;
 
-    playerNames* joined;
+    //playerNames* joined;
 
 	/* actual menu state and temporal menu state */
-	int state = MAIN_MENU, _state = MAIN_MENU;
+	int state = MAIN_MENU, _state = MAIN_MENU, previous_state = MAIN_MENU;
 	int id = NOTHING, _id = NOTHING;
 
 	//number of players in created game
@@ -52,6 +52,44 @@ int main(int argc, char* args[]) {
 
 	//gamestate loop
 	while(!quit) {
+
+		/* name entering menu */
+		if(state == NAME_MENU) { 
+		    if(SDL_PollEvent(&event)) {
+
+				//player name input
+				handleStringInput(state, NAME_LEN);
+
+				//if any button hitbox is left-clicked
+				if(event.type == SDL_MOUSEBUTTONDOWN) {
+
+				    if(event.type == SDL_QUIT)
+				        quit = 1;
+
+					if(event.button.button == SDL_BUTTON_LEFT) {
+						if(_state = handleButton(ok_prompt_button, event.button.x, event.button.y)) {
+							state = MAIN_MENU;
+							resetStringInput();
+						}
+					}
+				}
+		    }
+
+		    //bground and title
+		    SDL_FillRect(screen, &screen->clip_rect, SDL_MapRGB(screen->format, 0x66, 0x66, 0x66));
+			printTitle(200, 100, "Shooter shooter");
+
+			//game name box with prompt
+			printText(game_name_box.x, game_name_box.y-35, "Your name:", textColor);
+			SDL_FillRect(screen, &game_name_box, SDL_MapRGB(screen->format, 0x00, 0x00, 0x00));
+			
+			//show the name
+			printStringInput(game_name_box.x, game_name_box.y+10, &pl_name_str[0], textColor);
+
+        	showButton(ok_prompt_button);
+			//showButton(cancel_prompt_button);
+		}
+		/* name entering menu ends */
 		
 		/* main menu */
 		if(state == MAIN_MENU) { 
@@ -104,13 +142,11 @@ int main(int argc, char* args[]) {
 						int y = event.button.y;
 
 						if(_state = handleButton(join_button, x, y))
-<<<<<<< HEAD
+
 						{
-=======
->>>>>>> 78f55058daa7a00abb6ad6d6adb89169a7d4c6aa
 							state = _state;
-							pthread_create(&networking, NULL, networking_thread, NULL);
-							sendJoinGame(id);
+							//pthread_create(&networking, NULL, networking_thread, NULL);
+							//sendJoinGame(id);
                         }
                         
 						for(i = 0; i < 3; i++) {
@@ -156,7 +192,7 @@ int main(int argc, char* args[]) {
 					quit = 1;
 
 				//game name input
-				handleStringInput(NAME_LEN);
+				handleStringInput(state, NAME_LEN);
 
 				//if any button's hitbox is left-clicked
 				if(event.type == SDL_MOUSEBUTTONDOWN) {
@@ -197,7 +233,7 @@ int main(int argc, char* args[]) {
 			SDL_FillRect(screen, &game_name_box, SDL_MapRGB(screen->format, 0x00, 0x00, 0x00));
 			
 			//show the name
-			printStringInput(game_name_box.x, game_name_box.y+10, &name_string[0], textColor);
+			printStringInput(game_name_box.x, game_name_box.y+10, &g_name_str[0], textColor);
 			
 			showButton(create_button);
 			showButton(up_button);
@@ -214,7 +250,7 @@ int main(int argc, char* args[]) {
 			        quit = 1;
 
 				//game name input
-				handleStringInput(MAX_LEN);
+				handleStringInput(state, MAX_LEN);
 
 				//if any button hitbox is left-clicked
 				if(event.type == SDL_MOUSEBUTTONDOWN) {
@@ -239,16 +275,16 @@ int main(int argc, char* args[]) {
 			SDL_FillRect(screen, &server_list_box, SDL_MapRGB(screen->format, 0x00, 0x00, 0x00));
 
 			printText(225, server_list_box.y+30, "Game name: ", textColor);
-			printText(370, server_list_box.y+30, &name_string[0], textColor);
+			printText(370, server_list_box.y+30, &pl_name_str[0], textColor);
 			printText(225, server_list_box.y+60, "Max players: ", textColor);
 			printText(400, server_list_box.y+60, itoa(pl_num, mem), textColor);
 			printText(225, server_list_box.y+90, "Players joined: ", textColor);
 
-<<<<<<< HEAD
-            joined = getPlayers();
+
+            /*joined = getPlayers();
             for(i=0; i < joined->playerCount; i++){
                 printText(225, server_list_box.y+120+(30*i), &(joined->name[i]), textColor);
-            }
+            }*/
 
 			//show chat input
 			printText(225, server_list_box.h+100, "Chat: ", textColor);
@@ -260,18 +296,6 @@ int main(int argc, char* args[]) {
 					printText(225, server_list_box.h+(20*i), &chatlog[i][0], textColor);
 			}
 
-=======
-			//show chat input
-			printText(225, server_list_box.h+100, "Chat: ", textColor);
-			printStringInput(225, server_list_box.h+120, &textbuffer[0], textColor);
-
-			/* CHAT */
-			for(i = 0; i < LOGSIZE; i++) {
-				if(strlen(&chatlog[i][0]) > 0) 
-					printText(225, server_list_box.h+(20*i), &chatlog[i][0], textColor);
-			}
-
->>>>>>> 78f55058daa7a00abb6ad6d6adb89169a7d4c6aa
 			showButton(start_button);
 		}
 		/* game lobby end */
@@ -326,7 +350,33 @@ int main(int argc, char* args[]) {
 			}
 			/* in game end */
 
-		if(state == QUIT) quit = 1;
+		if(state == QUIT) { 
+			if(SDL_PollEvent(&event)) {
+
+				//player name input
+				handleStringInput(state, NAME_LEN);
+
+				//if any button hitbox is left-clicked
+				if(event.type == SDL_MOUSEBUTTONDOWN) {
+					if(event.button.button == SDL_BUTTON_LEFT) {
+						if(_state = handleButton(ok_prompt_button, event.button.x, event.button.y)) {
+							quit = 1;
+						}
+
+						if(_state = handleButton(cancel_prompt_button, event.button.x, event.button.y)) {
+							state = previous_state;
+						}
+					}
+				}
+		    }
+
+		    //bground and title
+		    SDL_FillRect(screen, &screen->clip_rect, SDL_MapRGB(screen->format, 0x66, 0x66, 0x66));
+			printTitle(100, 100, "Quitting. Are you sure?");
+
+        	showButton(ok_prompt_button);
+			showButton(cancel_prompt_button); 
+		}
 
 		//update screen
 		if(SDL_Flip(screen) == -1)
@@ -436,7 +486,6 @@ void freeAssets(void) {
 }
 
 void setupPlayer(void) {
-<<<<<<< HEAD
 
 	int i, j;
 	int offset;
@@ -445,16 +494,6 @@ void setupPlayer(void) {
 		if(!players[i])
 			players[i] = malloc(sizeof(struct player));
 
-=======
-
-	int i, j;
-	int offset;
-	for(i = 0; i < 4; i++) {
-
-		if(!players[i])
-			players[i] = malloc(sizeof(struct player));
-
->>>>>>> 78f55058daa7a00abb6ad6d6adb89169a7d4c6aa
 		switch(i) {
 			case 0: players[i]->playerSurf = loadImage("player1.gif"); break;
 			case 1: players[i]->playerSurf = loadImage("player2.gif"); break;
@@ -514,7 +553,6 @@ void setupPlayer(void) {
 		}
 	}
 }
-
 void setupEnemy(void) {
 
 	int i, j;
