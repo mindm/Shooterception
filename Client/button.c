@@ -11,7 +11,23 @@
 
 void setupButtons() {
 
-	/* change into join game menu */
+	/* ok prompt */
+ 	ok_prompt_button.image = loadImage("ok.gif");
+	ok_prompt_button.box.x = SCREEN_CX+15;
+	ok_prompt_button.box.y = 550;
+	ok_prompt_button.box.w = 250;
+	ok_prompt_button.box.h = 100;
+	ok_prompt_button.action = OK;
+
+	/* cancel prompt*/
+ 	cancel_prompt_button.image = loadImage("cancel.gif");
+	cancel_prompt_button.box.x = SCREEN_CX-215;
+	cancel_prompt_button.box.y = 550;
+	cancel_prompt_button.box.w = 250;
+	cancel_prompt_button.box.h = 100;
+	cancel_prompt_button.action = CANCEL;
+
+	/* join game menu */
  	join_menu_button.image = loadImage("join.gif");
 	join_menu_button.box.x = SCREEN_CX-125;
 	join_menu_button.box.y = 225;
@@ -19,7 +35,7 @@ void setupButtons() {
 	join_menu_button.box.h = 100;
 	join_menu_button.action = JOIN_MENU;
 
-	/*join selected game button*/
+	/* join selected game button */
  	join_button.image = loadImage("join.gif");
 	join_button.box.x = SCREEN_CX-125;
 	join_button.box.y = 650;
@@ -157,6 +173,8 @@ void freeButtons() {
 	SDL_FreeSurface(up_button.image);
 	SDL_FreeSurface(down_button.image);
 
+	SDL_FreeSurface(ok_prompt_button.image);
+	SDL_FreeSurface(cancel_prompt_button.image);
 }
 
 void freeItemlist(int n) {

@@ -6,7 +6,7 @@
 *   Markku Painomaa (0358551) - markku.painomaa@lut.fi
 */
 
-#define NAME_LEN 24
+#define NAME_LEN 16
 #define MAX_LEN 100
 #define LOGSIZE 5
 
@@ -23,7 +23,8 @@ int textinput = 0;
 int textpos = 0;
 
 char textbuffer[MAX_LEN] = { 0 };
-char name_string[NAME_LEN] = { 0 };
+char g_name_str[NAME_LEN] = { 0 };
+char pl_name_str[NAME_LEN] = { 0 };
 
 /* Chatlog */
 char chatlog[LOGSIZE][MAX_LEN];
@@ -33,7 +34,7 @@ int logentries = 0;
 /* Functions */
 
 void setupStringInput(void);
-void handleStringInput(int);
+void handleStringInput(int, int);
 void addLog(char*, int);
 void printText(int, int, char*, SDL_Color);
 void printTitle(int, int, char*);

@@ -16,7 +16,7 @@ void setupStringInput(){
 	text_font = TTF_OpenFont("OCR", 16);
 }
 
-void handleStringInput(int length) {
+void handleStringInput(int context, int length) {
 
     if(event.type == SDL_KEYDOWN) {
 
@@ -68,8 +68,11 @@ void handleStringInput(int length) {
 			textinput = 0;
 		}
 
-		if(length == NAME_LEN)
-			memcpy(&name_string[0], textbuffer, textpos);
+		if(context == NAME_MENU)
+			memcpy(&pl_name_str[0], textbuffer, textpos);
+
+		if(context == CREATE_MENU)
+			memcpy(&g_name_str[0], textbuffer, textpos);
     }
 }
 
@@ -110,7 +113,6 @@ void printText(int x, int y, char* str, SDL_Color color) {
 
 //prints size 16 font
 void printStringInput(int x, int y, char* string, SDL_Color color) {
-
 
 	SDL_Surface* temp = TTF_RenderText_Solid(text_font, string, color);
 	
