@@ -15,7 +15,7 @@ build:
 	make server
 	
 client:
-	$(COMPILER) $(FLAGS) Client/main.c -o client $(LIBS)
+	$(COMPILER) $(FLAGS) Client/main.c networking/packets.c networking/packets.h -o client $(LIBS)
 
 server:
 	$(COMPILER) $(FLAGS) gameLogic.c gameLogic.h networking/networking_server.c networking/networking_server.h networking/packets.c networking/packets.h generic.h -o server
