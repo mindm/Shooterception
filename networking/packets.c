@@ -278,7 +278,7 @@ void unpackChatRelay(char *buf, char *message, int *msglen)
     *msglen = strlen(message);
 }
 
-void unpackServerState(char *buf, game *gameState, int msgNumber)
+void unpackServerState(char *buf, game *gameState, int *msgNumber)
 {
     
     int players = getPlayerCount(buf);

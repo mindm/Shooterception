@@ -80,7 +80,7 @@ void unpackClientState(char *buf, player *playerInfo, int *messageNumber); // Ma
 void unpackLobbyState(char *buf, char *name1, char *name2, char *name3, char *name4); // Not ready
 void unpackGameStart(char *buf, int *gameLevel);
 void unpackServerState(char *buf, game *gameState,
-        int messageNumber/*, int timeSent*/); // Struct here too    
+        int *messageNumber/*, int timeSent*/); // Struct here too    
 void unpackChatRelay(char *buf, char *message, int *msglen);
 void unpackError(char *buf, int *errorCode);
 
