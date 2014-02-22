@@ -325,3 +325,9 @@ int packError(char *buf, int errorCode)
     
     return sizeof(uint8_t) * 2;
 }
+
+void unpackError(char *buf, int *errorCode)
+{    
+    *(uint8_t*)&buf[1] = (errorCode);
+    *errorCode =  *(uint8_t*)&buf[1]
+}
