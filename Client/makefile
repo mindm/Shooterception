@@ -1,8 +1,8 @@
 COMPILER = gcc
-CFLAGS = -std=gnu99
+CFLAGS = -w -std=gnu99
 DFLAGS = -g
-LIBS = -lSDL -lSDL_image -lSDL_ttf -lSDL_mixer
-SRC = main.c
+LIBS = -lSDL -lSDL_image -lSDL_ttf -lSDL_mixer -lpthread
+SRC = main.c ../networking/packets.c
 OUT = main
 
 all:

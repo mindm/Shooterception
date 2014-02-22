@@ -11,7 +11,7 @@
 #include "button.c"
 #include "input.c"
 #include <pthread.h>
-//#include "../networking/networking_client.h"
+#include "../networking/networking_client.c"
 
 /* Main loop */
 
@@ -21,7 +21,7 @@ int main(int argc, char* args[]) {
 	char mem[1] = "m"; //dummy
 	int quit = 0;
 	
-	//pthread_t networking;
+	pthread_t networking;
 
     //playerNames* joined;
 
@@ -87,7 +87,7 @@ int main(int argc, char* args[]) {
 			printStringInput(game_name_box.x, game_name_box.y+10, &pl_name_str[0], textColor);
 
         	showButton(ok_prompt_button);
-			//showButton(cancel_prompt_button);
+
 		}
 		/* name entering menu ends */
 		
@@ -145,7 +145,7 @@ int main(int argc, char* args[]) {
 
 						{
 							state = _state;
-							//pthread_create(&networking, NULL, networking_thread, NULL);
+							pthread_create(&networking, NULL, networking_thread, NULL);
 							//sendJoinGame(id);
                         }
                         
@@ -233,7 +233,7 @@ int main(int argc, char* args[]) {
 			SDL_FillRect(screen, &game_name_box, SDL_MapRGB(screen->format, 0x00, 0x00, 0x00));
 			
 			//show the name
-			printStringInput(game_name_box.x, game_name_box.y+10, &name_string[0], textColor);
+			printStringInput(game_name_box.x, game_name_box.y+10, &g_name_str[0], textColor);
 			
 			showButton(create_button);
 			showButton(up_button);
@@ -275,27 +275,16 @@ int main(int argc, char* args[]) {
 			SDL_FillRect(screen, &server_list_box, SDL_MapRGB(screen->format, 0x00, 0x00, 0x00));
 
 			printText(225, server_list_box.y+30, "Game name: ", textColor);
-			printText(370, server_list_box.y+30, &name_string[0], textColor);
+			printText(370, server_list_box.y+30, &pl_name_str[0], textColor);
 			printText(225, server_list_box.y+60, "Max players: ", textColor);
 			printText(400, server_list_box.y+60, itoa(pl_num, mem), textColor);
 			printText(225, server_list_box.y+90, "Players joined: ", textColor);
 
 
-            joined = getPlayers();
+            /*joined = getPlayers();
             for(i=0; i < joined->playerCount; i++){
                 printText(225, server_list_box.y+120+(30*i), &(joined->name[i]), textColor);
-            }
-
-			//show chat input
-			printText(225, server_list_box.h+100, "Chat: ", textColor);
-			printStringInput(225, server_list_box.h+120, &textbuffer[0], textColor);
-
-			/* CHAT */
-			for(i = 0; i < LOGSIZE; i++) {
-				if(strlen(&chatlog[i][0]) > 0) 
-					printText(225, server_list_box.h+(20*i), &chatlog[i][0], textColor);
-			}
-
+            }*/
 
 			//show chat input
 			printText(225, server_list_box.h+100, "Chat: ", textColor);

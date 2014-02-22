@@ -11,7 +11,7 @@
 #include "button.c"
 #include "input.c"
 #include <pthread.h>
-//#include "../networking/networking_client.h"
+#include "../networking/networking_client.c"
 
 /* Main loop */
 
@@ -21,7 +21,7 @@ int main(int argc, char* args[]) {
 	char mem[1] = "m"; //dummy
 	int quit = 0;
 	
-	//pthread_t networking;
+	pthread_t networking;
 
     //playerNames* joined;
 
@@ -87,7 +87,7 @@ int main(int argc, char* args[]) {
 			printStringInput(game_name_box.x, game_name_box.y+10, &pl_name_str[0], textColor);
 
         	showButton(ok_prompt_button);
-			//showButton(cancel_prompt_button);
+
 		}
 		/* name entering menu ends */
 		
@@ -145,8 +145,8 @@ int main(int argc, char* args[]) {
 
 						{
 							state = _state;
-							//pthread_create(&networking, NULL, networking_thread, NULL);
-							//sendJoinGame(id);
+							pthread_create(&networking, NULL, networking_thread, NULL);
+							sendJoinGame(id);
                         }
                         
 						for(i = 0; i < 3; i++) {

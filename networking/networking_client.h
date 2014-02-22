@@ -15,7 +15,7 @@
 #include "packets.h"
 
 // The playerinfo struct
-typedef struct player_n
+/*typedef struct player_n
 {
 	int number;
 	char address[INET6_ADDRSTRLEN];
@@ -23,7 +23,7 @@ typedef struct player_n
 	struct sockaddr_storage their_addr;
 	int addr_size;
     
-} player_n;
+} player_n;*/ //tää löytyy genericistä
 
 
 typedef struct playerNames {
@@ -31,18 +31,20 @@ typedef struct playerNames {
     char name[4][16];
 } playerNames;
 
-typedef struct serverInfo {
+struct serverInfo {
     int id;
     int port;
     char address[40];
-}
+};
 
 
-serverInfo serverList[10];
+struct serverInfo serverList[10];
 
+void *networking_thread(void *dest_addr);
 
 playerNames *getPlayers();
 void *get_in_addr(struct sockaddr *sa);
+void sendJoinGame(int id);
 void sendChatMsg(char *message, int msglen);
 void readParams(char *full_address, char *host, char *port);
 char *createFullAddress(char *host, char *port);

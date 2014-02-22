@@ -24,7 +24,7 @@ void *get_in_addr(struct sockaddr *sa)
 }
 
 
-playerNames players;
+playerNames pl_names;
 
 char player1[16];
 char player2[16];
@@ -33,7 +33,7 @@ char player4[16];
 
 playerNames *getPlayers()
 {
-    return &players;
+    return &pl_names;
 }
 
 
@@ -47,7 +47,7 @@ void sendJoinGame(int id)
     int i;
     for (i = 0; i < 9; i++)
     {
-        if (serverList[i])
+        if (serverList[i].id)
         {
             if (serverList[i].id == id)
                 break;
@@ -59,26 +59,26 @@ void sendJoinGame(int id)
 
 void setPlayerNames(player1, player2, player3, player4)
 {
-    players.playerCount = 0;
+    pl_names.playerCount = 0;
     if (strlen(player1) > 0)
     {
-        memcpy(players.name[0][0], player1, 16);
-        players.playerCount = 1;
+        memcpy(pl_names.name[0][0], player1, 16);
+        pl_names.playerCount = 1;
     }
     if (strlen(player2) > 0)
     {
-        memcpy(players.name[1][0], player2, 16);
-        players.playerCount = 2;
+        memcpy(pl_names.name[1][0], player2, 16);
+        pl_names.playerCount = 2;
     }
     if (strlen(player3) > 0)
     {
-        memcpy(players.name[2][0], player3, 16);
-        players.playerCount = 3;
+        memcpy(pl_names.name[2][0], player3, 16);
+        pl_names.playerCount = 3;
     }
     if (strlen(player4) > 0)
     {
-        memcpy(players.name[3][0], player4, 16);
-        players.playerCount = 4;
+        memcpy(pl_names.name[3][0], player4, 16);
+        pl_names.playerCount = 4;
     }
 }
 
@@ -100,8 +100,10 @@ char *createFullAddress(char *host, char *port)
     return full_address;
 }
 
-void *networking_thread(char *dest_address)
+void *networking_thread(void *dest_addr)
+//int main() 
 {
+
 	// Some variables for connection
 	struct addrinfo hints, *res, *iter;
 	int status;
@@ -259,8 +261,9 @@ void *networking_thread(char *dest_address)
 				else if (msgtype == CHATRELAY)
 				{   
 				    int msglen;
+					char* newMessage;
 				    unpackChatRelay(buf, newMessage, &msglen);
-				    addLog(newMessage, msglen);
+				    //addLog(newMessage, msglen);
 				}
 				else if (msgtype == GAMESTART)
 				{
@@ -270,7 +273,7 @@ void *networking_thread(char *dest_address)
 				else if (msgtype == ERROR)
 			    {
 			        int errorCode;
-			        unpackError(buf, &errorCode)
+			        //unpackError(buf, &errorCode);
 			    }
 				
 			} // end read inputsocket
