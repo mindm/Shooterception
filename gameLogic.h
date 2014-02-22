@@ -50,7 +50,8 @@ game* newGame(game*, char[16], int);
 void freeGame(game*);
 
 // Start new game
-int startGame(game*, char[MAXDATASIZE]);
+// Params: game state, outbuffer, levelNumber
+int startGame(game*, char[MAXDATASIZE], int);
 
 // Go to lobby state
 void startLobby(game*);
@@ -90,5 +91,9 @@ game* resetPlayerCollisions(game*);
 
 // Create initial game state when server starts
 game* initGame(void);
+
+// Remove player from game
+game* removePlayer(game*, player_n*);
+void relayChatMessage(game*,  char[MAXDATASIZE], char[CHATMESSAGE_LENGTH]);
 
 #endif /* GAMELOGIC_H_ */
