@@ -283,7 +283,7 @@ void unpackServerState(char *buf, game *gameState, int msgNumber)
     
     int players = getPlayerCount(buf);
     int enemies = getEnemyCount(buf);
-    msgNumber = ntohs(*(uint16_t*)&buf[3]);
+    *msgNumber = ntohs(*(uint16_t*)&buf[3]);
     
     int i, cur;
     cur = 5; // cursor for buffer
