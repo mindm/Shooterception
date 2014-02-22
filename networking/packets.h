@@ -47,17 +47,17 @@ int packError(char *buf, int errorCode);
 
 
 /* Client to master messages */
-int packGamesQuery();
-int packServerQuery();
+int packGamesQuery(char *buf);
+int packServerQuery(char *buf);
 
 
 /* Master to client messages */
-int packGameList(int gameCount, char *IP, int port, char *gameName, int maxPlayers);
-int packServerName(int serverCount, char *IP, int port);
+int packGameList(char *buf, serverList *list);
+int packServerList(char *buf, serverList *list);
 
 
 /* Server to master messages */
-int packUpdateStats(int playerNumber);
+int packUpdateState(char *buf, game *gameState);
 //int packServerState(int serverAction);
 
 
@@ -90,13 +90,15 @@ void unpackError(char *buf, int *errorCode);
 
 
 /* Master to client messages */
-int unpackGameList(int *gameCount, char *IP, int *port, char *gameName, int *maxPlayers); // Struct would be nice
-int unpackServerName(int *serverCount, char *IP, int *port);
+void unpackGameList(char *buf, serverList *list);
+void unpackServerList(char *buf, serverList *list);
 
 
 /* Server to master messages */
-int unpackUpdateStats(int *playerNumber);
-//int unpackServerState(int *serverAction);
+void unpackUpdateState(char *buf, server *serverState);
+
+
+
 
 
 

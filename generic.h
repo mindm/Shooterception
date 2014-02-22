@@ -53,6 +53,11 @@
 #define ERROR 100
 //Both
 #define ACK 0
+//Master
+#define GAMESQUERY 31
+#define SERVERQUERY 32
+#define GAMELIST 33
+#define SERVERLIST 34
 
 // connectionInfo struct
 typedef struct player_n
@@ -113,5 +118,11 @@ typedef struct server {
     int maxPlayers;
     int gameName;
 } server;
+
+typedef struct serverList
+{   
+    int count;
+    server servers[20];
+} serverList;
 
 #endif
