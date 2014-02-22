@@ -41,7 +41,7 @@ int packClientExit(char *buf);
 /* Server to client messages */
 int packLobbyState(char *buf, char *player1, char *player2, char *player3, char *player4); // Have to decide how to pack 1-4 namespace
 int packGameStart(char *buf, int gameLevel);
-int packServerState(char *buf, game *gameState); // Not ready
+int packServerState(char *buf, game *gameState, int msgNumber); // Not ready
 int packChatRelay(char *buf, char *message);
 int packError(char *buf, int errorCode);
 
@@ -79,8 +79,8 @@ void unpackClientState(char *buf, player *playerInfo, int *messageNumber); // Ma
 /* Server to client messages */
 void unpackLobbyState(char *buf, char *name1, char *name2, char *name3, char *name4); // Not ready
 void unpackGameStart(char *buf, int *gameLevel);
-void unpackServerState(char *buf, int playerCount, int enemyCount,
-        int messageNumber, int timeSent); // Struct here too
+void unpackServerState(char *buf, game *gameState,
+        int messageNumber/*, int timeSent*/); // Struct here too    
 void unpackChatRelay(char *buf, char *message, int *msglen);
 void unpackError(char *buf, int *errorCode);
 

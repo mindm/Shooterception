@@ -71,6 +71,7 @@ typedef struct t_enemy {
     uint8_t health; // Enemy health - 0: Uninjured, 1: Injured, 2: Dead
     int following; // ID of the player the enemy is following
     int speed; // Enemy speed
+    int isShot; // Has the enemy been shot?
 } enemy;
 
 // Player character stuct 

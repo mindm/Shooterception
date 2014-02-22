@@ -288,9 +288,11 @@ int main(int argc, char *argv[])
             // Check end condition
             if(checkEnd(gameState) == 1){
                 // Player's have won
+                // Move to lobby and set next level parameters
             }
             else if(checkEnd(gameState) == 2){
                 // All PCs dead, game lost
+                // Shut down game, return to main menu
             }
             
             // Relay chat message to correct clients
@@ -304,26 +306,7 @@ int main(int argc, char *argv[])
 	
     // Cleanup after the game ends
     freeGame(gameState);
-    
-/*    while(1)
-    {
-        //Server loop
-        printf("server: waiting for packet...\n");
-        
-		// Save address size and read with recvfrom
-		sin_size = sizeof(their_addr);
-		if ((numbytes = recvfrom(sockfd, inbuf, MAXDATASIZE-1, 0,
-				(struct sockaddr *)&their_addr, &sin_size)) == -1) {
-			perror("rcvfrom");
-			exit(1);
-		}
-        
-        int msgtype = getmessagetype(inbuf); // get messagetype
-        
-        printf("msgtype: %d\n", msgtype);
-    
-    }
-*/
+
 	return 0;
 }
 

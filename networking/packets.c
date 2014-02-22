@@ -235,9 +235,9 @@ int packServerState(char *buf, game *gameState, int msgNumber)
     {   
         *(uint16_t*)&buf[cur] = htons(gameState->enemyList[i].xcoord);
         cur += 2;
-        *(uint16_t*)&buf[cur] = htons(gameState->enemyrList[i].ycoord);
+        *(uint16_t*)&buf[cur] = htons(gameState->enemyList[i].ycoord);
         cur += 2;
-        *(uint16_t*)&buf[cur] = htons(gameState->enemyrList[i].viewDirection);
+        *(uint16_t*)&buf[cur] = htons(gameState->enemyList[i].viewDirection);
         cur += 2;
         *(uint8_t*)&buf[cur] = (gameState->enemyList[i].health);
         cur += 1;
@@ -283,7 +283,7 @@ void unpackServerState(char *buf, game *gameState, int msgNumber)
     
     int players = getPlayerCount(buf);
     int enemies = getEnemyCount(buf);
-    *msgNumber = ntohs(*(uint16_t*)&buf[3]);
+    msgNumber = ntohs(*(uint16_t*)&buf[3]);
     
     int i, cur;
     cur = 5; // cursor for buffer
