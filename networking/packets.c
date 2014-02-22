@@ -440,3 +440,26 @@ void unpackServerList(char *buf, serverList *list)
     }
       
 }
+
+/* Master server - game server*/
+
+int packUpdateState(char *buf, game *gameState)
+{
+    uint8_t msgtype = UPDATESTATE;
+    packmessagetype(buf, msgtype);
+    
+    *(uint8_t*)&buf[1] = gameState->currentState;
+    *(uint8_t*)&buf[2] = gameState->playerCount;
+    *(uint8_t*)&buf[3] = gameState->maxPlayers;
+    memcpy(buf+4, gameState->gameName, 17);
+    
+    return 21;
+}
+
+void unpackUpdateState(char *buf, server *server)
+{
+    server->serverState = *(uint8_t*)&buf[1];
+    server->playerNumber = *(uint8_t*)&buf[2];
+    server->maxPlayers = *(uint8_t*)&buf[3];
+    memcpy(server->gameName, buf+4, 17);
+}

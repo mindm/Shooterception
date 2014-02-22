@@ -95,7 +95,7 @@ void unpackServerList(char *buf, serverList *list);
 
 
 /* Server to master messages */
-void unpackUpdateState(char *buf, server *serverState);
+void unpackUpdateState(char *buf, server *server);
 
 
 
