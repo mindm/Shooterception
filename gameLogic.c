@@ -250,14 +250,30 @@ void relayChat (void){ // Check if private message
 
 }
 
-// New game state
-game* newGame(char* gameName, int maxPlayers) {
+game* initGame(void){
 
     // Allocate game struct
     game *gameState = (game*)malloc(sizeof(game));
+    
+    memset(gameState->playerList, 0, 4*sizeof(player));
+    memset(gameState->enemyList, 0, 20*sizeof(enemy)); 
+    gameState->playerCount = 0;
+    gameState->enemyCount = 0;
+    gameState->levelNumber = 0;
+    gameState->enemyLimit = 0;
+    gameState->enemySpawnRate = 0;
+    gameState->enemyBaseSpeed = 0;
+    gameState->currentState = 0;
+    gameState->maxPlayers = 0;
+    memset(gameState->gameName, 0, sizeof(char));
+
+    return gameState;
+}
+
+// New game state
+game* newGame(game* gameState, char* gameName, int maxPlayers) {
 
     // Set the game state
-    // TODO: Format playerList and enemyList
     gameState->playerCount = 1; // Number of players after the host joins
     gameState->enemyCount = 0; // Number of enemies on the game board
     gameState->levelNumber = 1; // Number of the game level (1-3), new game starts from 1

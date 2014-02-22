@@ -45,8 +45,8 @@ void relayChat (void); // Check if private message
 void sendGameState(void);
 
 // New game struct
-// Params: gameName, maxPlayers
-game* newGame(char[16], int);
+// Params: game state, gameName, maxPlayers
+game* newGame(game*, char[16], int);
 void freeGame(game*);
 
 // Start new game
@@ -87,5 +87,8 @@ game* resetEnemyHits(game*);
 
 // Reset players isColliding back to 0
 game* resetPlayerCollisions(game*);
+
+// Create initial game state when server starts
+game* initGame(void);
 
 #endif /* GAMELOGIC_H_ */
