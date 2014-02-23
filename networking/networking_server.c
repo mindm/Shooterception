@@ -37,11 +37,9 @@ int getInPort(struct sockaddr *sa, int p_port)
 
     if (sa->sa_family == AF_INET) {
         p_port = (((struct sockaddr_in*)sa)->sin_port);
-        printf("IPv4 port %d\n",p_port);
     }
     else if (sa->sa_family == AF_INET) {
         p_port = (((struct sockaddr_in6*)sa)->sin6_port);
-        printf("IPv6 port %d\n",p_port);
     }
     return p_port;
 }
@@ -207,12 +205,9 @@ int main(int argc, char *argv[])
                 memcpy(tempAddress->address, ipstr, INET6_ADDRSTRLEN);
                 
                 // Get port
-                getInPort((struct sockaddr *) &their_addr,p_port);
+                p_port = getInPort((struct sockaddr *) &their_addr,p_port);
                 tempAddress->port = p_port;
-                
-                printf("Server: Store port %d to struct\n",p_port);
-                printf("Server: Value in struct: %d\n",tempAddress->port);
-                                
+         
                 tempAddress->their_addr = their_addr;
 
                 tempAddress->addr_size = sizeof(their_addr);		

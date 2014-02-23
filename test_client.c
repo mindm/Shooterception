@@ -132,10 +132,6 @@ int main(int argc, char *argv[]){
 	printf("Client: Enter Main loop\n");
 	
 	while(running) {
-	
-	    printf("\nClient: Give packet name to send\n");
-
-        scanf("%s",command);
 
         if(lenout > 0){
             numbytes = send(sockfd, outbuffer, lenout, 0);
@@ -143,6 +139,11 @@ int main(int argc, char *argv[]){
             lenout = 0;
 		}
 		
+			
+	    printf("\nClient: Give packet name to send\n");
+
+        scanf("%s",command);
+        
 	    // Pack message and set it to outbuffer
 	    if(strcmp(command,"chatMessage") == 0){
 	        printf("Client: Sent chatMessage message\n");
