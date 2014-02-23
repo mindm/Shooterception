@@ -40,10 +40,133 @@ void test_create_game()
     strcmp(player1, player2) == 0){
         printf("\nCreate game test OK\n");
     } else {
-        printf("Create game test Fail\n");}
+        printf("\nCreate game test Fail\n");}
     
 }
 
+void test_join_game()
+{
+    char gameName[] = "peli123";
+    char player1[] = "player_name";
+    
+    char rcvgameName[16];
+    char player2[16];
+    
+    int len = packJoinGame(outbuf, gameName, player1);
+    memcpy(inbuf, outbuf, 512);
+    unpackJoinGame(inbuf, rcvgameName, player2);    
+    
+    if(
+            strcmp(gameName, rcvgameName) == 0 &&
+            strcmp(player1, player2) == 0
+    ){
+        printf("\nJoin game test OK\n");
+    } else {
+        printf("\nJoin game test Fail\n");}
+}
+
+void test_client_state()
+{
+    player out;
+    int msgnum1 = 10;
+    
+    player in;
+    int msgnum2 = 0;
+    
+    out.xcoord = 1; // X coordinate, upper left corner
+    out.ycoord = 2; // Y coordinate, upper left corner
+    out.viewDirection = 3; // Direction the PC is facing, 0-359 degrees
+    out.hasShot = 1; // Has the player shot after sending the last clientState
+    
+    int size = packClientState(outbuf, out, msgnum1);
+    memcpy(inbuf, outbuf, 512);
+    unpackClientState(inbuf, &in, &msgnum2);
+    
+    if (    out.xcoord == in.xcoord &&
+            out.ycoord == in.ycoord &&
+            out.viewDirection == in.viewDirection &&
+            out.hasShot == in.hasShot)
+        printf("\nClient state test OK\n");
+    else
+        printf("\nClient state test Fail\n");
+    
+}
+
+void test_lobby_state()
+{
+    char pl1[] = "nimi1";
+    char pl2[] = "namn2";
+    char pl3[] = "name3";
+    char pl4[] = "nombre4";
+
+    char _pl1[17];
+    char _pl2[17];
+    char _pl3[17];
+    char _pl4[17];
+    
+    int size = packLobbyState(outbuf, pl1, pl2, pl3, pl4);
+    memcpy(inbuf, outbuf, 512);
+    unpackLobbyState(inbuf, _pl1, _pl2, _pl3, _pl4);
+    
+    if(     strcmp(pl1, _pl1) == 0 &&
+            strcmp(pl2, _pl2) == 0 &&
+            strcmp(pl3, _pl3) == 0 &&
+            strcmp(pl4, _pl4) == 0)
+        printf("\nLobby state test OK\n");
+    else
+        printf("\nLobby state test Fail\n");
+
+}
+
+void test_game_start()
+{
+    int outlevel = 2;
+    int inlevel;
+    
+    int size = packGameStart(outbuf, outlevel);
+    memcpy(inbuf, outbuf, 512);
+    unpackGameStart(inbuf, &inlevel);
+    
+    if (outlevel == inlevel)
+        printf("\nGame start test OK\n");
+    else
+        printf("\nGame start test Fail\n");
+}
+
+void test_chat_relay()
+{
+    char message[] = "herp derp tässä sulle message juu";
+    char in_msg[100];
+    int msg_len;
+    
+    int size = packChatRelay(outbuf, message);
+    memcpy(inbuf, outbuf, 512);
+    unpackChatRelay(inbuf, in_msg, &msg_len);
+    
+    if (strcmp(message, in_msg) ==0 )
+        printf("\nChat Relay test OK\n");
+    else
+        printf("\nChat Relay test Fail\n");
+}
+
+void test_client()
+{
+    printf("-----Start Client tests\n");
+    test_chat();
+    test_create_game();
+    test_join_game();
+    test_client_state();
+    printf("-----End Client tests\n");
+}
+
+void test_server()
+{
+    printf("-----Start Server tests\n");
+    test_lobby_state();
+    test_game_start();
+    test_chat_relay();
+    printf("-----End Server tests\n");
+}
 
 
 int main (void)
@@ -73,11 +196,12 @@ int main (void)
     printf("host:%s\nport:%s\nstate:%d\nplayers:(%d/%d)\ngamename:%s\n", slist2.servers[0].host,slist2.servers[0].port, slist2.servers[0].serverState, 
     slist2.servers[0].playerNumber, slist2.servers[0].maxPlayers, slist2.servers[0].gameName);
     
-    test_chat();
-    test_create_game();
-
+    test_client();
+    test_server();
     return 0;
 }
+
+
 
 //prints
 /*

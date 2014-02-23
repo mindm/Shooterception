@@ -250,6 +250,7 @@ int packServerState(char *buf, game *gameState, int msgNumber)
     return cur;
 }
 
+// char array length must be 17!
 void unpackLobbyState(char *buf, char *name1, char *name2, char *name3, char *name4)
 {
     memcpy(name1, buf+1, 16);
