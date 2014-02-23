@@ -13,8 +13,7 @@ int lenout;
 
 // This handles IPv4 and IPv6 addresses dynamically
 // Not my own invention, this is from Beej's tutorial (see readme)
-void *get_in_addr(struct sockaddr *sa)
-{
+void *get_in_addr(struct sockaddr *sa) {
 	//IPv4
     if (sa->sa_family == AF_INET) {
         return &(((struct sockaddr_in*)sa)->sin_addr);
@@ -23,63 +22,48 @@ void *get_in_addr(struct sockaddr *sa)
     return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
-
-playerNames pl_names;
-
-char player1[16];
-char player2[16];
-char player3[16];
-char player4[16];
-
-playerNames *getPlayers()
-{
+playerNames *getPlayers() {
+	printf("getting players");
     return &pl_names;
 }
 
-
-void sendChatMsg(char *message, int msglen)
-{
+void sendChatMsg(char *message, int msglen) {
     lenout = packChatMessage(message, msglen);
 }
 
-void sendJoinGame(int id)
-{
-    int i;
-    for (i = 0; i < 9; i++)
-    {
-        if (serverList[i].id)
-        {
-            if (serverList[i].id == id)
-                break;
-        }
-    }
-    
-    
+void sendJoinGame(int id) {
+	printf("sending join");
+	lenout = packJoinGame(buf, "homo"/*serverList[id].game_name*/, pl_name_str);
+	printf("sending join2");  
 }
 
-void setPlayerNames(player1, player2, player3, player4)
-{
-    pl_names.playerCount = 0;
-    if (strlen(player1) > 0)
+void sendCreateGame(void) {
+	lenout = packCreateGame(buf, g_name_str, pl_num, pl_name_str);
+}
+
+void setPlayerNames(char* pl1, char* pl2, char* pl3, char* pl4) {
+	
+	/*pl_names.playerCount = 0;
+    if (strlen(pl1) > 0)
     {
-        memcpy(pl_names.name[0][0], player1, 16);
+        strncpy(pl_names.name[0][0], pl1, 16);
         pl_names.playerCount = 1;
     }
-    if (strlen(player2) > 0)
+    if (strlen(pl2) > 0)
     {
-        memcpy(pl_names.name[1][0], player2, 16);
+       strncpy(pl_names.name[1][0], pl2, 16);
         pl_names.playerCount = 2;
     }
-    if (strlen(player3) > 0)
+    if (strlen(pl3) > 0)
     {
-        memcpy(pl_names.name[2][0], player3, 16);
+        strncpy(pl_names.name[2][0], pl3, 16);
         pl_names.playerCount = 3;
     }
-    if (strlen(player4) > 0)
+    if (strlen(pl4) > 0)
     {
-        memcpy(pl_names.name[3][0], player4, 16);
+        strncpy(pl_names.name[3][0], pl4, 16);
         pl_names.playerCount = 4;
-    }
+    }*/
 }
 
 //Full_address length should be 46+17 = 63 bits
@@ -100,27 +84,68 @@ char *createFullAddress(char *host, char *port)
     return full_address;
 }
 
+void sendClientState(struct SDLplayer *_player, int msgnum) {
+	
+	player pl_info;
+ 	pl_info.xcoord = _player->b.x;
+	pl_info.ycoord = _player->b.y;
+	pl_info.hasShot = _player->shooting;
+	pl_info.viewDirection = _player->dir;
+
+	lenout = packClientState(buf, pl_info, msgnum);
+
+}
+
+void sendClientExit() {
+	lenout = packClientExit(buf);
+}
+
+void updateEnemyStates(struct SDLenemy* _enemy, int i) {
+
+	if(_enemy->health <= 0) 
+		return;
+
+    _enemy->b.x = gameState->enemyList[i].xcoord;
+    _enemy->b.y = gameState->enemyList[i].ycoord;
+    _enemy->dir = gameState->enemyList[i].viewDirection;
+    _enemy->health = gameState->enemyList[i].health;
+    _enemy->is_shot = gameState->enemyList[i].isShot;
+
+}
+
+void updatePlayerStates(struct SDLplayer* _player, int i) {
+
+	if(_player->health <= 0) 
+		return;
+
+	_player->b.x = gameState->playerList[i].xcoord;
+	_player->b.y = gameState->playerList[i].ycoord;
+	_player->dir = gameState->playerList[i].viewDirection;
+	_player->health = gameState->playerList[i].health;
+	_player->is_attacked = gameState->playerList[i].isColliding;
+
+}
+
 void *networking_thread(void *dest_addr)
 //int main() 
 {
+
+	gameState = malloc(sizeof(game));
 
 	// Some variables for connection
 	struct addrinfo hints, *res, *iter;
 	int status;
 	char ipstr[INET6_ADDRSTRLEN];
 	int sockfd, numbytes;
-	char buf[MAXDATASIZE];
 
-	char *host;
-	char *port;
+	char *host = "192.168.10.128";
+	char *port = "8000";
 
 	// For parsing options
 	extern char *optarg;
 	extern int optopt;
 	int optc;
 
-
-	struct timeval tv;
 	fd_set readfds;
 	fd_set writefds;
 	int fdmax; // biggest file descriptor
@@ -141,39 +166,15 @@ void *networking_thread(void *dest_addr)
 	hints.ai_socktype = SOCK_DGRAM;
 	hints.ai_family=PF_INET;
 
-	// Check command line options
-	/*
-	while ((optc = getopt(argc,argv,":64h:p:")) != -1) {
-		switch (optc) {
-			case 'h':
-				host = optarg;
-				break;
-			case 'p':
-				port = optarg;
-				break;
-			case '4':
-				hints.ai_family=PF_INET; 	// IPv4
-			case '6':
-				hints.ai_family=PF_INET6; 	// IPv6
-				break;
-			case ':':
-				printf("Parameter -%c is missing a operand\n", optopt);
-				return -1;
-			case '?':
-				printf("Unknown parameter\n");
-				break;
-		}
-	}*/
-
 	// Are both given?
 	if(!host || !port) {
 		printf("Some parameter is missing\n");
-		return -1;
+		//return -1;
 	}
 
 	if ((status = getaddrinfo(host, port, &hints, &res)) != 0) {
 		fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(status));
-		return 1;
+		//return 1;
 	}
 
 	// Iterate through results and use first usable one
@@ -195,7 +196,7 @@ void *networking_thread(void *dest_addr)
 	// not found
 	if (res == NULL) {
 		fprintf(stderr, "client: failed to find connection");
-		return 1;
+		//return 1;
 	}
 
 	freeaddrinfo(res); // Addrinfo not needed anymore
@@ -208,18 +209,13 @@ void *networking_thread(void *dest_addr)
 	// set biggest sock
 	fdmax = sockfd;
 
-	memset(&tv,0,sizeof(tv));
-	tv.tv_usec = 0; //microseconds
-	tv.tv_sec = 1; //seconds
-
 	int running = 1;
 	lenout = 0;
 
-
 	int rval = 0;
 
-	while(running)
-	{
+	printf("client loop");
+	while(running) {
 		FD_ZERO(&readfds); // Clear the sets of file descriptors
 		FD_ZERO(&writefds);
 		// Socket to the server
@@ -244,36 +240,32 @@ void *networking_thread(void *dest_addr)
 				uint8_t msgtype = getmessagetype(buf); //unpack messagetype
 
 				// ok
-				printf("%d\n", msgtype);
+				printf("%d\n", msgtype);		
 				
-				
-				if( msgtype == SERVERSTATE)
-				{
-				    //
+				if( msgtype == SERVERSTATE) {
+					int msgnum; printf("server state");
+				    unpackServerState(buf, gameState, &msgnum);
 				}
 				
-				else if (msgtype == LOBBYSTATE)
-				{
-				    unpackLobbyState(buf, player1, player2, player3, player4);
-				    setPlayerNames(player1, player2, player3, player4);
+				else if (msgtype == LOBBYSTATE) {
+					printf("lobby state");
+				    unpackLobbyState(buf, pl1, pl2, pl3, pl4);
+				    setPlayerNames(pl1, pl2, pl3, pl4);
 				    
 				}
-				else if (msgtype == CHATRELAY)
-				{   
+				else if (msgtype == CHATRELAY) {   
 				    int msglen;
 					char* newMessage;
 				    unpackChatRelay(buf, newMessage, &msglen);
-				    //addLog(newMessage, msglen);
+				    addLog(newMessage, msglen);
 				}
-				else if (msgtype == GAMESTART)
-				{
+				else if (msgtype == GAMESTART) {
 				    int gameLevel;
 				    unpackGameStart(buf, &gameLevel);
 				}
-				else if (msgtype == ERROR)
-			    {
+				else if (msgtype == ERROR) {
 			        int errorCode;
-			        //unpackError(buf, &errorCode);
+			        unpackError(buf, &errorCode);
 			    }
 				
 			} // end read inputsocket
@@ -285,21 +277,14 @@ void *networking_thread(void *dest_addr)
 			}
 
 			// User gave some input
-			if(FD_ISSET(fileno(stdin),&readfds)){
+			//if(FD_ISSET(fileno(stdin), &readfds)) //Input ??
 
-                //Input ??
-			}
-
-			// do UI things here
 		}
-		// timeout not needed
-		//set new timevalues
-		//tv.tv_usec = 10000; //seconds
-		//ui_draw_console(cswin);
 	}
 	// free memory and close socket
 
 	close(sockfd);
+	free(gameState);
 
 	return NULL;
 }
