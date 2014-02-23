@@ -42,6 +42,7 @@ int main(int argc, char *argv[]){
     // For testing
     int i = 0;
     int size = 0;
+    int maxPlayers = 4;
     char command[20];
     char gameName[GAMENAME_LENGTH] = "testgame";
     char playerName[PLAYERNAME_LENGTH] = "testplayer1";  
@@ -160,7 +161,7 @@ int main(int argc, char *argv[]){
 	        printf("Client: Sent createGame message\n");
 	        
 	        //int packCreateGame(char *buf, char *gameName, int maxPlayers, char *playerName)
-	        size = packCreateGame(outbuffer, gameName, 4, playerName);
+	        size = packCreateGame(outbuffer, gameName, maxPlayers, playerName);
 
 	        // Set lenout to send message
             setLenout(size);

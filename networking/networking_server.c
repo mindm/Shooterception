@@ -19,8 +19,6 @@ int sendMask = 100; // Mask to determine clients receiving packets - 100 = all
 // Get non-binary address, IPv4 or IPv6
 char* getInAddr(struct sockaddr *sa, char* ipstr)
 {
-    printf("Server: Get address in non-binary form\n");
-
     if (sa->sa_family == AF_INET) {
         inet_ntop(AF_INET,&(((struct sockaddr_in*)sa)->sin_addr), ipstr, INET_ADDRSTRLEN);
         
@@ -33,8 +31,6 @@ char* getInAddr(struct sockaddr *sa, char* ipstr)
 // Get port, IPv4 or IPv6
 int getInPort(struct sockaddr *sa, int p_port)
 {
-    printf("Server: Get port\n");
-
     if (sa->sa_family == AF_INET) {
         p_port = (((struct sockaddr_in*)sa)->sin_port);
     }
@@ -191,10 +187,7 @@ int main(int argc, char *argv[])
 		if ((rval = select(fdmax+1,&readfds,&writefds,NULL, NULL)) > 0) {
 
 			//listening socket got something
-			if(FD_ISSET(sockfd,&readfds)){ 
-			
-			    printf("Server: Reveived data\n");
-			    
+			if(FD_ISSET(sockfd,&readfds)){  
 			    sin_size = sizeof(their_addr);
 				recvbytes = recvfrom(sockfd, inbuf, MAXDATASIZE-1, 0, (struct sockaddr *) &their_addr, &sin_size);
 				inbuf[recvbytes] = '\0';

@@ -25,6 +25,7 @@
 #define PRIu8 "u"
 
 #define MAXDATASIZE 512
+
 // Main function
 int main(int, char*[]);
 
