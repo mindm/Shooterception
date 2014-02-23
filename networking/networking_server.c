@@ -68,12 +68,13 @@ int main(int argc, char *argv[])
 	char ipstr[INET6_ADDRSTRLEN]; //Store ip-address
 	int p_port = 0; //store port
 	int sockfd = 0;
-	//int size = 0;
+	int size = 0;
 	int sentbytes = 0;
     int status = 0;
     int yes = 0;
     int rval = 0;
     int messageNumber = 0;
+    int gameLevel = 0;
     
 	// For parsing options
 	extern char *optarg;
@@ -86,6 +87,10 @@ int main(int argc, char *argv[])
     char gameName[16];
     int maxPlayers = 0;
     char playerName[16];
+    
+    
+    // Varible to store chat messages
+    char message[CHATMESSAGE_LENGTH];
     
     // Sets hints for binding socket
 	memset(&hints, 0, sizeof(hints));
@@ -228,7 +233,8 @@ int main(int argc, char *argv[])
                 // Start game
                 else if(msgtype == 3)
                 {
-                    startGame(gameState, outbuf);
+                    unpackGameStart(inbuf, &gameLevel); // Game level not needed
+                    startGame(gameState, outbuf, gameLevel);
                 }
                 // Client state
                 else if(msgtype == 4)
@@ -236,18 +242,18 @@ int main(int argc, char *argv[])
                     unpackClientState(inbuf, playerInfo, &messageNumber/*, int *timeReply*/);
                     
                     // Update player characters location, view direction and if the PC has shot
-                    gameState = updatePlayerInfo(gameState, tempAddress, playerInfo->xcoord, playerInfo->ycoord, playerInfo->viewDirection, playerInfo->hasShot);             
-                     
+                    gameState = updatePlayerInfo(gameState, tempAddress, playerInfo->xcoord, playerInfo->ycoord, playerInfo->viewDirection, playerInfo->hasShot);     
                 }
                 // clientExit
                 else if(msgtype == 5)
                 {
-                
+                    gameState = removePlayer(gameState, tempAddress);
                 }
                 // Chat message
                 else if(msgtype == 6)
                 {
-                
+                    unpackChatMessage(inbuf, message);
+                    relayChatMessage(gameState, outbuf, message);
                 }              
                 // Ack 
                 else if(msgtype == 0)

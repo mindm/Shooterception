@@ -331,3 +331,135 @@ void unpackError(char *buf, int *errorCode)
     
     *errorCode =  *(uint8_t*)&buf[1];
 }
+
+
+/*  Client - Master server  */
+
+int packGamesQuery(char *buf)
+{
+    uint8_t msgtype = GAMESQUERY;
+    packmessagetype(buf, msgtype);
+    
+    return sizeof(uint8_t) * 1;
+}
+
+int packServerQuery(char *buf)
+{
+    uint8_t msgtype = SERVERQUERY;
+    packmessagetype(buf, msgtype);
+    
+    return sizeof(uint8_t) * 1;
+}
+
+int packGameList(char *buf, serverList *list)
+{
+    uint8_t msgtype = GAMELIST;
+    packmessagetype(buf, msgtype);  
+    
+    int count = list->count;
+    *(uint8_t*)&buf[1] = count;
+    
+    int i, cur;
+    cur = 2; // cursor for buffer
+    
+    for(i=0;i<count;i++)
+    {   
+        memcpy(buf+cur, list->servers[i].host, 46);
+        cur += 46;
+        memcpy(buf+cur, list->servers[i].port, 17);
+        cur += 17;
+        memcpy(buf+cur, list->servers[i].gameName, 17);
+        cur += 17;
+        *(uint8_t*)&buf[cur] = list->servers[i].maxPlayers;
+        cur += 1;
+    }
+    
+    return cur;
+}
+int packServerList(char *buf, serverList *list)
+{
+    uint8_t msgtype = SERVERLIST;
+    packmessagetype(buf, msgtype);
+    
+        int count = list->count;
+    *(uint8_t*)&buf[1] = count;
+    
+    int i, cur;
+    cur = 2; // cursor for buffer
+    
+    for(i=0;i<count;i++)
+    {   
+        memcpy(buf+cur, list->servers[i].host, 46);
+        cur += 46;
+        memcpy(buf+cur, list->servers[i].port, 17);
+        cur += 17;
+    }
+    
+    return cur;
+}
+
+void unpackGameList(char *buf, serverList *list)
+{
+    
+    int count = *(uint8_t*)&buf[1];
+    list->count = count;
+    
+    int i, cur;
+    cur = 2; // cursor for buffer
+    
+    for(i=0;i<count;i++)
+    {   
+        
+        memcpy(list->servers[i].host ,buf+cur, 46);
+        cur += 46;
+        memcpy(list->servers[i].port, buf+cur, 17);
+        cur += 17;
+        memcpy(list->servers[i].gameName, buf+cur, 17);
+        cur += 17;
+        list->servers[i].maxPlayers = *(uint8_t*)&buf[cur];
+        cur += 1;
+    }
+}
+
+
+void unpackServerList(char *buf, serverList *list)
+{
+    
+    int count = *(uint8_t*)&buf[1];
+    list->count = count;
+    
+    int i, cur;
+    cur = 2; // cursor for buffer
+    
+    for(i=0;i<count;i++)
+    {   
+        memcpy(list->servers[i].host ,buf+cur, 46);
+        cur += 46;
+        memcpy(list->servers[i].port, buf+cur, 17);
+        cur += 17;
+    }
+      
+}
+
+/* Master server - game server*/
+
+int packUpdateState(char *buf, game *gameState)
+{
+    uint8_t msgtype = UPDATESTATE;
+    packmessagetype(buf, msgtype);
+    
+    *(uint8_t*)&buf[1] = gameState->currentState;
+    *(uint8_t*)&buf[2] = gameState->playerCount;
+    *(uint8_t*)&buf[3] = gameState->maxPlayers;
+    memcpy(buf+4, gameState->gameName, 17);
+    
+    return 21;
+}
+
+void unpackUpdateState(char *buf, server *server)
+{
+    server->serverState = *(uint8_t*)&buf[1];
+    server->playerNumber = *(uint8_t*)&buf[2];
+    server->maxPlayers = *(uint8_t*)&buf[3];
+    memcpy(server->gameName, buf+4, 17);
+}

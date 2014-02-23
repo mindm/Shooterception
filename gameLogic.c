@@ -8,13 +8,17 @@
 
 #include "gameLogic.h"
 
-int startGame(game* gameState, char outbuf[MAXDATASIZE]){
+int startGame(game* gameState, char outbuf[MAXDATASIZE], int levelNumber){
 
     // Change to state inGame
     gameState->currentState = 2;
     
-    srand(time(NULL)); // Generate random seed for rand()
-    
+    // Generate random seed for rand()
+    srand(time(NULL)); 
+  
+    // Set level number
+    gameState->levelNumber = levelNumber;
+        
     // Set level parameters defined by LevelNumber
     gameState = setLevelParameters(gameState);
 
@@ -209,7 +213,7 @@ game* checkCollision (game* gameState){
                 gameState->playerList[j].isColliding = 1;
                 // Check if PC dies
                 if(gameState->playerList[j].health == 0){
-                    // TODO: What happens when PC's health goes to 0?
+                    gameState = removePlayer(gameState, gameState->playerList[j].connectionInfo);
                 }
             }
         }
@@ -383,7 +387,7 @@ game* addEnemy(game* gameState){
    
     newEnemy[0].following = randomPlayer; // Player who enemy is following
     
-    // TODO Changing base speed
+    // TODO Changing individual speed speed
     newEnemy[0].speed = gameState->enemyBaseSpeed; // Player who enemy is following
     newEnemy[0].isShot = 0; // New enemy has not been shot, yet
       
@@ -404,14 +408,28 @@ game* setLevelParameters(game* gameState){
         gameState->enemyLimit = 15; // How many enemies are spawned
         gameState->enemySpawnRate = 1; // How fast the enemies are spawned
         gameState->enemyBaseSpeed = 2; // How fast the enemies _atleast_ move
-    
+ 
     } 
-    else if(gameState->levelNumber ==3){
+    else if(gameState->levelNumber == 3){
         gameState->enemyLimit = 20; // How many enemies are spawned
         gameState->enemySpawnRate = 1; // How fast the enemies are spawned
         gameState->enemyBaseSpeed = 3; // How fast the enemies _atleast_ move
     }
-    
+    else if(gameState->levelNumber == 4){
+        gameState->enemyLimit = 20; // How many enemies are spawned
+        gameState->enemySpawnRate = 1; // How fast the enemies are spawned
+        gameState->enemyBaseSpeed = 3; // How fast the enemies _atleast_ move
+    }
+    else if(gameState->levelNumber == 5){
+        gameState->enemyLimit = 20; // How many enemies are spawned
+        gameState->enemySpawnRate = 1; // How fast the enemies are spawned
+        gameState->enemyBaseSpeed = 3; // How fast the enemies _atleast_ move
+    }
+    else if(gameState->levelNumber == 6){
+        gameState->enemyLimit = 20; // How many enemies are spawned
+        gameState->enemySpawnRate = 1; // How fast the enemies are spawned
+        gameState->enemyBaseSpeed = 3; // How fast the enemies _atleast_ move
+    }            
     return gameState;
 }
 
@@ -503,4 +521,27 @@ game* resetPlayerCollisions(game* gameState){
     }
     
     return gameState;
+}
+
+game* removePlayer(game* gameState, player_n* connectionInfo){
+    for(int i=0;i<gameState->playerCount;i++){
+        if(gameState->playerList[i].connectionInfo == connectionInfo){
+            for(int j=i;j<gameState->playerCount;j++){
+                gameState->playerList[j] = gameState->playerList[j+1];
+            }
+            gameState->playerCount -= 1;
+        }
+    } 
+
+    return gameState;
+}
+
+void relayChatMessage(game* gameState,  char outbuf[MAXDATASIZE], char message[CHATMESSAGE_LENGTH]){
+    // Check if private message - marked as /playerNumber <message>
+    if(strcmp(message[0],"/") == 0){
+        setSendMask(atoi(message[1]));
+    }
+    
+    int size = packChatRelay(outbuf, message);
+    setLenout(size);
 }
