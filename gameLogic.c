@@ -537,8 +537,8 @@ game* removePlayer(game* gameState, player_n* connectionInfo){
 }
 
 void relayChatMessage(game* gameState,  char outbuf[MAXDATASIZE], char message[CHATMESSAGE_LENGTH]){
-    // Check if private message - marked as /playerNumber <message>
-    if(strcmp(message[0],"/") == 0){
+    // Check if private message - sent as "/playerNumber <message>"
+    if(strcmp(message[0],"/") == 0 && isdigit(message[1]) != 0){
         setSendMask(atoi(message[1]));
     }
     

@@ -29,7 +29,7 @@ int main(int argc, char *argv[]){
 
   /*  if (argc != 2){
         printf("Usage: Give packet name as first argument\n\n");
-        printf("Options are: chatMessage, createGame, joinGame, \nstartGame, clientState, clientExit, ack\n\n");
+        
         return 0;
     } */
 
@@ -133,46 +133,16 @@ int main(int argc, char *argv[]){
 	
 	while(running) {
 	
-	    printf("\nClient: Give message name to send\n");
-	    
-		FD_ZERO(&readfds); // Clear the sets of file descriptors
-		FD_ZERO(&writefds);
-		// Socket to the server
-		FD_SET(sockfd, &readfds);
-		if(sockfd > fdmax) fdmax = sockfd;
+	    printf("\nClient: Give packet name to send\n");
 
-		// STDIN
-		FD_SET(fileno(stdin),&readfds);
-		if(fileno(stdin) > fdmax) fdmax = fileno(stdin);
+        scanf("%s",command);
 
-		// WRITESOCKET
-		if (lenout > 0){
-			FD_SET(sockfd, &writefds);
+        if(lenout > 0){
+            numbytes = send(sockfd, outbuffer, lenout, 0);
+            memset(outbuffer,'\0', MAXDATASIZE);
+            lenout = 0;
 		}
-		// Block until input (no timeval)
-		if ((rval = select(fdmax+1,&readfds,&writefds,NULL, NULL)) > 0) {
 		
-            scanf("%s",command);
-	    
-			//listening socket got something
-			if(FD_ISSET(sockfd,&readfds)){
-				numbytes = recv(sockfd, inbuffer, MAXDATASIZE-1, 0);
-				inbuffer[numbytes] = '\0';
-				uint8_t msgtype = getmessagetype(inbuffer); //unpack messagetype
-
-				// ok
-				printf("%d\n", msgtype);
-				
-			} // end read inputsocket
-			// if something to output ->  send
-			if(FD_ISSET(sockfd,&writefds)){
-			    printf("Client: Send something\n");
-				numbytes = send(sockfd, outbuffer, lenout, 0);
-				memset(outbuffer,'\0', MAXDATASIZE);
-				lenout = 0;
-			}
-		}
-			
 	    // Pack message and set it to outbuffer
 	    if(strcmp(command,"chatMessage") == 0){
 	        printf("Client: Sent chatMessage message\n");
@@ -237,6 +207,7 @@ int main(int argc, char *argv[]){
         }	
         else{
             printf("Now valid packet name\n");
+            printf("Options are: chatMessage, createGame, joinGame, \nstartGame, clientState, clientExit, ack\n");
         }                   
 	}
 	// free memory and close socket

@@ -14,6 +14,7 @@
 #include <string.h>
 #include <time.h> 
 #include <unistd.h>
+#include <ctype.h>
 
 #include "generic.h"
 #include "networking/packets.h"
