@@ -63,14 +63,17 @@ Mix_Chunk *en_death = NULL;
 
 SDL_Event event;
 
+//number of players in created game
+int pl_num = 1;
+
 /* Player 1 object */
 struct SDLplayer {
 	int health;
-	int xVel, yVel;
 	int shooting;
 	float shoot_time;
 	int dir;
 	int frame;
+	int is_attacked;
 	SDL_Rect b;
 	SDL_Rect animHor[8];
 	SDL_Rect animVer[8];
@@ -89,6 +92,7 @@ struct SDLenemy {
 	int health;
 	int dir;
 	int frame;
+	int is_shot;
 	SDL_Rect b;
 	SDL_Rect animHor[9];
 	SDL_Rect animVer[9];
@@ -111,15 +115,12 @@ void setupPlayer(void);
 void setupEnemy(void);
 
 void handlePlayerInput(int);
-void movePlayer(struct SDLplayer*);
-void moveEnemy(struct SDLenemy*);
 void shootBullet(struct SDLplayer*);
 void drawPlayer(struct SDLplayer*);
 void drawEnemy(struct SDLenemy*);
 
 void handleEnemyDamage(struct SDLenemy*);
-void handlePlayerDamage(struct SDLenemy*);
-int checkCollision(SDL_Rect, SDL_Rect);
+void handlePlayerDamage(struct SDLplayer*);
 
 void toggleMenuMusic(void);
 void toggleGameMusic(void);

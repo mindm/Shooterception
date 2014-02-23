@@ -26,11 +26,8 @@ int main(int argc, char* args[]) {
     playerNames* joined;
 
 	/* actual menu state and temporal menu state */
-	int state = MAIN_MENU, _state = MAIN_MENU, previous_state = MAIN_MENU;
+	int state = NAME_MENU, _state = NAME_MENU, previous_state = MAIN_MENU;
 	int id = NOTHING, _id = NOTHING;
-
-	//number of players in created game
-	int pl_num = 1;
 
 	//for incrementor
 	int i = 0;
@@ -57,15 +54,13 @@ int main(int argc, char* args[]) {
 		if(state == NAME_MENU) { 
 		    if(SDL_PollEvent(&event)) {
 
+			    if(event.type == SDL_QUIT)
+			        quit = 1;
 				//player name input
 				handleStringInput(state, NAME_LEN);
 
 				//if any button hitbox is left-clicked
 				if(event.type == SDL_MOUSEBUTTONDOWN) {
-
-				    if(event.type == SDL_QUIT)
-				        quit = 1;
-
 					if(event.button.button == SDL_BUTTON_LEFT) {
 						if(_state = handleButton(ok_prompt_button, event.button.x, event.button.y)) {
 							state = MAIN_MENU;
@@ -147,7 +142,7 @@ int main(int argc, char* args[]) {
 							state = _state;
 							pthread_create(&networking, NULL, networking_thread, NULL);
 							SDL_Delay(1000);
-							sendJoinGame(id);
+							//sendJoinGame(id);
                         }
                         
 						for(i = 0; i < 3; i++) {
@@ -214,6 +209,9 @@ int main(int argc, char* args[]) {
 						if(_state = handleButton(create_button, event.button.x, event.button.y)) {
 							state = _state;
 							resetStringInput();
+							pthread_create(&networking, NULL, networking_thread, NULL);
+							SDL_Delay(1000);
+							sendCreateGame();
 						}
 					}
 				}
@@ -281,10 +279,9 @@ int main(int argc, char* args[]) {
 			printText(400, server_list_box.y+60, itoa(pl_num, mem), textColor);
 			printText(225, server_list_box.y+90, "Players joined: ", textColor);
 
-
-            joined = getPlayers();
-            for(i=0; i < joined->playerCount; i++){
-                printText(225, server_list_box.y+120+(30*i), &joined->name[i], textColor);
+            //joined = getPlayers();
+            for(i=0; i < 2/*joined->playerCount*/; i++){
+                printText(225, server_list_box.y+120+(30*i), "fagotti"/*&joined->name[i]*/, textColor);
             }
 
 			//show chat input
@@ -315,14 +312,15 @@ int main(int argc, char* args[]) {
 				drawBackground();
 
 				for(i = 0; i < MAX_EN; i++)	{		
-					moveEnemy(enemies[i]);
+					updateEnemyStates(enemies[i], i);
 					drawEnemy(enemies[i]);
 				}
-				
-				sendClientState(players[0], 1);
+						
 				for(i = 0; i < pl_num; i++)	{
-					movePlayer(players[i]);
+					updatePlayerStates(players[i], i);
+
 					drawPlayer(players[i]);
+					handlePlayerDamage(players[i]);
 
 					if(players[i]->shooting) {
 
@@ -334,16 +332,15 @@ int main(int argc, char* args[]) {
 						else {
 							shootBullet(players[i]); //just gfx shot
 
-							/*for(i = 0; i < 20; i++)
-								handleEnemyDamage(enemies[i]);*/
+							for(i = 0; i < MAX_EN; i++)
+								handleEnemyDamage(enemies[i]);
 						}
 					}
 				}
-				
-				drawHud(0); // aka foreground
 
-				/*for(i = 0; i < 20; i++)
-					handlePlayerDamage(enemies[i]);*/
+				sendClientState(players[0], 1); //send player movements to server
+
+				drawHud(0); // aka foreground
 
 				//framecap							
 				if(deltaTime() < 1000/FPS) {
@@ -505,10 +502,9 @@ void setupPlayer(void) {
 
 		players[i]->frame = 4;
 		players[i]->health = 3;
-		players[i]->xVel = 0;
-		players[i]->yVel = 0;
 		players[i]->shooting = 0;
 		players[i]->shoot_time = S_TIME;
+		players[i]->is_attacked = 0;
 		players[i]->dir = UP;
 	
 		/* position */
@@ -519,7 +515,7 @@ void setupPlayer(void) {
 
 		/* shooting line collider */
 		lineRect.x = players[i]->b.x + PC_DIMS*0.5;
-		lineRect.y = players[i]->b.y-RANGE;
+		lineRect.y = players[i]->b.y - RANGE;
 		lineRect.w = 1;
 		lineRect.h = RANGE;
 
@@ -555,6 +551,7 @@ void setupPlayer(void) {
 		}
 	}
 }
+
 void setupEnemy(void) {
 
 	int i, j;
@@ -565,6 +562,7 @@ void setupEnemy(void) {
 
 		enemies[i]->health = 3;
 		enemies[i]->dir = DOWN;
+		enemies[i]->is_shot = 0;
 		enemies[i]->frame = 0;
 
 		/* position */
@@ -604,51 +602,48 @@ void setupEnemy(void) {
 			offset += 16;
 		}
 	}
-	
 }
 
-//handle damage inflicted BY ENEMY TO PLAYER
-void handlePlayerDamage(struct SDLenemy *contact) {
+//draw blood spatter on player
+void handlePlayerDamage(struct SDLplayer *_player) {
 
-	/*if(contact->health <= 0 || player->health <= 0) 
+	if(_player->health <= 0) 
 		return;
 
-	if(checkCollision(player->b, contact->b)) {
+	if(_player->is_attacked) {
 
 		//draw blood spatter
-		applySurface(player->b.x, player->b.y, fxSurf, screen, &player->fx[4]);
+		applySurface(_player->b.x, _player->b.y, fxSurf, screen, &_player->fx[4]);
 
 		//decrease health play sounds
-		player->health--;
-		if(player->health <= 0 ) {
+		if(_player->health <= 0 ) {
 			Mix_PlayChannel(-1, pl_death, 0);
-			player->health = 0;
+			_player->health = 0;
 		}
 		else	
 			Mix_PlayChannel(-1, en_bite, 0);
-	}*/
+	}
 }
 
-//handle damage inflicted BY PLAYER TO ENEMY
-void handleEnemyDamage(struct SDLenemy *target) {
+//draw blood spatter on enemy
+void handleEnemyDamage(struct SDLenemy *_enemy) {
 
-	if(target->health <= 0)
+	if(_enemy->health <= 0)
 		return;
 
-	/*if(checkCollision(lineRect, target->b)) {
+	if(_enemy->is_shot) {
 
 		//draw blood spatter
-		applySurface(target->b.x, target->b.y, fxSurf, screen, &target->fx[0]);
+		applySurface(_enemy->b.x, _enemy->b.y, fxSurf, screen, &_enemy->fx[0]);
 
 		//play sounds
-		target->health--;
-		if(target->health <= 0 ) {
+		if(_enemy->health <= 0 ) {
 			Mix_PlayChannel(-1, en_death, 0);
-			target->health = 0;
+			_enemy->health = 0;
 		}
 		else	
 			Mix_PlayChannel(-1, en_hit, 0);
-	}*/
+	}
 }
 
 SDL_Surface *loadImage(char* filename) { 
@@ -684,25 +679,20 @@ void drawBackground(void) {
     applySurface(400, 400, background, screen, NULL);
 }
 
-void drawHud(int j) {
-
+void drawHud(int index) {
 	int i;	
-	for(i = 0; i < players[j]->health; i++)
+	for(i = 0; i < players[index]->health; i++)
 		applySurface(20+(32*i), 16, hudSurf, screen, NULL);
-
-	/*debug
-	for(i = 0; i < enemy->health; i++)
-		applySurface(20+(32*i), 750, hudSurf, screen, NULL);*/
 }
 
 void handlePlayerInput(int i) {
 	if(event.type == SDL_KEYDOWN) {
 		switch(event.key.keysym.sym) { 
 
-			case SDLK_UP: 		players[i]->yVel -= PC_VEL; 	break; 
-			case SDLK_DOWN: 	players[i]->yVel += PC_VEL; 	break; 
-			case SDLK_LEFT: 	players[i]->xVel -= PC_VEL; 	break; 
-			case SDLK_RIGHT: 	players[i]->xVel += PC_VEL; 	break;
+			case SDLK_UP: 		players[i]->b.y -= PC_VEL; 	break; 
+			case SDLK_DOWN: 	players[i]->b.y += PC_VEL; 	break; 
+			case SDLK_LEFT: 	players[i]->b.x -= PC_VEL; 	break; 
+			case SDLK_RIGHT: 	players[i]->b.x += PC_VEL; 	break;
 			case SDLK_w: 		players[i]->dir = UP; 			break; 
 			case SDLK_s: 		players[i]->dir = DOWN; 		break; 
 			case SDLK_a: 		players[i]->dir = LEFT; 		break; 
@@ -716,71 +706,14 @@ void handlePlayerInput(int i) {
 	else if(event.type == SDL_KEYUP) {
 		switch(event.key.keysym.sym) { 
 
-			case SDLK_UP: 		players[i]->yVel += PC_VEL; 		break; 
-			case SDLK_DOWN: 	players[i]->yVel -= PC_VEL; 		break; 
-			case SDLK_LEFT: 	players[i]->xVel += PC_VEL; 		break; 
-			case SDLK_RIGHT: 	players[i]->xVel -= PC_VEL; 		break;
+			case SDLK_UP: 		players[i]->b.y += PC_VEL; 		break; 
+			case SDLK_DOWN: 	players[i]->b.y -= PC_VEL; 		break; 
+			case SDLK_LEFT: 	players[i]->b.x += PC_VEL; 		break; 
+			case SDLK_RIGHT: 	players[i]->b.x -= PC_VEL; 		break;
 			case SDLK_SPACE:	players[i]->shooting = 0; 
 								players[i]->shoot_time = S_TIME;	break; 
 		}
 	}
-}
-
-void movePlayer(struct SDLplayer* _player) {
-
-	if(_player->health <= 0) 
-		return;
-
-	//left/right 
-	_player->b.x += _player->xVel; 
-	
-	//screen left/right border 
-	if((_player->b.x < 0) || (_player->b.x + PC_DIMS > SCREEN_WIDTH)) { 
-		//move back 
-		_player->b.x -= _player->xVel; 
-	} 
-
-	// up/down 
-	_player->b.y += _player->yVel;
-
-	//screen top/bottom border
-	if((_player->b.y < 0) || (_player->b.y + PC_DIMS > SCREEN_HEIGHT)) { 
-		//move back 
-		_player->b.y -= _player->yVel; 
-	}
-}
-
-void moveEnemy(struct SDLenemy *_enemy) {
-
-	if(_enemy->health <= 0) 
-		return;
-
-	/*int x1, y1, x2, y2;
-	
-	x1 = player->b.x;
-	y1 = player->b.y;
-
-	x2 = _enemy->b.x; 
-	y2 = _enemy->b.y;
-
-	//calculate x distance to player, move towards
-	if((x1 - x2) < 0) {
-		_enemy->dir = LEFT;
-		_enemy->b.x -= EN_VEL;
-	}
-	else {
-		_enemy->dir = RIGHT;
-		_enemy->b.x += EN_VEL;
-	}
-	//calculate y distance, move towards
-	if((y1 - y2) < 0){
-		_enemy->dir = UP;
-		_enemy->b.y -= EN_VEL;
-	}
-	else {
-		_enemy->dir = DOWN;
-		_enemy->b.y += EN_VEL;
-	}*/
 }
 
 void drawPlayer(struct SDLplayer* _player) {
@@ -895,39 +828,6 @@ void shootBullet(struct SDLplayer* _player) {
 	Mix_PlayChannel(-1, pl_bang, 0);
 }
 
-int checkCollision(SDL_Rect A, SDL_Rect B) {
-
-    int leftA, rightA, topA, bottomA;
-    int leftB, rightB, topB, bottomB;
-
-    //sides of rect A
-    leftA = A.x;
-    rightA = A.x + A.w;
-    topA = A.y;
-    bottomA = A.y + A.h;
-
-    //sides of rect B
-    leftB = B.x;
-    rightB = B.x + B.w;
-    topB = B.y;
-    bottomB = B.y + B.h;
-
-    //if any of the sides from A are outside of B
-    if(bottomA <= topB)
-        return 0;
-
-    if(topA >= bottomB)
-        return 0;
-
-    if(rightA <= leftB)
-        return 0;
-
-    if(leftA >= rightB)
-        return 0;
-
-    //if none of the sides from A are outside B
-    return 1;
-}
 void toggleMenuMusic(void) {
 
 	if(!Mix_PlayingMusic())

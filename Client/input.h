@@ -14,9 +14,9 @@
 TTF_Font *title_font = NULL;
 TTF_Font *text_font = NULL;
 
-SDL_Color textColor = { 255, 33, 0 };
-SDL_Color textShColor = { 0, 0, 0 };
-SDL_Color chatColor = { 0xFF, 0xFF, 0xFF };
+SDL_Color textColor = { 0xFF, 0x33, 0x00, 0xFF};
+SDL_Color textShColor = { 0x00, 0x00, 0x00, 0xFF };
+//SDL_Color chatColor = { 0xFF, 0xFF, 0xFF, 0xFF };
 
 /* Text input */
 int textinput = 0;

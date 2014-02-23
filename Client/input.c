@@ -50,7 +50,7 @@ void handleStringInput(int context, int length) {
             else if(event.key.keysym.sym == SDLK_RETURN && length == MAX_LEN) {
 				textinput = 0;
 				if(textpos > 0) 
-					addLog(textbuffer, textpos);
+					sendChatMsg(textbuffer, textpos); //addLog(textbuffer, textpos);
 				textpos = 0;
 				memset(&textbuffer, 0, MAX_LEN);
 			}
