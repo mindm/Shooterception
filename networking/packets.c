@@ -69,11 +69,12 @@ int packCreateGame(char *buf, char *gameName, int maxPlayers, char *playerName)
     packmessagetype(buf, msgtype);
     int g_name_size = strlen(gameName);
     int p_name_size = strlen(playerName);
+
 	memcpy(&buf[1], gameName, g_name_size+1);
-    memset(&buf[1 + g_name_size + 1], ' ', g_name_size + 1 - 16);
-    *(uint16_t*)&buf[17] = htons(maxPlayers);
+    memset(&buf[1 + g_name_size + 1], ' ', 16 - (g_name_size + 1));
+    *(uint8_t*)&buf[17] = (maxPlayers);
     memcpy(&buf[18], playerName, p_name_size+1);
-    memset(&buf[18 + p_name_size + 1], ' ', p_name_size + 1 - 16);
+    memset(&buf[18 + p_name_size + 1], ' ', 16 - (p_name_size + 1));
     
     return (1 + 1 + 16 + 16);
 }
@@ -372,7 +373,9 @@ int packGameList(char *buf, serverList *list)
         cur += 17;
         *(uint8_t*)&buf[cur] = list->servers[i].maxPlayers;
         cur += 1;
-    }
+        *(uint8_t*)&buf[cur] = list->servers[i].playerNumber;
+        cur += 1;
+    }   
     
     return cur;
 }
@@ -417,6 +420,8 @@ void unpackGameList(char *buf, serverList *list)
         memcpy(list->servers[i].gameName, buf+cur, 17);
         cur += 17;
         list->servers[i].maxPlayers = *(uint8_t*)&buf[cur];
+        cur += 1;
+        list->servers[i].playerNumber = *(uint8_t*)&buf[cur];
         cur += 1;
     }
 }
