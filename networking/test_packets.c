@@ -149,6 +149,30 @@ void test_chat_relay()
         printf("\nChat Relay test Fail\n");
 }
 
+void test_server_state()
+{
+    game _game;
+    player out_p;
+    enemy out_e;
+    
+    out_p.xcoord = 1; // X coordinate, upper left corner
+    out_p.ycoord = 2; // Y coordinate, upper left corner
+    out_p.viewDirection = 3; // Direction the PC is facing, 0-359 degrees
+    out_p.hasShot = 1; // Has the player shot after sending the last clientState
+    out_p.health = 3;
+    
+    out_e.xcoord = 10; // X coordinate, upper left corner
+    out_e.ycoord = 20; // Y coordinate, upper left corner
+    out_e.viewDirection = 4; // Direction the PC is facing, 0-359 degrees
+    out_e.isShot = 1; // Has the player shot after sending the last clientState
+    out_e.health = 2;
+    
+    _game.playerList[0] = out_p;
+    _game.enemyList[0] = out_e;
+    _game.playerCount = 1;
+    _game.enemyCount = 1;
+}
+
 void test_client()
 {
     printf("-----Start Client tests\n");
