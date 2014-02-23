@@ -87,9 +87,9 @@ int main(int argc, char *argv[])
     char *port;
 
     // Temp values for joining players
-    char gameName[16];
+    char gameName[GAMENAME_LENGTH];
     int maxPlayers = 0;
-    char playerName[16];
+    char playerName[PLAYERNAME_LENGTH];
     
     
     // Varible to store chat messages
