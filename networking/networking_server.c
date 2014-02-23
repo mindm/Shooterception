@@ -21,7 +21,6 @@ char* getInAddr(struct sockaddr *sa, char* ipstr)
 {
     if (sa->sa_family == AF_INET) {
         inet_ntop(AF_INET,&(((struct sockaddr_in*)sa)->sin_addr), ipstr, INET_ADDRSTRLEN);
-        
     }
     else if(sa->sa_family == AF_INET6){
         inet_ntop(AF_INET6,&(((struct sockaddr_in6*)sa)->sin6_addr), ipstr, INET6_ADDRSTRLEN);

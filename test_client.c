@@ -27,12 +27,6 @@ int lenin;
 
 int main(int argc, char *argv[]){
 
-  /*  if (argc != 2){
-        printf("Usage: Give packet name as first argument\n\n");
-        
-        return 0;
-    } */
-
 	// Some variables for connection
 	struct addrinfo hints, *res, *iter;
 	int status;
@@ -62,20 +56,7 @@ int main(int argc, char *argv[]){
     testPlayer->playerName = "testplayer0"; // Player's name
     testPlayer->connectionInfo = NULL; // pointer to struct containing sockaddr_storage
     testPlayer->isColliding = 0; // Is the PC colliding with enemy?
-
-	// For parsing options
-	//extern char *optarg;
-	//extern int optopt;
-	//int optc;
-
-	fd_set readfds;
-	fd_set writefds;
-	int fdmax; // biggest file descriptor
-
-	//clear sets
-	FD_ZERO(&readfds);
-	FD_ZERO(&writefds);
-
+    
 	//clear buffer
 	memset(outbuffer,'\0', MAXDATASIZE);
 
@@ -126,11 +107,8 @@ int main(int argc, char *argv[]){
 			ipstr, sizeof(ipstr));
 	printf("Client: connecting to %s\n", ipstr);
 
-	// set biggest sock
-	fdmax = sockfd;
 	int running = 1;
 	lenout = 0;
-	int rval = 0;
 
 	printf("Client: Enter Main loop\n");
 	
