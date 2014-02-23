@@ -86,9 +86,9 @@ int packJoinGame(char *buf, char *gameName, char *playerName)
     int g_name_size = strlen(gameName);
     int p_name_size = strlen(playerName);
 	memcpy(&buf[1], gameName, g_name_size+1);
-    memset(&buf[1 + g_name_size + 1], ' ', g_name_size + 1 - 16);
-    memcpy(&buf[19], playerName, p_name_size+1);
-    memset(&buf[19 + p_name_size + 1], ' ', p_name_size + 1 - 16);
+    memset(&buf[1 + g_name_size + 1], ' ', 16 - (g_name_size + 1));
+    memcpy(&buf[17], playerName, p_name_size+1);
+    memset(&buf[17 + p_name_size + 1], ' ', 16 - (p_name_size + 1));
     
     return (1+ 16 + 16);
 }
@@ -143,7 +143,7 @@ void unpackCreateGame(char *buf, char *gameName, int *maxPlayers, char *playerNa
 void unpackJoinGame(char *buf, char *gameName, char *playerName)
 {
     memcpy(gameName, buf+1, 16);
-    memcpy(playerName, buf+18, 16);
+    memcpy(playerName, buf+17, 16);
         
     cutSpace(gameName);
     cutSpace(playerName);
