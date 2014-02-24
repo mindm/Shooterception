@@ -141,7 +141,7 @@ int main(int argc, char* args[]) {
 						{
 							state = _state;
 							pthread_create(&networking, NULL, networking_thread, NULL);
-							//SDL_Delay(1000);
+							SDL_Delay(1000);
 							sendJoinGame(id);
                         }
                         
@@ -210,7 +210,7 @@ int main(int argc, char* args[]) {
 							state = _state;
 							resetStringInput();
 							pthread_create(&networking, NULL, networking_thread, NULL);
-							//SDL_Delay(1000);
+							SDL_Delay(1000);
 							sendCreateGame();
 						}
 					}

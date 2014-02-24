@@ -9,7 +9,7 @@
 
 // These are going to be used globally
 char outbuffer[MAXDATASIZE];
-int lenout;
+int lenout = 0;
 
 // This handles IPv4 and IPv6 addresses dynamically
 // Not my own invention, this is from Beej's tutorial (see readme)
@@ -38,6 +38,7 @@ void sendJoinGame(int id) {
 }
 
 void sendCreateGame(void) {
+    printf("Send createGame\n");
 	lenout = packCreateGame(buf, g_name_str, pl_num, pl_name_str);
 }
 
@@ -125,7 +126,8 @@ void updatePlayerStates(struct SDLplayer* _player, int i) {
 void *networking_thread(void *dest_addr)
 //int main() 
 {
-
+    struct timespec tv;
+    
 	gameState = malloc(sizeof(game));
 
 	strcpy(cl_serverList[0].game_name, "testi");
@@ -138,7 +140,7 @@ void *networking_thread(void *dest_addr)
 	char ipstr[INET6_ADDRSTRLEN];
 	int sockfd, numbytes;
 
-	char *host = "localhost";
+	char *host = "0.0.0.0";
 	char *port = "8000";
 
 	// For parsing options
@@ -217,6 +219,10 @@ void *networking_thread(void *dest_addr)
 
 	printf("client loop\n");
 	while(running) {
+	
+		tv.tv_sec = 1;
+        tv.tv_nsec = 0;
+        
 		FD_ZERO(&readfds); // Clear the sets of file descriptors
 		FD_ZERO(&writefds);
 		// Socket to the server
@@ -232,7 +238,7 @@ void *networking_thread(void *dest_addr)
 			FD_SET(sockfd, &writefds);
 		}
 		// Block until input (no timeval)
-		if ((rval = select(fdmax+1,&readfds,&writefds,NULL, NULL)) > 0) {
+		if ((rval = select(fdmax+1,&readfds,&writefds,NULL, &tv)) > 0) {
 
 			//listening socket got something
 			if(FD_ISSET(sockfd,&readfds)){
@@ -272,8 +278,9 @@ void *networking_thread(void *dest_addr)
 			} // end read inputsocket
 			// if something to output ->  send
 			if(FD_ISSET(sockfd,&writefds)){
-				numbytes = send(sockfd, outbuffer, lenout, 0);
-				memset(outbuffer,'\0', MAXDATASIZE);
+			    printf("Send something\n");
+				numbytes = send(sockfd, buf, lenout, 0);
+				memset(buf,'\0', MAXDATASIZE);
 				lenout = 0;
 			}
 
