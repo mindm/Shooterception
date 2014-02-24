@@ -164,8 +164,8 @@ int main(int argc, char *argv[])
 	
 	while(1)
 	{		
-	    tv.tv_sec = 1;
-        tv.tv_usec = 5000;
+	    //tv.tv_sec = 1;
+        //tv.tv_usec = 5000;
     
 	    printf("\nServer: Waiting for data\n\n");
 	    
@@ -184,7 +184,7 @@ int main(int argc, char *argv[])
 
 		// Block until input (no timeval)
 		// TODO: Add timeout
-		if ((rval = select(fdmax+1,&readfds,&writefds,NULL, &tv)) > 0) {
+		if ((rval = select(fdmax+1,&readfds,&writefds,NULL, NULL)) > 0) {
 
 			//listening socket got something
 			if(FD_ISSET(sockfd,&readfds)){  
