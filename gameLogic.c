@@ -10,6 +10,8 @@
 
 int startGame(game* gameState, char outbuf[MAXDATASIZE], int levelNumber){
 
+    printf("gameLogic: startGame function\n");
+    
     // Change to state inGame
     gameState->currentState = 2;
     
@@ -34,7 +36,9 @@ int startGame(game* gameState, char outbuf[MAXDATASIZE], int levelNumber){
 // Update PC location
 game* updatePlayerInfo (game* gameState, player_n* connectionInfo, int xcoord, int ycoord, int viewDirection, int hasShot){
 
-     int playerNumber = getPlayerNumber(gameState, connectionInfo);
+    printf("gameLogic: updatePlayerInfo function\n");
+    
+    int playerNumber = getPlayerNumber(gameState, connectionInfo);
 
     // Check that PC is within game boundaries and update coordinates
     if(xcoord==0){
@@ -62,7 +66,7 @@ game* updatePlayerInfo (game* gameState, player_n* connectionInfo, int xcoord, i
     gameState = checkShotCooldown(gameState, playerNumber);
 
     // If PC has shot and cooldown timer isn't running, check for hit
-    if(gameState->playerList[playerNumber].hasShot == 1 && gameState->playerList[playerNumber].shotCooldown == 0){
+    if(gameState->playerList[playerNumber].hasShot == 1 && gameState->playerList[playerNumber].shotCooldown == 1){
         gameState = checkHit(gameState, playerNumber);   
         gameState->playerList[playerNumber].shotCooldown = COOLDOWN;    
     }  
@@ -73,6 +77,8 @@ game* updatePlayerInfo (game* gameState, player_n* connectionInfo, int xcoord, i
 // Update enemy location
 game* updateEnemyLocations (game* gameState){
 
+    printf("gameLogic: updateEnemyLocations function\n");
+    
     for(int i = 0; i<gameState->enemyCount;i++){
         // Calculate enemy distance to followed PC and move towards
         if((gameState->playerList[gameState->enemyList[i].following].xcoord - gameState->enemyList[i].xcoord) < 0) {
@@ -97,6 +103,8 @@ game* updateEnemyLocations (game* gameState){
 // Determine if enemy is shot - if PC has shot check if there are enemies on firing line
 game* checkHit (game* gameState, int playerNumber){
 
+    printf("gameLogic: checkHit function\n");
+    
     int k = 0;
     int candidateNumber = 0;
     int candidateDistance = 0;
@@ -203,6 +211,8 @@ game* checkHit (game* gameState, int playerNumber){
 // Function to determine if player character and enemy collide
 game* checkCollision (game* gameState){
     
+    printf("gameLogic: checkCollision function\n");
+    
     // Loop through enemies and PCs and check if they're in same coordinate
     for(int i=0;i<gameState->enemyCount;i++){
         for(int j=0;j<gameState->playerCount;j++){
@@ -226,6 +236,8 @@ game* checkCollision (game* gameState){
 // Check end condition: all PCs are dead or enemyLimit and enemyCount are zero
 int checkEnd (game* gameState){
 
+    printf("gameLogic: checkEnd function\n");
+    
     int deadPlayers = 0;
     
     // All enemies defeated, level completed
@@ -248,14 +260,10 @@ int checkEnd (game* gameState){
 
 }
 
-// Relay chat messages to all clients
-void relayChat (void){ // Check if private message
-
-
-}
-
 game* initGame(void){
 
+    printf("gameLogic: initGame function\n");
+    
     // Allocate game struct
     game *gameState = (game*)malloc(sizeof(game));
     
@@ -277,18 +285,26 @@ game* initGame(void){
 // New game state
 game* newGame(game* gameState, char* gameName, int maxPlayers) {
 
+    printf("gameLogic: newGame function\n");
+    
     // Set the game state
-    gameState->playerCount = 1; // Number of players after the host joins
+    gameState->playerCount = 0; // No players in new game yet
     gameState->enemyCount = 0; // Number of enemies on the game board
     gameState->levelNumber = 1; // Number of the game level (1-3), new game starts from 1
     memcpy(gameState->gameName, gameName, GAMENAME_LENGTH);
     gameState->maxPlayers = maxPlayers;
+    
+    // Change to inLobby state
+    gameState->currentState = 1;
 
     return gameState;
 }
 
 // Free game state
 void freeGame(game* gameState) {
+
+    printf("gameLogic: freeGame function\n");
+    
     if(gameState) {
         free(gameState);
     }
@@ -296,13 +312,17 @@ void freeGame(game* gameState) {
 
 game* addPlayer(game* gameState, player_n* connectionInfo, char* playerName){
 
+    printf("gameLogic: addPlayer function\n");
+
+    // TODO: Check if packet came from joined client
+    
     // Check if player limit is full
     if(gameState->playerCount < gameState->maxPlayers){
         player newPlayer[1];
         
         // Get player number from connectionInfo
-        int playerNumber = getPlayerNumber(gameState, connectionInfo);
-
+        //int playerNumber = getPlayerNumber(gameState, connectionInfo);
+        
         // Set new player parameters
         newPlayer[0].xcoord = 0 ; // Initial X coordinate
         newPlayer[0].ycoord = 0; // Initial Y coordinate
@@ -318,22 +338,25 @@ game* addPlayer(game* gameState, player_n* connectionInfo, char* playerName){
             newPlayer[0].isHost = 0;
         }
         
-        newPlayer[0].playerNumber = gameState->playerCount; // Player's number
-        memcpy(newPlayer[0].playerName, playerName, PLAYERNAME_LENGTH); // Player's name
+        int playerNumber = gameState->playerCount;
+        newPlayer[0].playerNumber = playerNumber; // Player's number
+        memcpy(&newPlayer[0].playerName, &playerName, sizeof(playerName)); // Player's name        
         newPlayer[0].connectionInfo = connectionInfo; // sockaddr_storage struct  
-        newPlayer[0].isColliding = 0; // New player not colliding with enemies, yet              
+        newPlayer[0].isColliding = 0; // New player not colliding with enemies, yet  
         gameState->playerList[playerNumber] = newPlayer[0]; // Allocate new player
         
-        // Increase number of players
-        gameState->playerCount += 1;
+        gameState->playerCount += 1; // Increase number of players
     }
+    
     // TODO: Else -> return game full error
-  
+    
     return gameState;
 }
 
 // Updates the lobby state to every player
 void updateLobby(game* gameState, char* buf){
+    
+    printf("gameLogic: updateLobby function\n");
     
     //Set array of array of chars and set values to \0
     char nameArray[4][16];
@@ -341,16 +364,21 @@ void updateLobby(game* gameState, char* buf){
     
     // Write player names to array
     for (int i = 0; i < gameState->playerCount; i++)
-    {
-        memcpy(nameArray[i], gameState->playerList[i].playerName, PLAYERNAME_LENGTH);   
+    {   
+        memcpy(nameArray[i], gameState->playerList[i].playerName, sizeof(gameState->playerList[i].playerName));   
     }
-
+    
     //Pack names
     int size = packLobbyState(buf, nameArray[0], nameArray[1], nameArray[2], nameArray[3]);
+    
+    printf("gameLogic: packLobbyState called succesfully\n");
+    
     setLenout(size);
 }
 
 game* addEnemy(game* gameState){
+
+    printf("gameLogic: addEnemy function\n");
 
     int randomPlayer = rand() % gameState->playerCount+1; // Choose random player to follow
     int randomXborder = rand() % 2; // Choose random border from x axis
@@ -398,6 +426,8 @@ game* addEnemy(game* gameState){
 
 game* setLevelParameters(game* gameState){
 
+    printf("gameLogic: setLevelParameters function\n");
+    
     // Set game parameters for game level
     if(gameState->levelNumber == 1){
         gameState->enemyLimit = 10; // How many enemies are spawned
@@ -435,6 +465,8 @@ game* setLevelParameters(game* gameState){
 
 game* setPlayerLocations(game* gameState){
 
+    printf("gameLogic: setPlayerLocations function\n");
+
     for(int i = 0; i <= gameState->playerCount; i++){
         if(gameState->playerList[i].playerNumber == 1){
             gameState->playerList[i].xcoord = 400;
@@ -459,6 +491,9 @@ game* setPlayerLocations(game* gameState){
 
 int getPlayerNumber(game* gameState, player_n* connectionInfo){
 
+    printf("gameLogic: getPlayerNumber function\n");
+
+    //TODO: Here was something wrong!
     int playerNumber = 100;
     for(int i=0;i<gameState->playerCount;i++){
         if(gameState->playerList[i].connectionInfo == connectionInfo){
@@ -472,31 +507,33 @@ int getPlayerNumber(game* gameState, player_n* connectionInfo){
 // Check if cooldown is running
 game* checkShotCooldown(game* gameState, int playerNumber){
 
+    printf("gameLogic: checkShotCooldown function\n");
+    
     struct timeval tempTime = getCurrentTime();
     long currentTime = tempTime.tv_sec + tempTime.tv_usec;
 
     // Cooldown not running
-    if(gameState->playerList[playerNumber].shotCooldown - currentTime <= 0){
-        gameState->playerList[playerNumber].shotCooldown = 0;
+    if(currentTime - gameState->playerList[playerNumber].shotCooldown >= 500000){
+        gameState->playerList[playerNumber].shotCooldown = currentTime;
+        gameState->playerList[playerNumber].canShoot = 1;
     // Cooldown running
     } else {
-        gameState->playerList[playerNumber].shotCooldown = currentTime;
+        gameState->playerList[playerNumber].canShoot = 0;
     } 
     
     return gameState;
 }
 game* checkSpawnTimer(game* gameState){
 
+    printf("gameLogic: checkSpawnTimer function\n");
+    
     struct timeval tempTime = getCurrentTime();
     long currentTime = tempTime.tv_sec + tempTime.tv_usec;
-
+    
     // Enemy spawn allowed
-    if(gameState->enemySpawnRate - currentTime <= 0){
-        gameState->enemySpawnRate = 0;
-    // Enemy spawn not allowed
-    } else {
-        gameState->enemySpawnRate = currentTime;
-    } 
+    if(currentTime - gameState->enemySpawnTimer >= gameState->enemySpawnRate){
+        gameState->enemySpawnTimer = currentTime;
+    }
     
     return gameState;
 }
@@ -508,6 +545,9 @@ struct timeval getCurrentTime(){
 }
 
 game* resetEnemyHits(game* gameState){
+
+    printf("gameLogic: resetEnemyHits function\n");
+    
     for(int i=0;i<gameState->enemyCount;i++){
         gameState->enemyList[i].isShot = 0;
     }
@@ -516,6 +556,9 @@ game* resetEnemyHits(game* gameState){
 }
 
 game* resetPlayerCollisions(game* gameState){
+
+    printf("gameLogic: resetPlayerCollisions function\n");
+    
     for(int i=0;i<gameState->playerCount;i++){
         gameState->playerList[i].isColliding = 0;
     }
@@ -524,6 +567,9 @@ game* resetPlayerCollisions(game* gameState){
 }
 
 game* removePlayer(game* gameState, player_n* connectionInfo){
+
+    printf("gameLogic: removePlayer function\n");
+    
     for(int i=0;i<gameState->playerCount;i++){
         if(gameState->playerList[i].connectionInfo == connectionInfo){
             for(int j=i;j<gameState->playerCount;j++){
@@ -537,6 +583,9 @@ game* removePlayer(game* gameState, player_n* connectionInfo){
 }
 
 void relayChatMessage(game* gameState,  char outbuf[MAXDATASIZE], char message[CHATMESSAGE_LENGTH]){
+
+    printf("gameLogic: relayChatMessage function\n");
+
     // Check if private message - sent as "/playerNumber <message>"
     if(strcmp(message[0],"/") == 0 && isdigit(message[1]) != 0){
         setSendMask(atoi(message[1]));
@@ -544,4 +593,25 @@ void relayChatMessage(game* gameState,  char outbuf[MAXDATASIZE], char message[C
     
     int size = packChatRelay(outbuf, message);
     setLenout(size);
+}
+
+game* sendGameState(game* gameState, char outbuf[MAXDATASIZE]){
+
+    printf("gameLogic: sendGameState function\n");
+    
+    struct timeval tempTime = getCurrentTime();
+    long currentTime = tempTime.tv_sec + tempTime.tv_usec;
+
+    // Send gameState
+    if(currentTime - gameState->updateTimer >= 5000){
+        gameState->updateTimer = currentTime;
+    }
+    
+    // TODO: Needs logic to zero the msgNumber when going over int boundary
+    int size = packServerState(outbuf, gameState, gameState->msgNumber);
+    setLenout(size);
+    
+    gameState->msgNumber += 1;
+        
+    return gameState;
 }

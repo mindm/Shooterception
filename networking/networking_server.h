@@ -19,5 +19,4 @@ int getInPort(struct sockaddr *sa, int);
 void setLenout(int size);
 void setSendMask(int mask);
 
-
 #endif /* SERVER_H_ */

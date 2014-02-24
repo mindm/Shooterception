@@ -89,6 +89,7 @@ typedef struct t_player {
     int health; // Three Health points, third hit kills
     uint8_t hasShot; // Has the player shot after sending the last clientState
     long shotCooldown; // PCs can shoot 2/s
+    int canShoot; // Cooldown not running, 0: False, 1: True
     int isHost; // Is the player the host - 0: False, 1: True
     int playerNumber; // Player's number
     char* playerName; // Player's name
@@ -104,11 +105,14 @@ typedef struct t_game {
     int enemyCount; // Number of enemies in game
     int levelNumber; // Number of the game level, defines level parameters
     int enemyLimit; // How many enemies current level will spawn
-    long enemySpawnRate; // How quickly new enemies are spawned
+    long enemySpawnTimer; // When enemy last spawned
+    int enemySpawnRate; // How quickly new enemies are spawned
     int enemyBaseSpeed; // Base speed for enemies
     int currentState; // 0: Waiting game, 1: inLobby, 2: inGame
     int maxPlayers; // Maximum amount of players, 1-4
     char gameName[17];
+    long updateTimer;
+    int msgNumber;
 } game;
 
 //Struct for server info

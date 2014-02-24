@@ -113,13 +113,6 @@ int main(int argc, char *argv[]){
 	printf("Client: Enter Main loop\n");
 	
 	while(running) {
-
-        if(lenout > 0){
-            numbytes = send(sockfd, outbuffer, lenout, 0);
-            memset(outbuffer,'\0', MAXDATASIZE);
-            lenout = 0;
-		}
-		
 			
 	    printf("\nClient: Give packet name to send\n");
 
@@ -190,7 +183,13 @@ int main(int argc, char *argv[]){
         else{
             printf("Now valid packet name\n");
             printf("Options are: chatMessage, createGame, joinGame, \nstartGame, clientState, clientExit, ack\n");
-        }                   
+        } 
+        
+        if(lenout > 0){
+            numbytes = send(sockfd, outbuffer, lenout, 0);
+            memset(outbuffer,'\0', MAXDATASIZE);
+            lenout = 0;
+		}                  
 	}
 	// free memory and close socket
 

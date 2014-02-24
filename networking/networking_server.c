@@ -41,22 +41,21 @@ int getInPort(struct sockaddr *sa, int p_port)
 
 int main(int argc, char *argv[])
 {
-    printf("Server: Start main\n");
+    printf("\nServer: Start main\n");
 
 	// Some variables for connection
 	struct addrinfo hints, *res, *iter;
 	struct sockaddr_storage their_addr; // connector's address information
-	
+	struct timeval tv, timer;
+
 	player_n* tempAddress = (player_n*)malloc(sizeof(player_n));
     
 	socklen_t sin_size; // address size
-	game* gameState = NULL;
-
-    if(gameState == NULL){ // If game doesn't exist, create it
-        gameState = initGame();    
-    }
+	game* gameState = initGame();
+	
+    printf("Server: initGame complete\n");
     
-    player* playerInfo = NULL; // Create player struct for parameter passing
+    player* playerInfo = (player*)malloc(sizeof(player)); // Create player struct for parameter passing
     
     fd_set readfds; // File descriptor sets for select
     fd_set writefds;
@@ -73,6 +72,7 @@ int main(int argc, char *argv[])
     int rval = 0;
     int messageNumber = 0;
     int gameLevel = 0;
+    int msgNumber = 0;
     
 	// For parsing options
 	extern char *optarg;
@@ -163,32 +163,36 @@ int main(int argc, char *argv[])
     printf("Server: Enter main loop\n");
 	
 	while(1)
-	{
-	
-	    printf("Server: Waiting for data\n");
+	{		
+	    tv.tv_sec = 1;
+        tv.tv_usec = 5000;
+    
+	    printf("\nServer: Waiting for data\n\n");
 	    
-		FD_ZERO(&readfds); // Clear the sets of file descriptors
+	    // Clear the sets of file descriptors
+		FD_ZERO(&readfds); 
 		FD_ZERO(&writefds);
+		
 		// Socket to the server
 		FD_SET(sockfd, &readfds);
 		if(sockfd > fdmax) fdmax = sockfd;
-
-		// STDIN
-		FD_SET(fileno(stdin),&readfds);
-		if(fileno(stdin) > fdmax) fdmax = fileno(stdin);
-
+		
 		// WRITESOCKET
 		if (lenout > 0){
 			FD_SET(sockfd, &writefds);
 		}
+
 		// Block until input (no timeval)
 		// TODO: Add timeout
-		if ((rval = select(fdmax+1,&readfds,&writefds,NULL, NULL)) > 0) {
+		if ((rval = select(fdmax+1,&readfds,&writefds,NULL, &tv)) > 0) {
 
 			//listening socket got something
 			if(FD_ISSET(sockfd,&readfds)){  
+			    
 			    sin_size = sizeof(their_addr);
+			    			    
 				recvbytes = recvfrom(sockfd, inbuf, MAXDATASIZE-1, 0, (struct sockaddr *) &their_addr, &sin_size);
+				
 				inbuf[recvbytes] = '\0';
 				uint8_t msgtype = getmessagetype(inbuf); //unpack messagetype
 				
@@ -206,8 +210,8 @@ int main(int argc, char *argv[])
                 		
 			    printf("Server: Got %d byte(s) from %s:%d\n",recvbytes,tempAddress->address,tempAddress->port);
 
-                // Create game
-                if(msgtype == 1)
+                // Create game - available in waitingGame state
+                if(msgtype == 1 && gameState->currentState == 0)
                 {
                     printf("Server: Received createGame message\n");
                     
@@ -215,18 +219,18 @@ int main(int argc, char *argv[])
 
                     // Game state for new game
                     gameState = newGame(gameState, gameName, maxPlayers);  
+                    printf("Server: newGame complete\n");
 
-                    // Change to inLobby state
-                    gameState->currentState = 1;
-                    
                     // Add first player to game
                     gameState = addPlayer(gameState, tempAddress, playerName);
+                    printf("Server: addPlayer complete\n");
                     
                     // Update lobby and send lobbyState
-                    updateLobby(gameState, outbuf);       
+                    updateLobby(gameState, outbuf);  
+                    printf("Server: updateLobby complete\n");
                 }
-                // Join game
-                else if(msgtype == 2)
+                // Join game - available in inLobby state
+                else if(msgtype == 2 && gameState->currentState == 1)
                 {
                     printf("Server: Received joinGame message\n");
                     
@@ -234,16 +238,15 @@ int main(int argc, char *argv[])
                     
                     // Add player to game
                     gameState = addPlayer(gameState, tempAddress, playerName);
-                    
                     // Update lobby and send lobbyState
-                    updateLobby(gameState, outbuf);       
+                    updateLobby(gameState, outbuf);    
                 }
                 // Start game
-                else if(msgtype == 3)
+                else if(msgtype == 3 && gameState->currentState == 1)
                 {
                     printf("Server: Received startGame message\n");
                                     
-                    unpackGameStart(inbuf, &gameLevel); // Game level not needed
+                    unpackGameStart(inbuf, &gameLevel);
                     startGame(gameState, outbuf, gameLevel);
                 }
                 // Client state
@@ -280,20 +283,30 @@ int main(int argc, char *argv[])
 			
 			// if something to output ->  send
 			if(FD_ISSET(sockfd,&writefds)){
+			    		    
 			    if(sendMask == 100){
-			        for(int i=0;i<=gameState->playerCount;i++){
+	    
+			        for(int i=0;i<gameState->playerCount;i++){
+			            
 				        sentbytes = sendto(sockfd, outbuf, lenout, 0, (struct sockaddr *) &(gameState->playerList[i].connectionInfo->their_addr), gameState->playerList[i].connectionInfo->addr_size);
 			        }
+			        		
+			        printf("Sent packet to all players (%d)\n",gameState->playerCount);
+			        		        
 				    memset(outbuf,'\0', MAXDATASIZE);
 				    lenout = 0;
 				} else{
 				    sentbytes = sendto(sockfd, outbuf, lenout, 0, (struct sockaddr *) &(gameState->playerList[sendMask].connectionInfo->their_addr), gameState->playerList[sendMask].connectionInfo->addr_size);	
-				    sendMask = 100; // Reset value  			
-				    
+				    sendMask = 100; // Reset value  	
+				    		
+		            printf("Sent packet to player %d\n",gameState->playerList[sendMask]);    
 				} 
 			} 
-
+         
 			// Game Logic here
+			
+			printf("\n***update functions start***\n");
+			
 			gameState = checkSpawnTimer(gameState);
             // Spawn enemy if spawn rate allows and MAXENEMIES is not full
             if((gameState->enemySpawnRate = 0) && (gameState->enemyCount < MAXENEMIES)){
@@ -318,20 +331,20 @@ int main(int argc, char *argv[])
                 // Shut down game, return to main menu
             }
             
-            // Relay chat message to correct clients
-            //relayChat();
-            
             // Send game state to all clients
+            // Has to be sent in different way or may overwrite other message replies
             // This sent twice?
-            //sendGameState(gameState);
-    
+            //sendGameState(gameState, outbuf, msgNumber);
+            
             gameState = resetEnemyHits(gameState);
             gameState = resetPlayerCollisions(gameState);
-
+            
+			printf("***update functions end***\n");
 		}	
 	} // End while loop
 	
     // Cleanup after the game ends
+    free(playerInfo);
     free(tempAddress);
     freeGame(gameState);
 

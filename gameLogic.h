@@ -39,12 +39,6 @@ game* checkCollision (game*);
 // Check end condition: all PCs are dead or enemyLimit and enemyCount are zero
 int checkEnd (game*);
 
-// Relay chat messages to all clients
-void relayChat (void); // Check if private message
-
-// Send game state to all clients
-void sendGameState(void);
-
 // New game struct
 // Params: game state, gameName, maxPlayers
 game* newGame(game*, char[16], int);
@@ -96,5 +90,9 @@ game* initGame(void);
 // Remove player from game
 game* removePlayer(game*, player_n*);
 void relayChatMessage(game*,  char[MAXDATASIZE], char[CHATMESSAGE_LENGTH]);
+
+// Send game state to all clients
+// Params: game state, outbuffer
+game* sendGameState(game*, char[MAXDATASIZE]);
 
 #endif /* GAMELOGIC_H_ */
