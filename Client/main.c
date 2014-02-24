@@ -20,7 +20,7 @@ int main(int argc, char* args[]) {
 	//srand (time(NULL));
 	char mem[1] = "m"; //dummy
 	int quit = 0;
-	
+	int counter = 0;
 	pthread_t networking;
 
     playerNames* joined;
@@ -141,8 +141,8 @@ int main(int argc, char* args[]) {
 						{
 							state = _state;
 							pthread_create(&networking, NULL, networking_thread, NULL);
-							SDL_Delay(1000);
-							//sendJoinGame(id);
+							//SDL_Delay(1000);
+							sendJoinGame(id);
                         }
                         
 						for(i = 0; i < 3; i++) {
@@ -210,7 +210,7 @@ int main(int argc, char* args[]) {
 							state = _state;
 							resetStringInput();
 							pthread_create(&networking, NULL, networking_thread, NULL);
-							SDL_Delay(1000);
+							//SDL_Delay(1000);
 							sendCreateGame();
 						}
 					}
@@ -279,9 +279,9 @@ int main(int argc, char* args[]) {
 			printText(400, server_list_box.y+60, itoa(pl_num, mem), textColor);
 			printText(225, server_list_box.y+90, "Players joined: ", textColor);
 
-            //joined = getPlayers();
-            for(i=0; i < 2/*joined->playerCount*/; i++){
-                printText(225, server_list_box.y+120+(30*i), "fagotti"/*&joined->name[i]*/, textColor);
+            joined = getPlayers();
+            for(i=0; i < joined->playerCount; i++){
+                printText(225, server_list_box.y+120+(30*i), joined->name[i], textColor);
             }
 
 			//show chat input
@@ -294,7 +294,8 @@ int main(int argc, char* args[]) {
 					printText(225, server_list_box.h+(20*i), &chatlog[i][0], textColor);
 			}
 
-			showButton(start_button);
+			if(strcmp(joined->name[0], pl_name_str) == 0)
+				showButton(start_button);
 		}
 		/* game lobby end */
 
@@ -338,7 +339,9 @@ int main(int argc, char* args[]) {
 					}
 				}
 
-				sendClientState(players[0], 1); //send player movements to server
+				sendClientState(players[0], counter++); //send player movements to server
+				if(counter >= 65530) 
+					counter = 0;
 
 				drawHud(0); // aka foreground
 

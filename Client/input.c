@@ -49,8 +49,10 @@ void handleStringInput(int context, int length) {
 			//enter (if this is chat, then add log, otherwise ignore)
             else if(event.key.keysym.sym == SDLK_RETURN && length == MAX_LEN) {
 				textinput = 0;
-				if(textpos > 0) 
-					sendChatMsg(textbuffer, textpos); //addLog(textbuffer, textpos);
+				if(textpos > 0) {
+					textbuffer[textpos] = '\0';
+					sendChatMsg(textbuffer); //addLog(textbuffer, textpos);
+				}
 				textpos = 0;
 				memset(&textbuffer, 0, MAX_LEN);
 			}
@@ -68,11 +70,14 @@ void handleStringInput(int context, int length) {
 			textinput = 0;
 		}
 
-		if(context == NAME_MENU)
+		if(context == NAME_MENU) {
 			memcpy(&pl_name_str[0], textbuffer, textpos);
+			pl_name_str[textpos+1] = '\0';
+		}
 
 		if(context == CREATE_MENU)
 			memcpy(&g_name_str[0], textbuffer, textpos);
+			g_name_str[textpos+1] = '\0';
     }
 }
 

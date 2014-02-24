@@ -23,8 +23,8 @@ int textinput = 0;
 int textpos = 0;
 
 char textbuffer[MAX_LEN] = { 0 };
-char g_name_str[NAME_LEN] = { 0 };
-char pl_name_str[NAME_LEN] = { 0 };
+char g_name_str[NAME_LEN+1] = { 0 };
+char pl_name_str[NAME_LEN+1] = { 0 };
 
 /* Chatlog */
 char chatlog[LOGSIZE][MAX_LEN];
