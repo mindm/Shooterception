@@ -75,9 +75,10 @@ void handleStringInput(int context, int length) {
 			pl_name_str[textpos+1] = '\0';
 		}
 
-		if(context == CREATE_MENU)
+		if(context == CREATE_MENU){
 			memcpy(&g_name_str[0], textbuffer, textpos);
 			g_name_str[textpos+1] = '\0';
+	    }
     }
 }
 

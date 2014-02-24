@@ -208,10 +208,10 @@ int main(int argc, char* args[]) {
 						//there's only one possible state anyway
 						if(_state = handleButton(create_button, event.button.x, event.button.y)) {
 							state = _state;
-							resetStringInput();
 							pthread_create(&networking, NULL, networking_thread, NULL);
 							SDL_Delay(1000);
 							sendCreateGame();
+							resetStringInput();
 						}
 					}
 				}
@@ -274,7 +274,7 @@ int main(int argc, char* args[]) {
 			SDL_FillRect(screen, &server_list_box, SDL_MapRGB(screen->format, 0x00, 0x00, 0x00));
 
 			printText(225, server_list_box.y+30, "Game name: ", textColor);
-			printText(370, server_list_box.y+30, &pl_name_str[0], textColor);
+			printText(370, server_list_box.y+30, &g_name_str[0], textColor);
 			printText(225, server_list_box.y+60, "Max players: ", textColor);
 			printText(400, server_list_box.y+60, itoa(pl_num, mem), textColor);
 			printText(225, server_list_box.y+90, "Players joined: ", textColor);
