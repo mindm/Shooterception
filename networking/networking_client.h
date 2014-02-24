@@ -37,14 +37,14 @@ typedef struct playerNames {
 char pl1[16] = { 0 }; char pl2[16] = { 0 }; char pl3[16] = { 0 }; char pl4[16] = { 0 };
 playerNames pl_names;
 
-struct serverInfo {
+typedef struct serverInfo {
     int id;
     int port;
 	char game_name[16];
     char address[40];
-};
+} serverInfo;
 
-struct serverInfo serverList[10];
+serverInfo cl_serverList[3];
 
 void *networking_thread(void *dest_addr);
 
@@ -57,7 +57,7 @@ void sendJoinGame(int id);
 void sendCreateGame(void);
 void sendClientState(struct SDLplayer*, int);
 void sendJoinGame(int id);
-void sendChatMsg(char *message, int msglen);
+void sendChatMsg(char *message);
 void readParams(char *full_address, char *host, char *port);
 char *createFullAddress(char *host, char *port);
 

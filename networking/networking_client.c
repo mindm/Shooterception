@@ -23,17 +23,17 @@ void *get_in_addr(struct sockaddr *sa) {
 }
 
 playerNames *getPlayers() {
-	printf("getting players");
+
     return &pl_names;
 }
 
-void sendChatMsg(char *message, int msglen) {
-    lenout = packChatMessage(message, msglen);
+void sendChatMsg(char* message) {
+    lenout = packChatMessage(buf, message);
 }
 
 void sendJoinGame(int id) {
 	printf("sending join");
-	lenout = packJoinGame(buf, "homo"/*serverList[id].game_name*/, pl_name_str);
+	lenout = packJoinGame(buf, cl_serverList[id].game_name, pl_name_str);
 	printf("sending join2");  
 }
 
@@ -43,27 +43,23 @@ void sendCreateGame(void) {
 
 void setPlayerNames(char* pl1, char* pl2, char* pl3, char* pl4) {
 	
-	/*pl_names.playerCount = 0;
-    if (strlen(pl1) > 0)
-    {
-        strncpy(pl_names.name[0][0], pl1, 16);
+	pl_names.playerCount = 0;
+    if (strlen(pl1) > 0) {
+        strncpy(pl_names.name[0], pl1, 16);
         pl_names.playerCount = 1;
     }
-    if (strlen(pl2) > 0)
-    {
-       strncpy(pl_names.name[1][0], pl2, 16);
+    if (strlen(pl2) > 0) {
+       strncpy(pl_names.name[1], pl2, 16);
         pl_names.playerCount = 2;
     }
-    if (strlen(pl3) > 0)
-    {
-        strncpy(pl_names.name[2][0], pl3, 16);
+    if (strlen(pl3) > 0) {
+        strncpy(pl_names.name[2], pl3, 16);
         pl_names.playerCount = 3;
     }
-    if (strlen(pl4) > 0)
-    {
-        strncpy(pl_names.name[3][0], pl4, 16);
+    if (strlen(pl4) > 0) {
+        strncpy(pl_names.name[3], pl4, 16);
         pl_names.playerCount = 4;
-    }*/
+    }
 }
 
 //Full_address length should be 46+17 = 63 bits
@@ -132,13 +128,17 @@ void *networking_thread(void *dest_addr)
 
 	gameState = malloc(sizeof(game));
 
+	strcpy(cl_serverList[0].game_name, "testi");
+	strcpy(cl_serverList[1].game_name, "testi2");
+	strcpy(cl_serverList[2].game_name, "testi3"); 
+
 	// Some variables for connection
 	struct addrinfo hints, *res, *iter;
 	int status;
 	char ipstr[INET6_ADDRSTRLEN];
 	int sockfd, numbytes;
 
-	char *host = "192.168.10.128";
+	char *host = "localhost";
 	char *port = "8000";
 
 	// For parsing options
@@ -195,8 +195,9 @@ void *networking_thread(void *dest_addr)
 	}
 	// not found
 	if (res == NULL) {
-		fprintf(stderr, "client: failed to find connection");
+		printf("client: failed to find connection\n");
 		//return 1;
+		//exit(1);
 	}
 
 	freeaddrinfo(res); // Addrinfo not needed anymore
@@ -214,7 +215,7 @@ void *networking_thread(void *dest_addr)
 
 	int rval = 0;
 
-	printf("client loop");
+	printf("client loop\n");
 	while(running) {
 		FD_ZERO(&readfds); // Clear the sets of file descriptors
 		FD_ZERO(&writefds);
@@ -255,7 +256,7 @@ void *networking_thread(void *dest_addr)
 				}
 				else if (msgtype == CHATRELAY) {   
 				    int msglen;
-					char* newMessage;
+					char newMessage[100];
 				    unpackChatRelay(buf, newMessage, &msglen);
 				    addLog(newMessage, msglen);
 				}
