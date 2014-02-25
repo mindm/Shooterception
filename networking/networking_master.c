@@ -15,27 +15,67 @@ int lenout = 0;
 
 serverList server_list;
 
-// Get non-binary address, IPv4 or IPv6
-char* getInAddr(struct sockaddr *sa, char* ipstr)
+void *get_in_addr(struct sockaddr *sa)
 {
     if (sa->sa_family == AF_INET) {
-        inet_ntop(AF_INET,&(((struct sockaddr_in*)sa)->sin_addr), ipstr, INET_ADDRSTRLEN);
+        return &(((struct sockaddr_in*)sa)->sin_addr);
     }
-    else if(sa->sa_family == AF_INET6){
-        inet_ntop(AF_INET6,&(((struct sockaddr_in6*)sa)->sin6_addr), ipstr, INET6_ADDRSTRLEN);
-    }
-    return ipstr;
+
+    return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
-// Get port, IPv4 or IPv6
-int getInPort(struct sockaddr *sa, int p_port)
+// Same for port
+int get_in_port(struct sockaddr *sa)
 {
     if (sa->sa_family == AF_INET) {
-        p_port = (((struct sockaddr_in*)sa)->sin_port);
+        return (((struct sockaddr_in*)sa)->sin_port);
     }
-    else if (sa->sa_family == AF_INET) {
-        p_port = (((struct sockaddr_in6*)sa)->sin6_port);
+
+    return (((struct sockaddr_in6*)sa)->sin6_port);
+}
+
+void printServer(server _server)
+{
+    printf("Server address: %s:%s\n", _server.host, _server.port);
+    printf("State: %d Players: %d/%d\n", _server.serverState, _server.playerNumber, _server.maxPlayers);
+    printf("Game name: %s\n\n", _server.gameName);
+}
+
+void updateServers(server *tmpserver, int port, char *host)
+{
+
+    char portstr[17];
+    sprintf(portstr, "%d", port);
+    strcpy(tmpserver->port, portstr);
+    strcpy(tmpserver->host, host);
+
+    printServer(*tmpserver);
+
+    if( server_list.count == 0)
+    {    
+        server_list.servers[0] = *tmpserver;
+        server_list.count++;
     }
-    return p_port;
+    else
+    {
+        
+        int i;
+        int update = -1;
+        for (i = 0; i < server_list.count; i++)
+        {
+            if (strcmp(server_list.servers[i].host, host) == 0 &&
+                    strcmp(server_list.servers[i].port, portstr) == 0)
+            {
+                update = i;
+                server_list.servers[i] = *tmpserver;
+                //printf("Updated\n\n");
+            }
+        }
+        if (update == -1)
+        {
+            server_list.servers[server_list.count] = *tmpserver;
+            server_list.count++;
+        }    
+    }
 }
 
 int main(int argc, char *argv[])
@@ -58,6 +98,7 @@ int main(int argc, char *argv[])
 	int optc;
 
     server_list.count = 0;
+    server temp_server;
     
 	// Sets hints for binding socket
 	memset(&hints, 0, sizeof(hints));
@@ -145,15 +186,15 @@ int main(int argc, char *argv[])
 		p_port = ntohs(get_in_port((struct sockaddr *)&their_addr));
 		printf("server: got packet from %s, %d\n",
 				ipstr, p_port);
-		printf("server: packet is %d bytes long\n", numbytes);
+		printf("server: packet is %d bytes long\n\n", numbytes);
 		inbuf[numbytes] = '\0';
 
 		// Join
 		if (msgtype == UPDATESTATE)
 		{
             // Server sent update state
-            server temp_server;
             unpackUpdateState(inbuf, &temp_server);
+            updateServers(&temp_server, p_port, ipstr);
 
 		}
         else if (msgtype == GAMESQUERY)

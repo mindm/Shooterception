@@ -11,5 +11,5 @@
 
 #define MAXDATASIZE 512
 
-char* getInAddr(struct sockaddr *sa, char* ipstr);
-int getInPort(struct sockaddr *sa, int p_port);
+void *get_in_addr(struct sockaddr *sa);
+int get_in_port(struct sockaddr *sa);
