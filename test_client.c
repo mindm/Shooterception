@@ -58,7 +58,7 @@ int main(int argc, char *argv[]){
     testPlayer->isColliding = 0; // Is the PC colliding with enemy?
     
     game testGame;
-    testGame.currentState = 1;
+    testGame.currentState = 0;
     testGame.playerCount = 0;
     testGame.maxPlayers = 4;
     strcpy(testGame.gameName,"peliNimi");
@@ -194,6 +194,22 @@ int main(int argc, char *argv[]){
 	        // Set lenout to send message
             setLenout(size);
         }	
+	    else if(strcmp(command,"gamesQuery") == 0){
+	        printf("Client: Sent gamesQuery message\n");
+	        
+	        size = packGamesQuery(outbuffer, &testGame);
+	        
+	        // Set lenout to send message
+            setLenout(size);
+        }
+	    else if(strcmp(command,"serverQuery") == 0){
+	        printf("Client: Sent serverQuery message\n");
+	        
+	        size = packServerQuery(outbuffer, &testGame);
+	        
+	        // Set lenout to send message
+            setLenout(size);
+        }
         else{
             printf("Now valid packet name\n");
             printf("Options are: chatMessage, createGame, joinGame, \nstartGame, clientState, clientExit, ack, updateState\n");

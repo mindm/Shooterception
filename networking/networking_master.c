@@ -200,12 +200,20 @@ int main(int argc, char *argv[])
         else if (msgtype == GAMESQUERY)
         {
             // Client sent Games query
-        
+            lenout = packGameList(outbuf, &server_list);
         }
         else if (msgtype == SERVERQUERY)
         {
             // Client sent Server query
+            lenout = packServerList(outbuf, &server_list);
         }
+
+        if(lenout > 0){
+            numbytes = sendto(sockfd, outbuf, lenout, 0, (struct sockaddr *) &their_addr, sin_size);
+            memset(outbuf,'\0', MAXDATASIZE);
+            printf("Sent %d bytes\n\n", lenout);
+            lenout = 0;
+		} 
 
 
 	} // end while
