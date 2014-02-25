@@ -6,7 +6,7 @@
 
 COMPILER := gcc
 FLAGS := -Wall -w -g -pedantic -std=gnu99
-LIBS = -lSDL -lSDL_image -lSDL_ttf -lSDL_mixer
+LIBS = -lSDL -lSDL_image -lSDL_ttf -lSDL_mixer -lpthread
 
 all:  build
 
