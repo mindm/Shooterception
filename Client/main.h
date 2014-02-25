@@ -65,6 +65,8 @@ SDL_Event event;
 //number of players in created game
 int pl_num = 1;
 
+int gameLevel = 0;
+
 /* Player 1 object */
 struct SDLplayer {
 	int health;

@@ -49,7 +49,7 @@ int main(int argc, char* args[]) {
 	setupStringInput();
 	
 	toggleMenuMusic(); // toggle once = play
-	Mix_VolumeMusic(100); //max: 128
+	Mix_VolumeMusic(90); //max: 128
 
 	/* GUI loop */
 	while(!quit) {
@@ -81,7 +81,7 @@ int main(int argc, char* args[]) {
 
 		    //bground and title
 		    SDL_FillRect(screen, &screen->clip_rect, SDL_MapRGB(screen->format, 0x66, 0x66, 0x66));
-			printTitle(200, 100, "Shooter shooter");
+			printTitle(200, 100, "Hello stranger!");
 
 			//game name box with prompt
 			printText(game_name_box.x, game_name_box.y-35, "Your name:", textColor);
@@ -107,7 +107,6 @@ int main(int argc, char* args[]) {
 						//temporal _state is used so we don't overwrite the actual state
 						if(_state = handleButton(join_menu_button, event.button.x, event.button.y)) {
 							state = _state;
-							//setupItemlist(3);
 							//since we want to join some game, send query for available games
 							sendGamesQuery();
 						}
@@ -135,14 +134,15 @@ int main(int argc, char* args[]) {
 		/* main menu end */
 
 		/* join menu */
-		if(state == JOIN_MENU) { 
+		if(state == JOIN_MENU) {
+			sv_count = getGameList(); 
 		    if(SDL_PollEvent(&event)) {
 
 			    if(event.type == SDL_QUIT)
 			        state == QUIT;
 
 				//if any button's hitbox is left-clicked
-				else if(event.type == SDL_MOUSEBUTTONDOWN) {
+				if(event.type == SDL_MOUSEBUTTONDOWN) {
 					if(event.button.button == SDL_BUTTON_LEFT) {
 
 						int x = event.button.x;
@@ -153,7 +153,7 @@ int main(int argc, char* args[]) {
 							sendJoinGame(id);
                         }
                         
-						for(i = 0; i < 3; i++) {
+						for(i = 0; i < sv_count; i++) {
 							if((_id = handleFocus(server_list[i], x, y)) >= 0) {
 								id = _id;				
 							}
@@ -161,7 +161,9 @@ int main(int argc, char* args[]) {
 
 						/* yes, this could be inside the previous loop
 						but it doesn't update correctly for some reason. so it has its own loop */
-						for(i = 0; i < 3; i++) { focus(server_list[i], id); }
+						for(i = 0; i < sv_count; i++) { 
+							focus(server_list[i], id); 	
+						}
 					}
 				}
 		    }
@@ -172,9 +174,8 @@ int main(int argc, char* args[]) {
 
 			//server list box
 			SDL_FillRect(screen, &server_list_box, SDL_MapRGB(screen->format, 0x00, 0x00, 0x00));
-			printText(server_list_box.x, server_list_box.y+5, "|Name-------------------|Players|", textColor);
+			printText(server_list_box.x, server_list_box.y+5, "|Name----------------|Joined|Max|", textColor);
 			
-			sv_count = getGameList();
 			for(i = 0; i < sv_count; i++) {
 
 				if(server_list[i]->focused)
@@ -183,6 +184,7 @@ int main(int argc, char* args[]) {
 				printText(server_list[i]->box.x-30, server_list[i]->box.y, itoa(server_list[i]->id+1, mem), textColor);
 				printText(server_list[i]->box.x, server_list[i]->box.y, server_list[i]->name, textColor);
 				printText(server_list[i]->box.x+280, server_list[i]->box.y, itoa(server_list[i]->pl_num, mem), textColor);
+				printText(server_list[i]->box.x+300, server_list[i]->box.y, itoa(server_list[i]->pl_num_max, mem), textColor);			
 			}
 
         	showButton(join_button);
@@ -190,7 +192,8 @@ int main(int argc, char* args[]) {
 		/* join menu end */
 
 		/* Server select for create game */
-		if(state == SERVER_MENU) { 
+		if(state == SERVER_MENU) {
+			sv_count = getServerList(); 
 		    if(SDL_PollEvent(&event)) {
 
 			    if(event.type == SDL_QUIT)
@@ -208,7 +211,7 @@ int main(int argc, char* args[]) {
 							//selected server [id]
                         }   
 
-						for(i = 0; i < 3; i++) {
+						for(i = 0; i < sv_count; i++) {
 							if((_id = handleFocus(server_list[i], x, y)) >= 0) {
 								id = _id;				
 							}
@@ -216,7 +219,9 @@ int main(int argc, char* args[]) {
 
 						/* yes, this could be inside the previous loop
 						but it doesn't update correctly for some reason. so it has its own loop */
-						for(i = 0; i < 3; i++) { focus(server_list[i], id); }
+						for(i = 0; i < sv_count; i++) { 
+							focus(server_list[i], id); 
+						}
 					}
 				}
 		    }
@@ -229,7 +234,6 @@ int main(int argc, char* args[]) {
 			SDL_FillRect(screen, &server_list_box, SDL_MapRGB(screen->format, 0x00, 0x00, 0x00));
 			printText(server_list_box.x, server_list_box.y+5, "|Name---------------------------|", textColor);
 			
-			sv_count = getServerList();
 			for(i = 0; i < sv_count; i++) {
 
 				if(server_list[i]->focused)
@@ -374,7 +378,7 @@ int main(int argc, char* args[]) {
 					handlePlayerInput(0); //index of controller
 				}
 
-				drawBackground(0); //level n:o here 0-3
+				drawBackground(gameLevel); //level n:o here 0-3
 
 				for(i = 0; i < MAX_EN; i++)	{		
 					updateEnemyStates(enemies[i], i);
@@ -626,7 +630,7 @@ void setupPlayer(void) {
 		}
 
 		/* KO */
-		players[i]->animVer[8].x = offset;
+		players[i]->animVer[8].x = offset+PC_DIMS;
 		players[i]->animVer[8].y = 0;
 		players[i]->animVer[8].w = PC_DIMS;
 		players[i]->animVer[8].h = PC_DIMS+PC_DIMS;

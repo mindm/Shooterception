@@ -62,7 +62,8 @@ int getGameList(void) {
 	int i;
 	for(i = 0; i < cl_gamesList.count; i++) {
 		strncpy(server_list[i]->name, cl_gamesList.servers[i].gameName, 17);
-		server_list[i]->pl_num = cl_gamesList.servers[i].maxPlayers;
+		server_list[i]->pl_num = cl_gamesList.servers[i].playerNumber;
+		server_list[i]->pl_num_max = cl_gamesList.servers[i].maxPlayers;
 	}
 
 	return cl_gamesList.count;
@@ -166,10 +167,10 @@ void *networking_thread(void *dest_addr)
     
 	gameState = malloc(sizeof(game));
 
-	//strcpy(cl_serverList[0].game_name, "testi");
-	//strcpy(cl_serverList[1].game_name, "testi2");
-	//strcpy(cl_serverList[2].game_name, "testi3"); 
-
+	strcpy(cl_serverList.servers[0].gameName, "testi");
+	strcpy(cl_serverList.servers[1].gameName, "testi2");
+	strcpy(cl_serverList.servers[2].gameName, "testi3"); 
+	cl_serverList.count = 3;
 	// Some variables for connection
 	struct addrinfo hints, *res, *iter;
 	int status;
@@ -304,7 +305,7 @@ void *networking_thread(void *dest_addr)
 				}
 
 				else if (msgtype == GAMESTART) {
-				    int gameLevel;
+				    //gameLevel declared in SDLmain
 				    unpackGameStart(buf, &gameLevel);
 				}
 
