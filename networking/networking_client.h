@@ -34,26 +34,34 @@ typedef struct playerNames {
     char name[4][16];
 } playerNames;
 
-char pl1[16] = { 0 }; char pl2[16] = { 0 }; char pl3[16] = { 0 }; char pl4[16] = { 0 };
+char pl1[16] = { 0 }; 
+char pl2[16] = { 0 }; 
+char pl3[16] = { 0 }; 
+char pl4[16] = { 0 };
+
 playerNames pl_names;
 
-typedef struct serverInfo {
+/*typedef struct serverInfo {
     int id;
     int port;
 	char game_name[16];
     char address[40];
-} serverInfo;
+} serverInfo;*/ //turha?
 
-serverInfo cl_serverList[3];
+/* from generic.h */
+serverList cl_serverList;
+serverList cl_gamesList;
 
+/* thread */
 void *networking_thread(void *dest_addr);
 
+/* function prototypes */
 void setPlayerNames(char* pl1, char* pl2, char* pl3, char* pl4);
 void updateEnemyStates(struct SDLenemy* _enemy, int i);
 void updatePlayerStates(struct SDLplayer* _player, int i);
 playerNames *getPlayers();
-void getGameList(void);
-void getServerList(void);
+int getGameList(void);
+int getServerList(void);
 void *get_in_addr(struct sockaddr *sa);
 
 void sendJoinGame(int id);
@@ -62,6 +70,9 @@ void sendGameStart(void);
 void sendClientState(struct SDLplayer*, int);
 void sendJoinGame(int id);
 void sendChatMsg(char *message);
+void sendServerQuery(void);
+void sendGamesQuery(void);
+
 void readParams(char *full_address, char *host, char *port);
 char *createFullAddress(char *host, char *port);
 

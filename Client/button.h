@@ -6,6 +6,8 @@
 *   Markku Painomaa (0358551) - markku.painomaa@lut.fi
 */
 
+#define MAX_ITEMS 20
+
 /* button actions | game states */
 #define NAME_MENU 18
 #define PROMPT_MENU 19
@@ -32,7 +34,8 @@ struct button {
 /* list item, can be click-focused */
 struct item {
 	SDL_Rect box;
-	char* name;
+	char name[17];
+	int pl_num;
 	int focused;
 	int id;
 };
@@ -41,7 +44,7 @@ SDL_Rect server_list_box;
 SDL_Rect game_name_box;
 SDL_Rect pl_num_box;
 
-struct item *server_list[3];
+struct item *server_list[MAX_ITEMS];
 
 struct button join_menu_button;
 struct button create_menu_button;
@@ -58,8 +61,8 @@ struct button up_button;
 struct button down_button;
 
 void setupButtons(void);
-void setupItemlist(int);
-//void setItemlistName(int, char*);
+void setupItemlist(void);
+
 
 int handleButton(struct button, int, int);
 int handleFocus(struct item*, int, int);
@@ -68,3 +71,4 @@ void focus(struct item*, int);
 void showButton(struct button);
 
 void freeButtons(void);
+void freeItemlist(void);

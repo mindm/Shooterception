@@ -117,23 +117,22 @@ void setupButtons() {
 }
 
 /* setup dummy server list */
-void setupItemlist(int length) {
+void setupItemlist(void) {
 	int i;
-	for(i = 0; i < length; i++){
+	for(i = 0; i < MAX_ITEMS; i++){
 		server_list[i] = malloc(sizeof(struct item));
 		server_list[i]->box.x = 240;
 		server_list[i]->box.y = 180+32*i;
 		server_list[i]->box.w = 350;
 		server_list[i]->box.h = 32;
 		server_list[i]->id = i;
+		server_list[i]->pl_num = 0;
 		server_list[i]->focused = 0;
-		server_list[i]->name = "rolol";
+		strcpy(server_list[i]->name, "default");
 	}
 
 	server_list[0]->focused = 1; //first item is focused
 }
-
-//void setItemlistName(int i, char* name) { memcpy(server_list[i]->name, name); }
 
 /* check if button hitbox is clicked and return the appropriate button.action */
 int handleButton(struct button _button, int x, int y) {
@@ -187,9 +186,9 @@ void freeButtons() {
 	SDL_FreeSurface(cancel_prompt_button.image);
 }
 
-void freeItemlist(int n) {
+void freeItemlist(void) {
 	int i;
-	for(i = 0; i < n; i++){
+	for(i = 0; i < MAX_ITEMS; i++){
 		free(server_list[i]);
 	}
 }
