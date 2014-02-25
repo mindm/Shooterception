@@ -36,6 +36,7 @@ struct item {
 	SDL_Rect box;
 	char name[17];
 	int pl_num;
+	int pl_num_max;
 	int focused;
 	int id;
 };

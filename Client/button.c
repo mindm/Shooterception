@@ -127,6 +127,7 @@ void setupItemlist(void) {
 		server_list[i]->box.h = 32;
 		server_list[i]->id = i;
 		server_list[i]->pl_num = 0;
+		server_list[i]->pl_num_max = 0;
 		server_list[i]->focused = 0;
 		strcpy(server_list[i]->name, "default");
 	}
