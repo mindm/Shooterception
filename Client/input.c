@@ -14,57 +14,57 @@ void setupStringInput(){
 	//texts and fonts
 	title_font = TTF_OpenFont("OCR", 36);
 	text_font = TTF_OpenFont("OCR", 16);
+	resetStringInput();
 }
 
 void handleStringInput(int context, int length) {
 
     if(event.type == SDL_KEYDOWN) {
-
-        if(textpos < length) {
-			textbuffer[textpos] = '|';
+		
+		textbuffer[textpos] = '|';
+        if(textpos < length) {			
 			//space
             if(event.key.keysym.unicode == (Uint16)' ') {
                 textbuffer[textpos] = (char)event.key.keysym.unicode;
-				textpos++; //textbuffer[textpos] = '|';
+				textpos++; textbuffer[textpos] = '|';
 			}
 
             //numeric
             else if((event.key.keysym.unicode >= (Uint16)'0') && (event.key.keysym.unicode <= (Uint16)'9')) {
                 textbuffer[textpos] = (char)event.key.keysym.unicode;
-				textpos++; //textbuffer[textpos] = '|';
+				textpos++; textbuffer[textpos] = '|';
 			}
 
             //uppercase letter
             else if((event.key.keysym.unicode >= (Uint16)'A') && (event.key.keysym.unicode <= (Uint16)'Z')) {
                 textbuffer[textpos] = (char)event.key.keysym.unicode;
-				textpos++; //textbuffer[textpos] = '|';
+				textpos++; textbuffer[textpos] = '|';
 			}
 
             //lowercase letter
             else if((event.key.keysym.unicode >= (Uint16)'a') && (event.key.keysym.unicode <= (Uint16)'z')) {
                 textbuffer[textpos] = (char)event.key.keysym.unicode;
-				textpos++; //textbuffer[textpos] = '|';
+				textpos++; textbuffer[textpos] = '|';
 			}
+
+			
 
 			//enter (if this is chat, then add log, otherwise ignore)
             else if(event.key.keysym.sym == SDLK_RETURN && length == MAX_LEN) {
-				textinput = 0;
 				if(textpos > 0) {
 					textbuffer[textpos] = '\0';
 					sendChatMsg(textbuffer); //addLog(textbuffer, textpos);
 				}
-				textpos = 0;
-				memset(&textbuffer, 0, MAX_LEN);
-			}
+				resetStringInput();
+			}	
 
-			
         }
 
         //remove
         if((event.key.keysym.sym == SDLK_BACKSPACE) && (textpos > 0)) {							
 				textpos--;
-				//textbuffer[textpos] = '|';
-				textbuffer[textpos] = '\0';
+				textbuffer[textpos] = '|';
+				textbuffer[textpos+1] = '\0';
 				
 		}
 
@@ -108,6 +108,8 @@ void addLog(char* message, int msglen) {
 void resetStringInput(void) {
 	textpos = 0;
 	memset(&textbuffer, 0, MAX_LEN);
+	textbuffer[textpos] = '|';
+	textbuffer[textpos+1] = '\0';
 }
 
 //prints size 16 font

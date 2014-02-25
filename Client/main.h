@@ -10,7 +10,6 @@
 
 #include <stdio.h>
 #include <stdlib.h> 
-//#include <time.h>
 #include "SDL/SDL.h"
 #include "SDL/SDL_image.h"
 #include "SDL/SDL_ttf.h"
@@ -45,8 +44,8 @@
 /* Declarations of graphics, sounds and text objects*/
 
 SDL_Surface *background = NULL;
+SDL_Rect bgClip[4];
 SDL_Surface *screen = NULL;
-//SDL_Surface *playerSurf[4];
 SDL_Surface *enemySurf = NULL;
 SDL_Surface *fxSurf = NULL;
 SDL_Surface *hudSurf = NULL;
@@ -105,12 +104,13 @@ struct SDLenemy *enemies[MAX_EN];
 /* Function prototypes */
 SDL_Surface *loadImage(char*);
 void applySurface(int, int, SDL_Surface*, SDL_Surface*, SDL_Rect*);
-void drawBackground(void);
+void drawBackground(int);
 void drawHud(int);
 int init(void);
 int loadAssets(void);
 void freeAssets(void); 
 
+void setupBgClips(void);
 void setupPlayer(void);
 void setupEnemy(void);
 

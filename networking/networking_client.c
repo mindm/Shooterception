@@ -32,9 +32,9 @@ void sendChatMsg(char* message) {
 }
 
 void sendJoinGame(int id) {
-	printf("sending join");
+	printf("Send joinGame\n");
 	lenout = packJoinGame(buf, cl_serverList[id].game_name, pl_name_str);
-	printf("sending join2");  
+
 }
 
 void sendCreateGame(void) {
@@ -43,6 +43,7 @@ void sendCreateGame(void) {
 }
 
 void sendGameStart(void) {
+	printf("Send startGame\n");
 	lenout = packStartGame(buf);
 }
 

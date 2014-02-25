@@ -19,7 +19,6 @@ SDL_Color textShColor = { 0x00, 0x00, 0x00, 0xFF };
 //SDL_Color chatColor = { 0xFF, 0xFF, 0xFF, 0xFF };
 
 /* Text input */
-int textinput = 0;
 int textpos = 0;
 
 char textbuffer[MAX_LEN] = { 0 };

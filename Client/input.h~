@@ -6,7 +6,7 @@
 *   Markku Painomaa (0358551) - markku.painomaa@lut.fi
 */
 
-#define NAME_LEN 24
+#define NAME_LEN 16
 #define MAX_LEN 100
 #define LOGSIZE 5
 
@@ -14,16 +14,17 @@
 TTF_Font *title_font = NULL;
 TTF_Font *text_font = NULL;
 
-SDL_Color textColor = { 255, 33, 0 };
-SDL_Color textShColor = { 0, 0, 0 };
-SDL_Color chatColor = { 0xFF, 0xFF, 0xFF };
+SDL_Color textColor = { 0xFF, 0x33, 0x00, 0xFF};
+SDL_Color textShColor = { 0x00, 0x00, 0x00, 0xFF };
+//SDL_Color chatColor = { 0xFF, 0xFF, 0xFF, 0xFF };
 
 /* Text input */
 int textinput = 0;
 int textpos = 0;
 
 char textbuffer[MAX_LEN] = { 0 };
-char name_string[NAME_LEN] = { 0 };
+char g_name_str[NAME_LEN+1] = { 0 };
+char pl_name_str[NAME_LEN+1] = { 0 };
 
 /* Chatlog */
 char chatlog[LOGSIZE][MAX_LEN];
@@ -33,12 +34,12 @@ int logentries = 0;
 /* Functions */
 
 void setupStringInput(void);
-void handleStringInput(int);
+void handleStringInput(int, int);
 void addLog(char*, int);
 void printText(int, int, char*, SDL_Color);
 void printTitle(int, int, char*);
 void printStringInput(int, int, char*, SDL_Color);
-void resetInput(void);
+void resetStringInput(void);
 
 char* itoa(int, char[]);
 

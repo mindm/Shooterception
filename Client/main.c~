@@ -39,10 +39,11 @@ int main(int argc, char* args[]) {
 		return 1;
 
 	setupButtons();
+	setupBgClips();
 	setupPlayer();
 	setupEnemy();
 	setupStringInput();
-	setupItemlist();
+	setupItemlist(3);
 	
 	toggleMenuMusic(); // toggle once = play
 	Mix_VolumeMusic(100); //max: 128
@@ -79,7 +80,7 @@ int main(int argc, char* args[]) {
 			SDL_FillRect(screen, &game_name_box, SDL_MapRGB(screen->format, 0x00, 0x00, 0x00));
 			
 			//show the name
-			printStringInput(game_name_box.x, game_name_box.y+10, &pl_name_str[0], textColor);
+			printStringInput(game_name_box.x, game_name_box.y+10, &textbuffer[0], textColor);
 
         	showButton(ok_prompt_button);
 
@@ -134,9 +135,7 @@ int main(int argc, char* args[]) {
 						int x = event.button.x;
 						int y = event.button.y;
 
-						if(_state = handleButton(join_button, x, y))
-
-						{
+						if(_state = handleButton(join_button, x, y)) {
 							state = _state;
 							pthread_create(&networking, NULL, networking_thread, NULL);
 							SDL_Delay(1000);
@@ -144,7 +143,7 @@ int main(int argc, char* args[]) {
                         }
                         
 						for(i = 0; i < 3; i++) {
-							if(_id = handleFocus(server_list[i], x, y)) {
+							if((_id = handleFocus(server_list[i], x, y)) >= 0) {
 								id = _id;				
 							}
 						}
@@ -169,7 +168,7 @@ int main(int argc, char* args[]) {
 				if(server_list[i]->focused)
 					SDL_FillRect(screen, &server_list[i]->box, SDL_MapRGB(screen->format, 0x00, 0x66, 0x00));
 
-				printText(server_list[i]->box.x-30, server_list[i]->box.y, itoa(server_list[i]->id, mem), textColor);
+				printText(server_list[i]->box.x-30, server_list[i]->box.y, itoa(server_list[i]->id+1, mem), textColor);
 				printText(server_list[i]->box.x, server_list[i]->box.y, server_list[i]->name, textColor);
 				printText(server_list[i]->box.x+280, server_list[i]->box.y, "5/5", textColor);
 			}
@@ -191,17 +190,17 @@ int main(int argc, char* args[]) {
 
 						int x = event.button.x;
 						int y = event.button.y;
-                        
+
+                     	if(_state = handleButton(ok_button, x, y)) {
+							state = _state;
+							//selected server [id]
+                        }   
+
 						for(i = 0; i < 3; i++) {
-							if(_id = handleFocus(server_list[i], x, y)) {
+							if((_id = handleFocus(server_list[i], x, y)) >= 0) {
 								id = _id;				
 							}
 						}
-
-						if(_state = handleButton(ok_button, x, y)) {
-							state = _state;
-							//selected server [id]
-                        }
 
 						/* yes, this could be inside the previous loop
 						but it doesn't update correctly for some reason. so it has its own loop */
@@ -212,7 +211,7 @@ int main(int argc, char* args[]) {
 
 		    //bground and title
 		    SDL_FillRect(screen, &screen->clip_rect, SDL_MapRGB(screen->format, 0x66, 0x66, 0x66));
-			printTitle(250, 100, "Select server");
+			printTitle(225, 100, "Select server");
 
 			//server list box
 			SDL_FillRect(screen, &server_list_box, SDL_MapRGB(screen->format, 0x00, 0x00, 0x00));
@@ -223,7 +222,7 @@ int main(int argc, char* args[]) {
 				if(server_list[i]->focused)
 					SDL_FillRect(screen, &server_list[i]->box, SDL_MapRGB(screen->format, 0x00, 0x66, 0x00));
 
-				printText(server_list[i]->box.x-30, server_list[i]->box.y, itoa(server_list[i]->id, mem), textColor);
+				printText(server_list[i]->box.x-30, server_list[i]->box.y, itoa(server_list[i]->id+1, mem), textColor);
 				printText(server_list[i]->box.x, server_list[i]->box.y, server_list[i]->name, textColor);
 			}
 
@@ -283,7 +282,7 @@ int main(int argc, char* args[]) {
 			SDL_FillRect(screen, &game_name_box, SDL_MapRGB(screen->format, 0x00, 0x00, 0x00));
 			
 			//show the name
-			printStringInput(game_name_box.x, game_name_box.y+10, &g_name_str[0], textColor);
+			printStringInput(game_name_box.x, game_name_box.y+10, &textbuffer[0], textColor);
 			
 			showButton(create_button);
 			showButton(up_button);
@@ -363,7 +362,7 @@ int main(int argc, char* args[]) {
 						quit = 1;
 				}
 
-				drawBackground();
+				drawBackground(0); //level n:o here 0-3
 
 				for(i = 0; i < MAX_EN; i++)	{		
 					updateEnemyStates(enemies[i], i);
@@ -478,7 +477,7 @@ int init(void) {
 int loadAssets(void) {
 
 	//load the images
-    background = loadImage("grassd.gif");
+    background = loadImage("bg.gif");
 	enemySurf = loadImage("enemy.gif");
 	fxSurf = loadImage("fx.gif");
 	hudSurf = loadImage("health.gif");
@@ -538,6 +537,27 @@ void freeAssets(void) {
 	SDL_EnableUNICODE(SDL_DISABLE);
 	TTF_Quit();
     SDL_Quit();
+}
+
+void setupBgClips(void) {
+	int i;
+	for(i = 0; i < 4; i++) {
+		bgClip[i].w = 400;
+		bgClip[i].h = 400;
+	}
+
+	bgClip[0].x = 0;
+	bgClip[0].y = 0;
+
+	bgClip[1].x = 400;
+	bgClip[1].y = 0;
+
+	bgClip[2].x = 0;
+	bgClip[2].y = 400;
+
+	bgClip[3].x = 400;
+	bgClip[3].y = 400;
+
 }
 
 void setupPlayer(void) {
@@ -727,12 +747,12 @@ void applySurface(int x, int y, SDL_Surface* src, SDL_Surface* dest, SDL_Rect* c
     SDL_BlitSurface(src, clip, dest, &offset);
 }
 
-void drawBackground(void) {
+void drawBackground(int level) {
 
-    applySurface(0, 0, background, screen, NULL);
-    applySurface(400, 0, background, screen, NULL);
-    applySurface(0, 400, background, screen, NULL);
-    applySurface(400, 400, background, screen, NULL);
+    applySurface(0, 0, background, screen, bgClip[level]);
+    applySurface(400, 0, background, screen, bgClip[level]);
+    applySurface(0, 400, background, screen, bgClip[level]);
+    applySurface(400, 400, background, screen, bgClip[level]);
 }
 
 void drawHud(int index) {

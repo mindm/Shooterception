@@ -117,21 +117,23 @@ void setupButtons() {
 }
 
 /* setup dummy server list */
-void setupItemlist() {
+void setupItemlist(int length) {
 	int i;
-	for(i = 0; i < 3; i++){
+	for(i = 0; i < length; i++){
 		server_list[i] = malloc(sizeof(struct item));
 		server_list[i]->box.x = 240;
 		server_list[i]->box.y = 180+32*i;
 		server_list[i]->box.w = 350;
 		server_list[i]->box.h = 32;
-		server_list[i]->id = i+1;
+		server_list[i]->id = i;
 		server_list[i]->focused = 0;
 		server_list[i]->name = "rolol";
 	}
 
 	server_list[0]->focused = 1; //first item is focused
 }
+
+//void setItemlistName(int i, char* name) { memcpy(server_list[i]->name, name); }
 
 /* check if button hitbox is clicked and return the appropriate button.action */
 int handleButton(struct button _button, int x, int y) {
@@ -153,7 +155,7 @@ int handleFocus(struct item *_focus, int x, int y) {
 		return _focus->id;	
     }
 
-	return NOTHING;
+	return -1;
 }
 
 //unfocus all but "id"
@@ -168,8 +170,6 @@ void showButton(struct button _button) {
 
     applySurface(_button.box.x, _button.box.y, _button.image, screen, NULL);
 }
-
-
 
 void freeButtons() {
 

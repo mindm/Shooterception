@@ -58,7 +58,8 @@ struct button up_button;
 struct button down_button;
 
 void setupButtons(void);
-void setupItemlist(void);
+void setupItemlist(int);
+//void setItemlistName(int, char*);
 
 int handleButton(struct button, int, int);
 int handleFocus(struct item*, int, int);

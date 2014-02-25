@@ -48,6 +48,7 @@ struct button create_menu_button;
 struct button quit_menu_button;
 
 struct button ok_prompt_button;
+struct button ok_button;
 struct button cancel_prompt_button;
 
 struct button join_button;
@@ -58,6 +59,7 @@ struct button down_button;
 
 void setupButtons(void);
 void setupItemlist(void);
+//void setItemlistName(int, char*);
 
 int handleButton(struct button, int, int);
 int handleFocus(struct item*, int, int);
