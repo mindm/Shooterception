@@ -18,6 +18,7 @@
 #define DEC 26
 #define OK 27
 #define CANCEL 28
+#define SERVER_MENU 29
 #define NOTHING 0
 #define QUIT 1
 
@@ -47,6 +48,7 @@ struct button create_menu_button;
 struct button quit_menu_button;
 
 struct button ok_prompt_button;
+struct button ok_button;
 struct button cancel_prompt_button;
 
 struct button join_button;

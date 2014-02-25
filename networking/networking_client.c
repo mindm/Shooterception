@@ -46,13 +46,8 @@ void sendGameStart(void) {
 	lenout = packStartGame(buf);
 }
 
-void getGameList(void) { 
-
-}
-
-void getServerList(void) { 
-
-}
+void getGameList(void){}
+void getServerList(void){}
 
 void setPlayerNames(char* pl1, char* pl2, char* pl3, char* pl4) {
 	

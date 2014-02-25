@@ -7,6 +7,8 @@
 */
 
 /* button actions | game states */
+#define NAME_MENU 18
+#define PROMPT_MENU 19
 #define IN_GAME 20
 #define MAIN_MENU 21
 #define JOIN_MENU 22
@@ -14,15 +16,20 @@
 #define GAME_LOBBY 24
 #define INC 25
 #define DEC 26
+#define OK 27
+#define CANCEL 28
+#define SERVER_MENU 29
 #define NOTHING 0
 #define QUIT 1
 
+/* menu button, can be clicked */
 struct button {
 	SDL_Rect box;
 	SDL_Surface *image;
 	int action;
 };
 
+/* list item, can be click-focused */
 struct item {
 	SDL_Rect box;
 	char* name;
@@ -40,19 +47,22 @@ struct button join_menu_button;
 struct button create_menu_button;
 struct button quit_menu_button;
 
+struct button ok_prompt_button;
+struct button cancel_prompt_button;
+
 struct button join_button;
 struct button create_button;
 struct button start_button;
 struct button up_button;
 struct button down_button;
 
-void setup_buttons(void);
-void setup_itemlist(void);
+void setupButtons(void);
+void setupItemlist(void);
 
-int handle_button(struct button, int, int);
-int handle_focus(struct item*, int, int);
+int handleButton(struct button, int, int);
+int handleFocus(struct item*, int, int);
 void focus(struct item*, int);
 
-void show_button(struct button);
+void showButton(struct button);
 
-void free_buttons(void);
+void freeButtons(void);

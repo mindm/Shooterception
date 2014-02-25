@@ -178,6 +178,59 @@ int main(int argc, char* args[]) {
 		}
 		/* join menu end */
 
+		/* Server select for create game */
+		if(state == SERVER_MENU) { 
+		    if(SDL_PollEvent(&event)) {
+
+			    if(event.type == SDL_QUIT)
+			        quit = 1;
+
+				//if any button's hitbox is left-clicked
+				if(event.type == SDL_MOUSEBUTTONDOWN) {
+					if(event.button.button == SDL_BUTTON_LEFT) {
+
+						int x = event.button.x;
+						int y = event.button.y;
+                        
+						for(i = 0; i < 3; i++) {
+							if(_id = handleFocus(server_list[i], x, y)) {
+								id = _id;				
+							}
+						}
+
+						if(_state = handleButton(ok_button, x, y)) {
+							state = _state;
+							//selected server [id]
+                        }
+
+						/* yes, this could be inside the previous loop
+						but it doesn't update correctly for some reason. so it has its own loop */
+						for(i = 0; i < 3; i++) { focus(server_list[i], id); }
+					}
+				}
+		    }
+
+		    //bground and title
+		    SDL_FillRect(screen, &screen->clip_rect, SDL_MapRGB(screen->format, 0x66, 0x66, 0x66));
+			printTitle(225, 100, "Select server");
+
+			//server list box
+			SDL_FillRect(screen, &server_list_box, SDL_MapRGB(screen->format, 0x00, 0x00, 0x00));
+			printText(server_list_box.x, server_list_box.y+5, "|Name---------------------------|", textColor);
+			
+			for(i = 0; i < 3; i++) {
+
+				if(server_list[i]->focused)
+					SDL_FillRect(screen, &server_list[i]->box, SDL_MapRGB(screen->format, 0x00, 0x66, 0x00));
+
+				printText(server_list[i]->box.x-30, server_list[i]->box.y, itoa(server_list[i]->id, mem), textColor);
+				printText(server_list[i]->box.x, server_list[i]->box.y, server_list[i]->name, textColor);
+			}
+
+        	showButton(ok_button);
+		}
+		/* Server select for create game ends */
+
 		/* create game menu */
 		if(state == CREATE_MENU) { 
 		    if(SDL_PollEvent(&event)) {

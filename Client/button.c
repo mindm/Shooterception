@@ -43,13 +43,22 @@ void setupButtons() {
 	join_button.box.h = 100;
 	join_button.action = GAME_LOBBY;
 
+
+	/* ok selected server in create game menu*/
+ 	ok_button.image = loadImage("ok.gif");
+	ok_button.box.x = SCREEN_CX-125;
+	ok_button.box.y = 650;
+	ok_button.box.w = 250;
+	ok_button.box.h = 100;
+	ok_button.action = CREATE_MENU;
+
 	/* change into create game menu */
  	create_menu_button.image = loadImage("create.gif");
 	create_menu_button.box.x = SCREEN_CX-125;
 	create_menu_button.box.y = 350;
 	create_menu_button.box.w = 250;
 	create_menu_button.box.h = 100;
-	create_menu_button.action = CREATE_MENU;
+	create_menu_button.action = SERVER_MENU;
 
 	/* create game */
  	create_button.image = loadImage("create.gif");
@@ -173,6 +182,7 @@ void freeButtons() {
 	SDL_FreeSurface(up_button.image);
 	SDL_FreeSurface(down_button.image);
 
+	SDL_FreeSurface(ok_button.image);
 	SDL_FreeSurface(ok_prompt_button.image);
 	SDL_FreeSurface(cancel_prompt_button.image);
 }
