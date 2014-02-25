@@ -21,29 +21,29 @@ void handleStringInput(int context, int length) {
     if(event.type == SDL_KEYDOWN) {
 
         if(textpos < length) {
-
+			textbuffer[textpos] = '|';
 			//space
             if(event.key.keysym.unicode == (Uint16)' ') {
                 textbuffer[textpos] = (char)event.key.keysym.unicode;
-				textpos++;
+				textpos++; //textbuffer[textpos] = '|';
 			}
 
             //numeric
             else if((event.key.keysym.unicode >= (Uint16)'0') && (event.key.keysym.unicode <= (Uint16)'9')) {
                 textbuffer[textpos] = (char)event.key.keysym.unicode;
-				textpos++;
+				textpos++; //textbuffer[textpos] = '|';
 			}
 
             //uppercase letter
             else if((event.key.keysym.unicode >= (Uint16)'A') && (event.key.keysym.unicode <= (Uint16)'Z')) {
                 textbuffer[textpos] = (char)event.key.keysym.unicode;
-				textpos++;
+				textpos++; //textbuffer[textpos] = '|';
 			}
 
             //lowercase letter
             else if((event.key.keysym.unicode >= (Uint16)'a') && (event.key.keysym.unicode <= (Uint16)'z')) {
                 textbuffer[textpos] = (char)event.key.keysym.unicode;
-				textpos++;
+				textpos++; //textbuffer[textpos] = '|';
 			}
 
 			//enter (if this is chat, then add log, otherwise ignore)
@@ -56,18 +56,21 @@ void handleStringInput(int context, int length) {
 				textpos = 0;
 				memset(&textbuffer, 0, MAX_LEN);
 			}
+
+			
         }
 
         //remove
-        if((event.key.keysym.sym == SDLK_BACKSPACE) && (textpos > 0)) {
+        if((event.key.keysym.sym == SDLK_BACKSPACE) && (textpos > 0)) {							
 				textpos--;
+				//textbuffer[textpos] = '|';
 				textbuffer[textpos] = '\0';
+				
 		}
 
 		//restrict length
 		if(textpos == length-1) {
 			textpos--;
-			textinput = 0;
 		}
 
 		if(context == NAME_MENU) {

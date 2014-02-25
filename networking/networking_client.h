@@ -52,9 +52,13 @@ void setPlayerNames(char* pl1, char* pl2, char* pl3, char* pl4);
 void updateEnemyStates(struct SDLenemy* _enemy, int i);
 void updatePlayerStates(struct SDLplayer* _player, int i);
 playerNames *getPlayers();
+void getGameList(void);
+void getServerList(void);
 void *get_in_addr(struct sockaddr *sa);
+
 void sendJoinGame(int id);
 void sendCreateGame(void);
+void sendGameStart(void);
 void sendClientState(struct SDLplayer*, int);
 void sendJoinGame(int id);
 void sendChatMsg(char *message);

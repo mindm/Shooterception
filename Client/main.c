@@ -90,12 +90,11 @@ int main(int argc, char* args[]) {
 		if(state == MAIN_MENU) { 
 		    if(SDL_PollEvent(&event)) {
 
+			    if(event.type == SDL_QUIT)
+			        quit = 1;
+
 				//if any button hitbox is left-clicked
 				if(event.type == SDL_MOUSEBUTTONDOWN) {
-
-				    if(event.type == SDL_QUIT)
-				        quit = 1;
-
 					if(event.button.button == SDL_BUTTON_LEFT) {
 						//temporal _state is used so we don't overwrite the actual state
 						if(_state = handleButton(join_menu_button, event.button.x, event.button.y)) {
@@ -125,12 +124,11 @@ int main(int argc, char* args[]) {
 		if(state == JOIN_MENU) { 
 		    if(SDL_PollEvent(&event)) {
 
+			    if(event.type == SDL_QUIT)
+			        quit = 1;
+
 				//if any button's hitbox is left-clicked
 				if(event.type == SDL_MOUSEBUTTONDOWN) {
-
-				    if(event.type == SDL_QUIT)
-				        quit = 1;
-
 					if(event.button.button == SDL_BUTTON_LEFT) {
 
 						int x = event.button.x;
@@ -255,8 +253,10 @@ int main(int argc, char* args[]) {
 				if(event.type == SDL_MOUSEBUTTONDOWN) {
 
 					if(event.button.button == SDL_BUTTON_LEFT) {
-						if(_state = handleButton(start_button, event.button.x, event.button.y))
+						if(_state = handleButton(start_button, event.button.x, event.button.y)) {
 							state = _state;
+							sendGameStart();
+						}
 
 						if(state == IN_GAME) { //start was pressed, transition into game, therefore:
 							toggleMenuMusic(); //menu music off
@@ -340,8 +340,8 @@ int main(int argc, char* args[]) {
 				}
 
 				sendClientState(players[0], counter++); //send player movements to server
-				if(counter >= 65530) 
-					counter = 0;
+				
+				if(counter >= 65530) counter = 0;
 
 				drawHud(0); // aka foreground
 

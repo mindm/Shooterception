@@ -42,6 +42,18 @@ void sendCreateGame(void) {
 	lenout = packCreateGame(buf, g_name_str, pl_num, pl_name_str);
 }
 
+void sendGameStart(void) {
+	lenout = packStartGame(buf);
+}
+
+void getGameList(void) { 
+
+}
+
+void getServerList(void) { 
+
+}
+
 void setPlayerNames(char* pl1, char* pl2, char* pl3, char* pl4) {
 	
 	pl_names.playerCount = 0;
