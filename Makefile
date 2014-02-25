@@ -5,13 +5,11 @@
 #	Markku Painomaa (0358551) - markku.painomaa@lut.fi
 
 COMPILER := gcc
-<<<<<<< HEAD
 FLAGS := -Wall -w -g -pedantic -std=gnu99
-=======
 CLIENT_FLAGS := -Wall -w -g -pedantic -std=gnu99
 SERVER_FLAGS := -Wall -g -pedantic -std=gnu99
->>>>>>> f0ab852a56de9de57278cde1a90be48945562655
-LIBS = -lSDL -lSDL_image -lSDL_ttf -lSDL_mixer
+
+LIBS = -lSDL -lSDL_image -lSDL_ttf -lSDL_mixer -lpthread
 
 all:  build
 
