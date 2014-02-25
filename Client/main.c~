@@ -17,10 +17,12 @@
 
 int main(int argc, char* args[]) { 
 
-	//srand (time(NULL));
-	char mem[1] = "m"; //dummy
+	char mem[1] = "m"; //dummy memory holder
 	int quit = 0;
 	int counter = 0;
+	int i = 0; //common incrementor
+
+	//client networking thread
 	pthread_t networking;
 
     playerNames* joined;
@@ -29,9 +31,9 @@ int main(int argc, char* args[]) {
 	int state = NAME_MENU, _state = NAME_MENU, previous_state = MAIN_MENU;
 	int id = NOTHING, _id = NOTHING;
 
-	//for incrementor
-	int i = 0;
 
+
+	/* setup all */
 	if(!init())
 		return 1;
 
@@ -43,12 +45,11 @@ int main(int argc, char* args[]) {
 	setupPlayer();
 	setupEnemy();
 	setupStringInput();
-	setupItemlist(3);
 	
 	toggleMenuMusic(); // toggle once = play
 	Mix_VolumeMusic(100); //max: 128
 
-	//gamestate loop
+	/* GUI loop */
 	while(!quit) {
 
 		/* name entering menu */
@@ -56,7 +57,8 @@ int main(int argc, char* args[]) {
 		    if(SDL_PollEvent(&event)) {
 
 			    if(event.type == SDL_QUIT)
-			        quit = 1;
+			        state == QUIT;
+
 				//player name input
 				handleStringInput(state, NAME_LEN);
 
@@ -92,7 +94,7 @@ int main(int argc, char* args[]) {
 		    if(SDL_PollEvent(&event)) {
 
 			    if(event.type == SDL_QUIT)
-			        quit = 1;
+			        state == QUIT;
 
 				//if any button hitbox is left-clicked
 				if(event.type == SDL_MOUSEBUTTONDOWN) {
@@ -100,10 +102,15 @@ int main(int argc, char* args[]) {
 						//temporal _state is used so we don't overwrite the actual state
 						if(_state = handleButton(join_menu_button, event.button.x, event.button.y)) {
 							state = _state;
+							//TODO: get game list
+							setupItemlist(3);
 						}
 
-						if(_state = handleButton(create_menu_button, event.button.x, event.button.y))
+						if(_state = handleButton(create_menu_button, event.button.x, event.button.y)) {
 							state = _state;
+							//TODO: get server list
+							setupItemlist(3);
+						}
 
 						if(_state = handleButton(quit_menu_button, event.button.x, event.button.y))
 							state = _state;
@@ -126,7 +133,7 @@ int main(int argc, char* args[]) {
 		    if(SDL_PollEvent(&event)) {
 
 			    if(event.type == SDL_QUIT)
-			        quit = 1;
+			        state == QUIT;
 
 				//if any button's hitbox is left-clicked
 				if(event.type == SDL_MOUSEBUTTONDOWN) {
@@ -182,7 +189,7 @@ int main(int argc, char* args[]) {
 		    if(SDL_PollEvent(&event)) {
 
 			    if(event.type == SDL_QUIT)
-			        quit = 1;
+			        state == QUIT;
 
 				//if any button's hitbox is left-clicked
 				if(event.type == SDL_MOUSEBUTTONDOWN) {
@@ -235,7 +242,7 @@ int main(int argc, char* args[]) {
 		    if(SDL_PollEvent(&event)) {
 
 				if(event.type == SDL_QUIT)
-					quit = 1;
+					state == QUIT;
 
 				//game name input
 				handleStringInput(state, NAME_LEN);
@@ -296,7 +303,7 @@ int main(int argc, char* args[]) {
 		    if(SDL_PollEvent(&event)) {
 
 			    if(event.type == SDL_QUIT)
-			        quit = 1;
+			        state == QUIT;
 
 				//game name input
 				handleStringInput(state, MAX_LEN);
@@ -356,10 +363,12 @@ int main(int argc, char* args[]) {
 				initTimer();
 			 	while(SDL_PollEvent(&event)) {
 
-					handlePlayerInput(0); //index of controller
+					if(event.type == SDL_QUIT){
+						state == QUIT;
+						break;
+					}
 
-					if(event.type == SDL_QUIT)
-						quit = 1;
+					handlePlayerInput(0); //index of controller
 				}
 
 				drawBackground(0); //level n:o here 0-3
@@ -406,9 +415,6 @@ int main(int argc, char* args[]) {
 
 		if(state == QUIT) { 
 			if(SDL_PollEvent(&event)) {
-
-				//player name input
-				handleStringInput(state, NAME_LEN);
 
 				//if any button hitbox is left-clicked
 				if(event.type == SDL_MOUSEBUTTONDOWN) {

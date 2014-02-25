@@ -57,7 +57,7 @@ int main(int argc, char* args[]) {
 		    if(SDL_PollEvent(&event)) {
 
 			    if(event.type == SDL_QUIT)
-			        state == QUIT
+			        state == QUIT;
 
 				//player name input
 				handleStringInput(state, NAME_LEN);
@@ -94,7 +94,7 @@ int main(int argc, char* args[]) {
 		    if(SDL_PollEvent(&event)) {
 
 			    if(event.type == SDL_QUIT)
-			        state == QUIT
+			        state == QUIT;
 
 				//if any button hitbox is left-clicked
 				if(event.type == SDL_MOUSEBUTTONDOWN) {
@@ -133,7 +133,7 @@ int main(int argc, char* args[]) {
 		    if(SDL_PollEvent(&event)) {
 
 			    if(event.type == SDL_QUIT)
-			        state == QUIT
+			        state == QUIT;
 
 				//if any button's hitbox is left-clicked
 				if(event.type == SDL_MOUSEBUTTONDOWN) {
@@ -189,7 +189,7 @@ int main(int argc, char* args[]) {
 		    if(SDL_PollEvent(&event)) {
 
 			    if(event.type == SDL_QUIT)
-			        state == QUIT
+			        state == QUIT;
 
 				//if any button's hitbox is left-clicked
 				if(event.type == SDL_MOUSEBUTTONDOWN) {
@@ -242,7 +242,7 @@ int main(int argc, char* args[]) {
 		    if(SDL_PollEvent(&event)) {
 
 				if(event.type == SDL_QUIT)
-					state == QUIT
+					state == QUIT;
 
 				//game name input
 				handleStringInput(state, NAME_LEN);
@@ -303,7 +303,7 @@ int main(int argc, char* args[]) {
 		    if(SDL_PollEvent(&event)) {
 
 			    if(event.type == SDL_QUIT)
-			        state == QUIT
+			        state == QUIT;
 
 				//game name input
 				handleStringInput(state, MAX_LEN);
@@ -363,10 +363,11 @@ int main(int argc, char* args[]) {
 				initTimer();
 			 	while(SDL_PollEvent(&event)) {
 
-					handlePlayerInput(0); //index of controller
+					if(event.type == SDL_QUIT){
+						quit = 1; //state == QUIT;
+					}
 
-					if(event.type == SDL_QUIT)
-						quit = 1;
+					handlePlayerInput(0); //index of controller
 				}
 
 				drawBackground(0); //level n:o here 0-3
@@ -413,9 +414,6 @@ int main(int argc, char* args[]) {
 
 		if(state == QUIT) { 
 			if(SDL_PollEvent(&event)) {
-
-				//player name input
-				handleStringInput(state, NAME_LEN);
 
 				//if any button hitbox is left-clicked
 				if(event.type == SDL_MOUSEBUTTONDOWN) {
