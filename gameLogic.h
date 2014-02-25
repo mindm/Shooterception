@@ -73,7 +73,8 @@ int getPlayerNumber(game*, player_n*);
 game* checkShotCooldown(game*, int);
 
 // Get current time for timers
-struct timeval getCurrentTime(void);
+//struct timeval getCurrentTime(void);
+struct timespec getCurrentTime(void);
 
 // Check level spawnTimer
 game* checkSpawnTimer(game*);
