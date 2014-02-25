@@ -749,10 +749,10 @@ void applySurface(int x, int y, SDL_Surface* src, SDL_Surface* dest, SDL_Rect* c
 
 void drawBackground(int level) {
 
-    applySurface(0, 0, background, screen, bgClip[level]);
-    applySurface(400, 0, background, screen, bgClip[level]);
-    applySurface(0, 400, background, screen, bgClip[level]);
-    applySurface(400, 400, background, screen, bgClip[level]);
+    applySurface(0, 0, background, screen, &bgClip[level]);
+    applySurface(400, 0, background, screen, &bgClip[level]);
+    applySurface(0, 400, background, screen, &bgClip[level]);
+    applySurface(400, 400, background, screen, &bgClip[level]);
 }
 
 void drawHud(int index) {
