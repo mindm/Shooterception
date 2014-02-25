@@ -5,8 +5,9 @@
 #	Markku Painomaa (0358551) - markku.painomaa@lut.fi
 
 COMPILER := gcc
-FLAGS := -Wall -w -g -pedantic -std=gnu99
-LIBS = -lSDL -lSDL_image -lSDL_ttf -lSDL_mixer
+CLIENT_FLAGS := -Wall -w -g -pedantic -std=gnu99
+SERVER_FLAGS := -Wall -g -pedantic -std=gnu99
+LIBS = -lSDL -lSDL_image -lSDL_ttf -lSDL_mixer -lpthread
 
 all:  build
 
@@ -16,13 +17,13 @@ build:
 	make test_client
 	
 client:
-	$(COMPILER) $(FLAGS) Client/main.c networking/packets.c networking/packets.h -o client $(LIBS)
+	$(COMPILER) $(CLIENT_FLAGS) Client/main.c networking/packets.c networking/packets.h -o client $(LIBS)
 
 server:
-	$(COMPILER) $(FLAGS) gameLogic.c gameLogic.h networking/networking_server.c networking/networking_server.h networking/packets.c networking/packets.h generic.h -o server
+	$(COMPILER) $(SERVER_FLAGS) gameLogic.c gameLogic.h networking/networking_server.c networking/networking_server.h networking/packets.c networking/packets.h generic.h -lrt -o server
 
 test_client:
-	$(COMPILER) $(FLAGS) test_client.c test_client.h networking/packets.c networking/packets.h generic.h -o test_client
+	$(COMPILER) $(CLIENT_FLAGS) test_client.c test_client.h networking/packets.c networking/packets.h generic.h -o test_client
 	
 clean:
 	rm client

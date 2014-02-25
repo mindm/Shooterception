@@ -66,9 +66,9 @@ game* updatePlayerInfo (game* gameState, player_n* connectionInfo, int xcoord, i
     gameState = checkShotCooldown(gameState, playerNumber);
 
     // If PC has shot and cooldown timer isn't running, check for hit
-    if(gameState->playerList[playerNumber].hasShot == 1 && gameState->playerList[playerNumber].shotCooldown == 1){
+    if(gameState->playerList[playerNumber].hasShot == 1 && gameState->playerList[playerNumber].canShoot == 1){
         gameState = checkHit(gameState, playerNumber);   
-        gameState->playerList[playerNumber].shotCooldown = COOLDOWN;    
+        //gameState->playerList[playerNumber].shotCooldown = COOLDOWN;    
     }  
 
     return gameState;
@@ -77,7 +77,7 @@ game* updatePlayerInfo (game* gameState, player_n* connectionInfo, int xcoord, i
 // Update enemy location
 game* updateEnemyLocations (game* gameState){
 
-    printf("gameLogic: updateEnemyLocations function\n");
+    //printf("gameLogic: updateEnemyLocations function\n");
     
     for(int i = 0; i<gameState->enemyCount;i++){
         // Calculate enemy distance to followed PC and move towards
@@ -103,7 +103,7 @@ game* updateEnemyLocations (game* gameState){
 // Determine if enemy is shot - if PC has shot check if there are enemies on firing line
 game* checkHit (game* gameState, int playerNumber){
 
-    printf("gameLogic: checkHit function\n");
+    //printf("gameLogic: checkHit function\n");
     
     int k = 0;
     int candidateNumber = 0;
@@ -211,7 +211,7 @@ game* checkHit (game* gameState, int playerNumber){
 // Function to determine if player character and enemy collide
 game* checkCollision (game* gameState){
     
-    printf("gameLogic: checkCollision function\n");
+    //printf("gameLogic: checkCollision function\n");
     
     // Loop through enemies and PCs and check if they're in same coordinate
     for(int i=0;i<gameState->enemyCount;i++){
@@ -236,7 +236,7 @@ game* checkCollision (game* gameState){
 // Check end condition: all PCs are dead or enemyLimit and enemyCount are zero
 int checkEnd (game* gameState){
 
-    printf("gameLogic: checkEnd function\n");
+    //printf("gameLogic: checkEnd function\n");
     
     int deadPlayers = 0;
     
@@ -261,8 +261,8 @@ int checkEnd (game* gameState){
 }
 
 game* initGame(void){
-
-    printf("gameLogic: initGame function\n");
+    
+    //printf("gameLogic: initGame function\n");
     
     // Allocate game struct
     game *gameState = (game*)malloc(sizeof(game));
@@ -278,14 +278,15 @@ game* initGame(void){
     gameState->currentState = 0;
     gameState->maxPlayers = 0;
     memset(gameState->gameName, 0, sizeof(char));
-
+    gameState->updateTimer = 0;
+    gameState->msgNumber = 0;
     return gameState;
 }
 
 // New game state
 game* newGame(game* gameState, char* gameName, int maxPlayers) {
 
-    printf("gameLogic: newGame function\n");
+    //printf("gameLogic: newGame function\n");
     
     // Set the game state
     gameState->playerCount = 0; // No players in new game yet
@@ -303,7 +304,7 @@ game* newGame(game* gameState, char* gameName, int maxPlayers) {
 // Free game state
 void freeGame(game* gameState) {
 
-    printf("gameLogic: freeGame function\n");
+    //printf("gameLogic: freeGame function\n");
     
     if(gameState) {
         free(gameState);
@@ -312,7 +313,7 @@ void freeGame(game* gameState) {
 
 game* addPlayer(game* gameState, player_n* connectionInfo, char* playerName){
 
-    printf("gameLogic: addPlayer function\n");
+    //printf("gameLogic: addPlayer function\n");
 
     // TODO: Check if packet came from joined client
     
@@ -356,7 +357,7 @@ game* addPlayer(game* gameState, player_n* connectionInfo, char* playerName){
 // Updates the lobby state to every player
 void updateLobby(game* gameState, char* buf){
     
-    printf("gameLogic: updateLobby function\n");
+    //printf("gameLogic: updateLobby function\n");
     
     //Set array of array of chars and set values to \0
     char nameArray[4][16];
@@ -378,7 +379,7 @@ void updateLobby(game* gameState, char* buf){
 
 game* addEnemy(game* gameState){
 
-    printf("gameLogic: addEnemy function\n");
+    //printf("gameLogic: addEnemy function\n");
 
     int randomPlayer = rand() % gameState->playerCount+1; // Choose random player to follow
     int randomXborder = rand() % 2; // Choose random border from x axis
@@ -426,12 +427,12 @@ game* addEnemy(game* gameState){
 
 game* setLevelParameters(game* gameState){
 
-    printf("gameLogic: setLevelParameters function\n");
+    //printf("gameLogic: setLevelParameters function\n");
     
     // Set game parameters for game level
     if(gameState->levelNumber == 1){
         gameState->enemyLimit = 10; // How many enemies are spawned
-        gameState->enemySpawnRate = 1; // How fast the enemis are spawned
+        gameState->enemySpawnRate = 1000000000; // How fast the enemis are spawned, in ns
         gameState->enemyBaseSpeed = 1; // How fast the enemies _atleast_ move
     } 
     else if(gameState->levelNumber == 2){
@@ -465,7 +466,7 @@ game* setLevelParameters(game* gameState){
 
 game* setPlayerLocations(game* gameState){
 
-    printf("gameLogic: setPlayerLocations function\n");
+    //printf("gameLogic: setPlayerLocations function\n");
 
     for(int i = 0; i <= gameState->playerCount; i++){
         if(gameState->playerList[i].playerNumber == 1){
@@ -491,7 +492,7 @@ game* setPlayerLocations(game* gameState){
 
 int getPlayerNumber(game* gameState, player_n* connectionInfo){
 
-    printf("gameLogic: getPlayerNumber function\n");
+    //printf("gameLogic: getPlayerNumber function\n");
 
     //TODO: Here was something wrong!
     int playerNumber = 100;
@@ -504,49 +505,9 @@ int getPlayerNumber(game* gameState, player_n* connectionInfo){
     return playerNumber;
 }
 
-// Check if cooldown is running
-game* checkShotCooldown(game* gameState, int playerNumber){
-
-    printf("gameLogic: checkShotCooldown function\n");
-    
-    struct timeval tempTime = getCurrentTime();
-    long currentTime = tempTime.tv_sec + tempTime.tv_usec;
-
-    // Cooldown not running
-    if(currentTime - gameState->playerList[playerNumber].shotCooldown >= 500000){
-        gameState->playerList[playerNumber].shotCooldown = currentTime;
-        gameState->playerList[playerNumber].canShoot = 1;
-    // Cooldown running
-    } else {
-        gameState->playerList[playerNumber].canShoot = 0;
-    } 
-    
-    return gameState;
-}
-game* checkSpawnTimer(game* gameState){
-
-    printf("gameLogic: checkSpawnTimer function\n");
-    
-    struct timeval tempTime = getCurrentTime();
-    long currentTime = tempTime.tv_sec + tempTime.tv_usec;
-    
-    // Enemy spawn allowed
-    if(currentTime - gameState->enemySpawnTimer >= gameState->enemySpawnRate){
-        gameState->enemySpawnTimer = currentTime;
-    }
-    
-    return gameState;
-}
-
-struct timeval getCurrentTime(){
-    struct timeval currentTime;
-    gettimeofday(&currentTime, NULL);
-    return currentTime;
-}
-
 game* resetEnemyHits(game* gameState){
 
-    printf("gameLogic: resetEnemyHits function\n");
+    //printf("gameLogic: resetEnemyHits function\n");
     
     for(int i=0;i<gameState->enemyCount;i++){
         gameState->enemyList[i].isShot = 0;
@@ -557,7 +518,7 @@ game* resetEnemyHits(game* gameState){
 
 game* resetPlayerCollisions(game* gameState){
 
-    printf("gameLogic: resetPlayerCollisions function\n");
+    //printf("gameLogic: resetPlayerCollisions function\n");
     
     for(int i=0;i<gameState->playerCount;i++){
         gameState->playerList[i].isColliding = 0;
@@ -587,31 +548,91 @@ void relayChatMessage(game* gameState,  char outbuf[MAXDATASIZE], char message[C
     printf("gameLogic: relayChatMessage function\n");
 
     // Check if private message - sent as "/playerNumber <message>"
-    if(strcmp(message[0],"/") == 0 && isdigit(message[1]) != 0){
+    printf("here1\n");
+   /* if(strcmp(message[0],"/") == 0 && isdigit(message[1]) != 0){
+        printf("here2\n");
         setSendMask(atoi(message[1]));
-    }
+       printf("here3\n");
+    } */
     
+    printf("here4\n");
     int size = packChatRelay(outbuf, message);
     setLenout(size);
 }
 
 game* sendGameState(game* gameState, char outbuf[MAXDATASIZE]){
 
-    printf("gameLogic: sendGameState function\n");
+    //printf("gameLogic: sendGameState function\n");
     
-    struct timeval tempTime = getCurrentTime();
-    long currentTime = tempTime.tv_sec + tempTime.tv_usec;
-
-    // Send gameState
-    if(currentTime - gameState->updateTimer >= 5000){
+    struct timespec tempTime = getCurrentTime();
+    
+    unsigned long currentTime = tempTime.tv_sec * 1000000000 + tempTime.tv_nsec;
+    //unsigned long currentTime = tempTime.tv_sec * 1000000 + tempTime.tv_nsec/1000;
+         
+    //printf("currentTime: %lu\n",currentTime);
+    //printf("updateTimer: %lu\n",gameState->updateTimer);
+    
+    // Send gameState every 50ms (= 50000 microseconds = 50000000 nanoseconds)
+    if(currentTime - gameState->updateTimer >= 50000000){
         gameState->updateTimer = currentTime;
+            
+        // TODO: Needs logic to zero the msgNumber when going over int boundary
+        int size = packServerState(outbuf, gameState, gameState->msgNumber);
+        printf("gameLogic: packServerState called succesfully\n");
+        setLenout(size);
+        
+        gameState->msgNumber += 1;
+    }
+  
+    return gameState;
+}
+
+// Check if cooldown is running
+game* checkShotCooldown(game* gameState, int playerNumber){
+
+    //printf("gameLogic: checkShotCooldown function\n");
+
+    struct timespec tempTime = getCurrentTime();
+    unsigned long currentTime = tempTime.tv_sec * 1000000000 + tempTime.tv_nsec;
+        
+    // Cooldown not running
+    if(currentTime - gameState->playerList[playerNumber].shotCooldown >= 500000000){
+        gameState->playerList[playerNumber].shotCooldown = currentTime;
+        gameState->playerList[playerNumber].canShoot = 1;
+    // Cooldown running
+    } else {
+        gameState->playerList[playerNumber].canShoot = 0;
+    } 
+    
+    return gameState;
+}
+
+game* checkSpawnTimer(game* gameState){
+
+    //printf("gameLogic: checkSpawnTimer function\n");
+    
+    //struct timeval tempTime = getCurrentTime();
+    struct timespec tempTime = getCurrentTime();    
+    unsigned long currentTime = tempTime.tv_sec * 1000000000 + tempTime.tv_nsec;
+         
+    // Enemy spawn allowed
+    if(currentTime - gameState->enemySpawnTimer >= gameState->enemySpawnRate){
+        gameState->enemySpawnTimer = currentTime;
     }
     
-    // TODO: Needs logic to zero the msgNumber when going over int boundary
-    int size = packServerState(outbuf, gameState, gameState->msgNumber);
-    setLenout(size);
-    
-    gameState->msgNumber += 1;
-        
     return gameState;
+}
+
+/*struct timeval getCurrentTime(){
+
+    struct timeval currentTime;
+    gettimeofday(&currentTime, NULL);
+    return currentTime;
+} */
+
+struct timespec getCurrentTime(void){
+
+    struct timespec currentTime;
+    clock_gettime(CLOCK_MONOTONIC, &currentTime);
+    return currentTime;
 }
