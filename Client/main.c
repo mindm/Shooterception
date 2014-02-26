@@ -388,8 +388,10 @@ int main(int argc, char* args[]) {
 					updateEnemyStates(enemies[i], i);
 					drawEnemy(enemies[i]);
 				}
-						
-				for(i = 0; i < pl_num; i++)	{
+
+				drawPlayer(players[0]);
+	
+				for(i = 1; i < pl_num; i++)	{
 					updatePlayerStates(players[i], i);
 
 					drawPlayer(players[i]);
