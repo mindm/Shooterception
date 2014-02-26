@@ -363,15 +363,14 @@ int main(int argc, char *argv[])
 
 	        gameState = checkSpawnTimer(gameState);
 
-            // Spawn enemy if spawn rate allows and MAXENEMIES is not full
-            if((gameState->canSpawn == 1) && (gameState->enemyCount < MAXENEMIES) && (gameState->enemyCount<gameState->enemyLimit)){
-                // Spawn enemy to random border coordinate with level base speed and PC to follow
+            // Spawn enemy if spawn rate allows, MAXENEMIES not full, level limit not reached
+            if((gameState->canSpawn == 1) && (gameState->enemyCount < MAXENEMIES) && (gameState->enemyCount<gameState->enemyLimit) && (gameState->deadEnemyCount != gameState->enemyLimit)){
+                // Spawn enemy to random border coordinate
                 gameState = addEnemy(gameState);
             }
             
             for(int i=0;i<gameState->enemyCount;i++){
                 printf("Enemy %d, xcoord: %d, ycoord: %d, health: %d, following: %d\n",i, gameState->enemyList[i].xcoord,gameState->enemyList[i].ycoord,gameState->enemyList[i].health, gameState->enemyList[i].following);
-
             }
 
             // Update all enemy locations
