@@ -179,8 +179,13 @@ int main(int argc, char *argv[])
 	while(1)
 	{		
 	    //timeval
-	    tv.tv_sec = 1;
-        tv.tv_usec = 0; // 50ms (= 50000 microseconds)
+        if(gameState->currentState == 2){
+	        tv.tv_sec = 1;
+            tv.tv_usec = 0; // 50ms (= 50000 microseconds)
+        } else {
+            tv.tv_sec = 9001;
+            tv.tv_usec = 0; 
+        }
         
         //timespec
         //tv.tv_nsec = 50000; // 50ms (= 50000 microseconds = 50000000 nanoseconds)
