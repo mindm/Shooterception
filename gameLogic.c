@@ -75,7 +75,6 @@ game* updatePlayerInfo (game* gameState, player_n* connectionInfo, int xcoord, i
     //if(gameState->playerList[playerNumber].hasShot == 1 && gameState->playerList[playerNumber].canShoot == 1){
     if(gameState->playerList[playerNumber].hasShot == 1){
         gameState = checkHit(gameState, playerNumber);   
-        //gameState->playerList[playerNumber].shotCooldown = COOLDOWN;    
     }  
 
     return gameState;
@@ -87,20 +86,27 @@ game* updateEnemyLocations (game* gameState){
     //printf("gameLogic: updateEnemyLocations function\n");
     
     for(int i = 0; i<gameState->enemyCount;i++){
-        // Calculate enemy distance to followed PC and move towards
-        if((gameState->playerList[gameState->enemyList[i].following].xcoord - gameState->enemyList[i].xcoord) < 0) {
-            gameState->enemyList[i].viewDirection = LEFT;            
-            gameState->enemyList[i].xcoord -= gameState->enemyList[i].speed;
-        } else{
-            gameState->enemyList[i].viewDirection = RIGHT;             
-            gameState->enemyList[i].xcoord += gameState->enemyList[i].speed;        
+
+        // Don't move if dead
+        if(gameState->enemyList[i].health == 0){
+            continue;
         }
-        if((gameState->playerList[gameState->enemyList[i].following].ycoord - gameState->enemyList[i].ycoord) < 0) {
-            gameState->enemyList[i].viewDirection = UP;                        
-            gameState->enemyList[i].ycoord -= gameState->enemyList[i].speed;      
-        } else{
-            gameState->enemyList[i].viewDirection = DOWN;      
-            gameState->enemyList[i].ycoord += gameState->enemyList[i].speed;       
+        else{
+            // Calculate enemy distance to followed PC and move towards
+            if((gameState->playerList[gameState->enemyList[i].following].xcoord - gameState->enemyList[i].xcoord) < 0) {
+                gameState->enemyList[i].viewDirection = LEFT;            
+                gameState->enemyList[i].xcoord -= gameState->enemyList[i].speed;
+            } else{
+                gameState->enemyList[i].viewDirection = RIGHT;             
+                gameState->enemyList[i].xcoord += gameState->enemyList[i].speed;        
+            }
+            if((gameState->playerList[gameState->enemyList[i].following].ycoord - gameState->enemyList[i].ycoord) < 0) {
+                gameState->enemyList[i].viewDirection = UP;                        
+                gameState->enemyList[i].ycoord -= gameState->enemyList[i].speed;      
+            } else{
+                gameState->enemyList[i].viewDirection = DOWN;      
+                gameState->enemyList[i].ycoord += gameState->enemyList[i].speed;       
+            }
         }
     }
 
@@ -114,113 +120,122 @@ game* checkHit (game* gameState, int playerNumber){
     
     int k = 0;
     int candidateNumber = 0;
-    int candidateDistance = 0;
-    enemy hitCandidates[20]; // Used to determine closest enemy
-        
+    int hitCandidates[20]; // Used to determine closest enemy
+    memset(hitCandidates,0,sizeof(hitCandidates));
+
     // Check if PC hit enemy
     for(int j=0;j<gameState->enemyCount;j++){
-   
-        // PC facing UP - same xcoord, PC has higher ycoord
-        if(gameState->playerList[playerNumber].viewDirection == UP){
-            if(gameState->playerList[playerNumber].xcoord == gameState->enemyList[j].xcoord && gameState->playerList[playerNumber].ycoord >= gameState->enemyList[j].ycoord){
-                // Enemy in hit line, add to hit candidates
-                hitCandidates[k] = gameState->enemyList[j];
-                k++;
+        // Cannot shoot dead enemies
+        if(gameState->enemyList[j].health == 0){
+            continue;
+        } else {
+            // PC facing UP - same xcoord, PC has higher ycoord
+            if(gameState->playerList[playerNumber].viewDirection == UP){
+                if(gameState->playerList[playerNumber].xcoord == gameState->enemyList[j].xcoord && gameState->playerList[playerNumber].ycoord >= gameState->enemyList[j].ycoord){
+                    // Enemy in hit line, add to hit candidates
+                    hitCandidates[k] = j;
+                    k++;
+                }
             }
-        }
-        // PC facing DOWN - same xcoord, PC has lower ycoord           
-        else if(gameState->playerList[playerNumber].viewDirection == DOWN){
-            if(gameState->playerList[playerNumber].xcoord == gameState->enemyList[j].xcoord && gameState->playerList[playerNumber].ycoord <= gameState->enemyList[j].ycoord){
-                // Enemy in hit line, add to hit candidates
-                hitCandidates[k] = gameState->enemyList[j];
-                k++;
-            }                
-        }
-        // PC facing RIGHT - same ycoord, PC has lower xcoord                
-        else if(gameState->playerList[playerNumber].viewDirection == RIGHT){
-            if(gameState->playerList[playerNumber].ycoord == gameState->enemyList[j].ycoord && gameState->playerList[playerNumber].xcoord <= gameState->enemyList[j].xcoord){
-                // Enemy in hit line, add to hit candidates
-                hitCandidates[k] = gameState->enemyList[j];
-                k++;
-            }                 
-        }
-        // PC facing LEFT - same ycoord, PC has higher xcoord              
-        else if(gameState->playerList[playerNumber].viewDirection == LEFT){
-            if(gameState->playerList[playerNumber].ycoord == gameState->enemyList[j].ycoord && gameState->playerList[playerNumber].xcoord >= gameState->enemyList[j].xcoord){
-                // Enemy in hit line, add to hit candidates
-                hitCandidates[k] = gameState->enemyList[j];
-                k++;
-            }             
-        }           
+            // PC facing DOWN - same xcoord, PC has lower ycoord           
+            else if(gameState->playerList[playerNumber].viewDirection == DOWN){
+                if(gameState->playerList[playerNumber].xcoord == gameState->enemyList[j].xcoord && gameState->playerList[playerNumber].ycoord <= gameState->enemyList[j].ycoord){
+                    // Enemy in hit line, add to hit candidates
+                    hitCandidates[k] = j;
+                    k++;
+                }                
+            }
+            // PC facing RIGHT - same ycoord, PC has lower xcoord                
+            else if(gameState->playerList[playerNumber].viewDirection == RIGHT){
+                if(gameState->playerList[playerNumber].ycoord == gameState->enemyList[j].ycoord && gameState->playerList[playerNumber].xcoord <= gameState->enemyList[j].xcoord){
+                    // Enemy in hit line, add to hit candidates
+                    hitCandidates[k] = j;
+                    k++;
+                }                 
+            }
+            // PC facing LEFT - same ycoord, PC has higher xcoord              
+            else if(gameState->playerList[playerNumber].viewDirection == LEFT){
+                if(gameState->playerList[playerNumber].ycoord == gameState->enemyList[j].ycoord && gameState->playerList[playerNumber].xcoord >= gameState->enemyList[j].xcoord){
+                    // Enemy in hit line, add to hit candidates
+                    hitCandidates[k] = j;
+                    k++;
+                }             
+            } 
+        }          
     }
-    
+
     // Something was hit
+    printf("k: %d\n\n",k);
     if(k>0){
         // Determine closest enemy in range
 
         // PC facing UP - closest enemy has highest ycoord 
         if(gameState->playerList[playerNumber].viewDirection == UP){  
-            candidateDistance = 0;
+            int candidateDistance = 0;
             for(int z=0;z<k;z++){     
-                if(hitCandidates[z].ycoord >= candidateDistance){
-                    candidateDistance = hitCandidates[z].ycoord;
-                    candidateNumber = z;
+                if(gameState->enemyList[hitCandidates[z]].ycoord > candidateDistance){
+                    candidateDistance = gameState->enemyList[hitCandidates[z]].ycoord;
+                    candidateNumber = hitCandidates[z];
                 }
             }
         }
         // PC facing DOWN - closest enemy has lowest ycoord
         else if(gameState->playerList[playerNumber].viewDirection == DOWN){   
-            candidateDistance = 800;
+            int candidateDistance = 800;
             for(int z=0;z<k;z++){       
-                if(hitCandidates[z].ycoord <= candidateDistance){
-                    candidateDistance = hitCandidates[z].ycoord;
-                    candidateNumber = z;                
+                if(gameState->enemyList[hitCandidates[z]].ycoord < candidateDistance){
+                    candidateDistance = gameState->enemyList[hitCandidates[z]].ycoord;
+                    candidateNumber = hitCandidates[z];                
                 }
             }        
         }    
         // PC facing RIGHT - closest enemy has lowest xcoord
         else if(gameState->playerList[playerNumber].viewDirection == RIGHT){    
-            candidateDistance = 800;
+            int candidateDistance = 800;
             for(int z=0;z<k;z++){      
-                if(hitCandidates[z].xcoord <= candidateDistance){
-                    candidateDistance = hitCandidates[z].xcoord;
-                    candidateNumber = z;                
+                if(gameState->enemyList[hitCandidates[z]].xcoord < candidateDistance){
+                    candidateDistance = gameState->enemyList[hitCandidates[z]].xcoord;
+                    candidateNumber = hitCandidates[z];                
                 }
             }    
         }
         // PC facing LEFT - closest enemy has highest xcoord
         else if(gameState->playerList[playerNumber].viewDirection == LEFT){  
-            candidateDistance = 0;
+            int candidateDistance = 0;
             for(int z=0;z<k;z++){        
-                if(hitCandidates[z].xcoord >= candidateDistance){
-                    candidateDistance = hitCandidates[z].xcoord;
-                    candidateNumber = z;                
+                if(gameState->enemyList[hitCandidates[z]].xcoord > candidateDistance){
+                    candidateDistance = gameState->enemyList[hitCandidates[z]].xcoord;
+                    candidateNumber = hitCandidates[z];                
                 }
            }     
         }     
+
         // Enemy hit, reduce Health points by 1
-        gameState->enemyList[candidateNumber].health -= 1; 
+        if(gameState->enemyList[candidateNumber].health != 0){
+            gameState->enemyList[candidateNumber].health -= 1;
+        } 
+
         // Mark the enemy as being hit                 
         gameState->enemyList[candidateNumber].isShot = 1;
                          
 
         // Check if enemy dies
-        if(gameState->enemyList[candidateNumber].health == 0){
-            // Stop moving
-            gameState->enemyList[candidateNumber].following = 10;
+        if(gameState->enemyList[candidateNumber].health == 1){
 
             gameState->deadEnemyCount += 1;
-            gameState->enemyCount -= 1;
+            //gameState->enemyCount -= 1;
 
-            /*        
+            /*     
             for(int i = candidateNumber; i < gameState->enemyCount; i++){
                 gameState->enemyList[i] = gameState->enemyList[i+1];
             }
             gameState->enemyCount -= 1;
             gameState->enemyLimit -= 1;
             */
+
         }                             
     }
+
     return gameState;
 }
 
@@ -437,16 +452,19 @@ game* addEnemy(game* gameState){
         newEnemy[0].viewDirection = RIGHT;
     }        
     newEnemy[0].health = 3; // Initial Health points
-   
+
     newEnemy[0].following = randomPlayer; // Player who enemy is following
     
-    // TODO Changing individual speed speed
-    newEnemy[0].speed = gameState->enemyBaseSpeed; // Player who enemy is following
+    // TODO: Changing individual speed
+    newEnemy[0].speed = gameState->enemyBaseSpeed; // Enemy speed
     newEnemy[0].isShot = 0; // New enemy has not been shot, yet
-      
+    
+    /* 
+    int totalEnemies = gameState->enemyCount+gameState->deadEnemyCount;
+
     // If MAXENEMIES is full replace dead enemy
-    if((gameState->enemyCount+gameState->deadEnemyCount) == MAXENEMIES){
-       for(int i=0;i<(gameState->enemyCount+gameState->deadEnemyCount);i++){
+    if(totalEnemies == MAXENEMIES){
+       for(int i=0;i<totalEnemies;i++){
             if(gameState->enemyList[i].health == 0){
                 gameState->enemyList[i] = newEnemy[0];
                 gameState->deadEnemyCount -= 1;
@@ -456,8 +474,12 @@ game* addEnemy(game* gameState){
     } else {
         gameState->enemyList[gameState->enemyCount] = newEnemy[0]; // Allocate new enemy
     }
+    */
+
+    gameState->enemyList[gameState->enemyCount] = newEnemy[0]; // Allocate new enemy
 
     gameState->enemyCount += 1;
+
     return gameState;
 }
 
@@ -467,9 +489,9 @@ game* setLevelParameters(game* gameState){
     
     // Set game parameters for game level
     if(gameState->levelNumber == 0){
-        gameState->enemyLimit = 100; // How many enemies are spawned
-        //gameState->enemySpawnRate = 1000000000; // How fast the enemis are spawned, in ns
-        gameState->enemySpawnRate = 1000000; // How fast the enemis are spawned, in ns
+        gameState->enemyLimit = 10; // How many enemies are spawned
+        gameState->enemySpawnRate = 1000000000; // How fast the enemis are spawned, in ns
+        //gameState->enemySpawnRate = 1000000; // How fast the enemis are spawned, in ns
         gameState->enemyBaseSpeed = 1; // How fast the enemies _atleast_ move
     } 
     else if(gameState->levelNumber == 1){
@@ -585,11 +607,11 @@ void relayChatMessage(game* gameState,  char outbuf[MAXDATASIZE], char message[C
 
     // Check if private message - sent as "/playerNumber <message>"
     
-   /* if(strcmp(message[0],"/") == 0 && isdigit(message[1]) != 0){
-        printf("here2\n");
-        setSendMask(atoi(message[1]));
-       printf("here3\n");
-    } */
+    //if(strcmp(message[0],"/") == 0 && isdigit(message[1]) != 0){
+    if(strncmp(&message[0],"/",1) == 0 && isdigit(message[1]) != 0){
+        setSendMask(atoi(&message[1]));
+        printf("gameLogic: Relayed private chat message no player %d\n",atoi(&message[1]));
+    }
     
     int size = packChatRelay(outbuf, message);
     setLenout(size);
@@ -601,8 +623,8 @@ game* sendGameState(game* gameState, char outbuf[MAXDATASIZE]){
     
     struct timespec tempTime = getCurrentTime();
     
-    //unsigned long currentTime = tempTime.tv_sec * 1000000000 + tempTime.tv_nsec;
-    unsigned long currentTime = + tempTime.tv_nsec;
+    unsigned long currentTime = tempTime.tv_sec * 1000000000 + tempTime.tv_nsec;
+    //unsigned long currentTime = + tempTime.tv_nsec;
          
     printf("currentTime: %lu\n",currentTime);
     printf("updateTimer: %lu\n",gameState->updateTimer);
@@ -617,6 +639,11 @@ game* sendGameState(game* gameState, char outbuf[MAXDATASIZE]){
         setLenout(size);
         
         gameState->msgNumber += 1;
+
+        // Reset counter to prevent int16 overflow
+        if(gameState->msgNumber == 32000){
+            gameState->msgNumber = 0;
+        }
     }
   
     return gameState;
@@ -629,6 +656,7 @@ game* checkShotCooldown(game* gameState, int playerNumber){
 
     struct timespec tempTime = getCurrentTime();
     unsigned long currentTime = tempTime.tv_sec * 1000000000 + tempTime.tv_nsec;
+    //unsigned long currentTime = tempTime.tv_nsec;
         
     // Cooldown not running
     if(currentTime - gameState->playerList[playerNumber].shotCooldown >= 500000000){
@@ -649,7 +677,8 @@ game* checkSpawnTimer(game* gameState){
     //struct timeval tempTime = getCurrentTime();
     struct timespec tempTime = getCurrentTime();    
     unsigned long currentTime = tempTime.tv_sec * 1000000000 + tempTime.tv_nsec;
-         
+    //unsigned long currentTime = tempTime.tv_nsec;     
+    
     // Enemy spawn allowed
     if(currentTime - gameState->enemySpawnTimer >= gameState->enemySpawnRate){
         gameState->enemySpawnTimer = currentTime;
