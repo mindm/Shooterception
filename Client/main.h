@@ -118,6 +118,7 @@ void setupPlayer(void);
 void setupEnemy(void);
 
 void handlePlayerInput(int);
+void handleShooting(struct SDLplayer*);
 void shootBullet(struct SDLplayer*);
 void drawPlayer(struct SDLplayer*);
 void drawEnemy(struct SDLenemy*);

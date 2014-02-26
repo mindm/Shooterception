@@ -390,28 +390,18 @@ int main(int argc, char* args[]) {
 					drawEnemy(enemies[i]);
 				}
 
+				players[0]->b.x += players[0]->xVel;
+				players[0]->b.y += players[0]->yVel;
 				drawPlayer(players[0]);
-	
+				handleShooting(players[0]);
+
 				for(i = 1; i < pl_num; i++)	{
 					updatePlayerStates(players[i], i);
 
 					drawPlayer(players[i]);
 					handlePlayerDamage(players[i]);
 
-					if(players[i]->shooting) {
-
-						players[i]->shoot_time -= 0.19;
-
-						if(players[i]->shoot_time <= 0.0f) {
-							players[i]->shooting = 0; //could be also empty if 
-						}
-						else {
-							shootBullet(players[i]); //just gfx shot
-
-							for(i = 0; i < MAX_EN; i++)
-								handleEnemyDamage(enemies[i]);
-						}
-					}
+					handleShooting(players[i]);
 				}
 
 				sendClientState(players[0], counter++); //send player movements to server
@@ -818,9 +808,26 @@ void handlePlayerInput(int i) {
 								players[i]->shoot_time = S_TIME;	break; 
 		}
 	}
+}
 
-	players[i]->b.x += players[i]->xVel;
-	players[i]->b.y += players[i]->yVel;
+void handleShooting(struct SDLplayer* _player) { 
+	int i = 0;
+	
+	if(_player->shooting) {
+
+		_player->shoot_time -= 0.19;
+
+		if(_player->shoot_time <= 0.0f) {
+			_player->shooting = 0; //could be also empty if 
+		}
+		else {
+			shootBullet(_player); //just gfx shot
+
+			for(i = 0; i < MAX_EN; i++)
+				handleEnemyDamage(enemies[i]);
+		}
+	}
+
 }
 
 void drawPlayer(struct SDLplayer* _player) {
