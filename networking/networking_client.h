@@ -28,6 +28,7 @@
 game* gameState;
 
 char buf[MAXDATASIZE];
+char outbuf[MAXDATASIZE];
 
 typedef struct playerNames {
     int playerCount;

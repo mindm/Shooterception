@@ -8,7 +8,6 @@
 #include "networking_client.h"
 
 // These are going to be used globally
-char outbuffer[MAXDATASIZE];
 int lenout = 0;
 int starting = 0;
 
@@ -29,33 +28,33 @@ playerNames *getPlayers() {
 }
 
 void sendChatMsg(char* message) {
-    lenout = packChatMessage(buf, message);
+    lenout = packChatMessage(outbuf, message);
 }
 
 void sendJoinGame(int id) {
 	printf("Send joinGame\n");
-	lenout = packJoinGame(buf, cl_gamesList.servers[id].gameName, pl_name_str);
+	lenout = packJoinGame(outbuf, cl_gamesList.servers[id].gameName, pl_name_str);
 
 }
 
 void sendCreateGame(void) {
     printf("Send createGame\n");
-	lenout = packCreateGame(buf, g_name_str, pl_num, pl_name_str);
+	lenout = packCreateGame(outbuf, g_name_str, pl_num, pl_name_str);
 }
 
 void sendGameStart(void) {
 	printf("Send startGame\n");
-	lenout = packStartGame(buf);
+	lenout = packStartGame(outbuf);
 }
 
 void sendGamesQuery(void) {
 	printf("Send Games query\n");
-	lenout = packGamesQuery(buf);
+	lenout = packGamesQuery(outbuf);
 }
 
 void sendServerQuery(void) {
 	printf("Send server query\n");
-	lenout = packServerQuery(buf);
+	lenout = packServerQuery(outbuf);
 }
 
 int getGameList(void) {
@@ -134,12 +133,12 @@ void sendClientState(struct SDLplayer *_player, int msgnum) {
 	pl_info.hasShot = _player->shooting;
 	pl_info.viewDirection = _player->dir;
 
-	lenout = packClientState(buf, pl_info, msgnum);
+	lenout = packClientState(outbuf, pl_info, msgnum);
 
 }
 
 void sendClientExit() {
-	lenout = packClientExit(buf);
+	lenout = packClientExit(outbuf);
 }
 
 void updateEnemyStates(struct SDLenemy* _enemy, int i) {
@@ -196,12 +195,6 @@ void *networking_thread(void *dest_addr)
 	//clear sets
 	FD_ZERO(&readfds);
 	FD_ZERO(&writefds);
-
-	//Player info
-	//int playernum;
-
-	//clear buffer
-	memset(outbuffer,'\0', MAXDATASIZE);
 
 	//set hints
 	memset(&hints, 0, sizeof(hints));
@@ -331,8 +324,8 @@ void *networking_thread(void *dest_addr)
 			// if something to output ->  send
 			if(FD_ISSET(sockfd,&writefds)){
 			    printf("Send something\n");
-				numbytes = send(sockfd, buf, lenout, 0);
-				memset(buf,'\0', MAXDATASIZE);
+				numbytes = send(sockfd, outbuf, lenout, 0);
+				memset(outbuf,'\0', MAXDATASIZE);
 				lenout = 0;
 			}
 
