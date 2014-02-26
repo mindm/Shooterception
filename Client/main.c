@@ -391,8 +391,7 @@ int main(int argc, char* args[]) {
 					handleEnemyDamage(enemies[i]);
 				}
 
-				players[0]->b.x += players[0]->xVel;
-				players[0]->b.y += players[0]->yVel;
+				movePlayer(players[0]);
 				drawPlayer(players[0]);
 				handleShooting(players[0]);
 
@@ -656,7 +655,7 @@ void setupEnemy(void) {
 
 	 	enemies[i] = malloc(sizeof(struct SDLenemy));
 
-		enemies[i]->health = 3;
+		enemies[i]->health = 0;
 		enemies[i]->dir = DOWN;
 		enemies[i]->is_shot = 0;
 		enemies[i]->frame = 0;
@@ -810,6 +809,22 @@ void handlePlayerInput(int i) {
 								players[i]->shoot_time = S_TIME;	break; 
 		}
 	}
+}
+
+void movePlayer(struct SDLplayer* _player) {
+	
+	_player->b.x += _player->xVel;
+
+    if((_player->b.x < 0) || (_player->b.x + PC_DIMS > SCREEN_WIDTH)) {
+        _player->b.x -= _player->xVel;
+    }
+
+	_player->b.y += _player->yVel;
+
+    if((_player->b.y < 0) || (_player->b.y > PC_DIMS + SCREEN_HEIGHT)) {
+		_player->b.y -= _player->yVel;
+    }			
+
 }
 
 void handleShooting(struct SDLplayer* _player) { 
