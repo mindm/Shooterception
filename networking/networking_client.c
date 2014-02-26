@@ -163,6 +163,8 @@ void updatePlayerStates(struct SDLplayer* _player, int i) {
 	_player->b.y = gameState->playerList[i].ycoord;
 	_player->dir = gameState->playerList[i].viewDirection;
 	_player->health = gameState->playerList[i].health;
+	_player->shooting = gameState->playerList[i].hasShot;
+	_player->can_shoot = gameState->playerList[i].canShoot;
 	_player->is_attacked = gameState->playerList[i].isColliding;
 
 }

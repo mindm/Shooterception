@@ -588,6 +588,7 @@ void setupPlayer(void) {
 
 		players[i]->xVel = 0;
 		players[i]->yVel = 0;
+		players[i]->can_shoot = 1;
 		players[i]->frame = 4;
 		players[i]->health = 3;
 		players[i]->shooting = 0;
@@ -811,8 +812,11 @@ void handlePlayerInput(int i) {
 }
 
 void handleShooting(struct SDLplayer* _player) { 
-	int i = 0;
 	
+	if(!_player->can_shoot)
+		return;
+
+	int i = 0;
 	if(_player->shooting) {
 
 		_player->shoot_time -= 0.19;

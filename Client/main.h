@@ -72,6 +72,7 @@ struct SDLplayer {
 	int health;
 	int shooting;
 	float shoot_time;
+	int can_shoot;
 	int xVel, yVel;
 	int dir;
 	int frame;
