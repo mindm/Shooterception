@@ -46,6 +46,11 @@ void handleStringInput(int context, int length) {
                 textbuffer[textpos] = (char)event.key.keysym.unicode;
 				textpos++; textbuffer[textpos] = '|';
 			}
+          //slash
+            else if((event.key.keysym.unicode == (Uint16)'/')) {
+                textbuffer[textpos] = (char)event.key.keysym.unicode;
+				textpos++; textbuffer[textpos] = '|';
+			}
 
 			
 
