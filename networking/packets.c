@@ -368,7 +368,7 @@ int packGameList(char *buf, serverList *list)
     uint8_t msgtype = GAMELIST;
     packmessagetype(buf, msgtype);  
     
-    int gameCount;
+    int gameCount = 0;
     int count = list->count;
     //*(uint8_t*)&buf[1] = count;
     
@@ -393,7 +393,7 @@ int packGameList(char *buf, serverList *list)
         }
     }   
     *(uint8_t*)&buf[1] = gameCount;
-    
+    printf("gc %d\n", gameCount);
     return cur;
 }
 int packServerList(char *buf, serverList *list)
@@ -430,6 +430,8 @@ void unpackGameList(char *buf, serverList *list)
     int count = *(uint8_t*)&buf[1];
     list->count = count;
     
+	printf("%d %d\n", list->count, count);
+
     int i, cur;
     cur = 2; // cursor for buffer
     

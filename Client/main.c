@@ -111,7 +111,7 @@ int main(int argc, char* args[]) {
 							sendGamesQuery();
 						}
 
-						if(_state = handleButton(create_menu_button, event.button.x, event.button.y)) {
+						else if(_state = handleButton(create_menu_button, event.button.x, event.button.y)) {
 							state = _state;
 							//since we want to create game, send query for available game servers
 							sendServerQuery();
