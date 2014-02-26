@@ -596,6 +596,8 @@ void setupPlayer(void) {
 			case 3: players[i]->playerSurf = loadImage("player4.gif"); break;
 		}
 
+		players[i]->xVel = 0;
+		players[i]->yVel = 0;
 		players[i]->frame = 4;
 		players[i]->health = 3;
 		players[i]->shooting = 0;
@@ -791,10 +793,10 @@ void handlePlayerInput(int i) {
 	if(event.type == SDL_KEYDOWN) {
 		switch(event.key.keysym.sym) { 
 
-			case SDLK_UP: 		players[i]->b.y -= PC_VEL; 	break; 
-			case SDLK_DOWN: 	players[i]->b.y += PC_VEL; 	break; 
-			case SDLK_LEFT: 	players[i]->b.x -= PC_VEL; 	break; 
-			case SDLK_RIGHT: 	players[i]->b.x += PC_VEL; 	break;
+			case SDLK_UP: 		players[i]->yVel -= PC_VEL; 	break; 
+			case SDLK_DOWN: 	players[i]->yVel += PC_VEL; 	break; 
+			case SDLK_LEFT: 	players[i]->xVel -= PC_VEL; 	break; 
+			case SDLK_RIGHT: 	players[i]->xVel += PC_VEL; 	break;
 			case SDLK_w: 		players[i]->dir = UP; 			break; 
 			case SDLK_s: 		players[i]->dir = DOWN; 		break; 
 			case SDLK_a: 		players[i]->dir = LEFT; 		break; 
@@ -808,14 +810,17 @@ void handlePlayerInput(int i) {
 	else if(event.type == SDL_KEYUP) {
 		switch(event.key.keysym.sym) { 
 
-			case SDLK_UP: 		players[i]->b.y += PC_VEL; 		break; 
-			case SDLK_DOWN: 	players[i]->b.y -= PC_VEL; 		break; 
-			case SDLK_LEFT: 	players[i]->b.x += PC_VEL; 		break; 
-			case SDLK_RIGHT: 	players[i]->b.x -= PC_VEL; 		break;
+			case SDLK_UP: 		players[i]->yVel += PC_VEL; 		break; 
+			case SDLK_DOWN: 	players[i]->yVel -= PC_VEL; 		break; 
+			case SDLK_LEFT: 	players[i]->xVel += PC_VEL; 		break; 
+			case SDLK_RIGHT: 	players[i]->xVel -= PC_VEL; 		break;
 			case SDLK_SPACE:	players[i]->shooting = 0; 
 								players[i]->shoot_time = S_TIME;	break; 
 		}
 	}
+
+	players[i]->b.x += players[i]->xVel;
+	players[i]->b.y += players[i]->yVel;
 }
 
 void drawPlayer(struct SDLplayer* _player) {
