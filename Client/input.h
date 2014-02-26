@@ -16,12 +16,13 @@ TTF_Font *text_font = NULL;
 
 SDL_Color textColor = { 0xFF, 0x33, 0x00, 0xFF};
 SDL_Color textShColor = { 0x00, 0x00, 0x00, 0xFF };
-//SDL_Color chatColor = { 0xFF, 0xFF, 0xFF, 0xFF };
+SDL_Color chatColor = { 0x00, 0x66, 0x00, 0xFF };
 
 /* Text input */
 int textpos = 0;
 
 char textbuffer[MAX_LEN] = { 0 };
+char temp[MAX_LEN] = { 0 };
 char g_name_str[NAME_LEN+1] = { 0 };
 char pl_name_str[NAME_LEN+1] = { 0 };
 

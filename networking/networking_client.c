@@ -39,7 +39,7 @@ void sendJoinGame(int id) {
 
 void sendCreateGame(void) {
     printf("Send createGame\n");
-	lenout = packCreateGame(outbuf, g_name_str, pl_num, pl_name_str);
+	lenout = packCreateGame(outbuf, g_name_str, pl_num_max, pl_name_str);
 }
 
 void sendGameStart(void) {
@@ -57,6 +57,10 @@ void sendServerQuery(void) {
 	lenout = packServerQuery(outbuf);
 }
 
+int getMaxPlayers(void) {
+	return gameState->maxPlayers;
+}
+
 int getGameList(void) {
 
 	int i;
@@ -72,11 +76,11 @@ int getGameList(void) {
 int getServerList(void) { 
 
 	int i;
-	for(i = 0; i < cl_gamesList.count; i++) {
-		strncpy(server_list[i]->name, cl_serverList.servers[i].gameName, 17);
+	for(i = 0; i < cl_serverList.count; i++) {
+		strncpy(server_list[i]->name, cl_serverList.servers[i].host, 46);
 	}
 
-	return cl_gamesList.count;
+	return cl_serverList.count;
 }
 
 int getGameStart(void) { 
@@ -163,14 +167,13 @@ void updatePlayerStates(struct SDLplayer* _player, int i) {
 	_player->b.y = gameState->playerList[i].ycoord;
 	_player->dir = gameState->playerList[i].viewDirection;
 	_player->health = gameState->playerList[i].health;
-	_player->shooting = gameState->playerList[i].hasShot;
+	//_player->shooting = gameState->playerList[i].hasShot;
 	_player->can_shoot = gameState->playerList[i].canShoot;
 	_player->is_attacked = gameState->playerList[i].isColliding;
 
 }
 
 void *networking_thread(void *dest_addr)
-//int main() 
 {
     struct timespec tv;
     
@@ -286,7 +289,7 @@ void *networking_thread(void *dest_addr)
 				printf("%d\n", msgtype);		
 				
 				if( msgtype == SERVERSTATE) {
-					int msgnum; printf("server state");
+					int msgnum; printf("server state\n");
 				    unpackServerState(buf, gameState, &msgnum);
 					starting = 1;
 				}

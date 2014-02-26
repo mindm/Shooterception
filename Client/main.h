@@ -62,7 +62,8 @@ Mix_Chunk *en_death = NULL;
 
 SDL_Event event;
 
-//number of players in created game
+//number of players/max players in created game
+int pl_num_max = 1;
 int pl_num = 1;
 
 int gameLevel = 0;
@@ -120,6 +121,7 @@ void setupEnemy(void);
 
 void handlePlayerInput(int);
 void handleShooting(struct SDLplayer*);
+void movePlayer(struct SDLplayer*);
 void shootBullet(struct SDLplayer*);
 void drawPlayer(struct SDLplayer*);
 void drawEnemy(struct SDLenemy*);

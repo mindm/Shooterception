@@ -263,13 +263,13 @@ int main(int argc, char* args[]) {
 					if(event.button.button == SDL_BUTTON_LEFT) {
 
 						if(_state = handleButton(up_button, event.button.x, event.button.y)) {
-							if(pl_num < 4) pl_num++; //restrict the size <= 4
-							else pl_num = 4;
+							if(pl_num_max < 4) pl_num_max++; //restrict the size <= 4
+							else pl_num_max = 4;
 						}
 
 						if(_state = handleButton(down_button, event.button.x, event.button.y)) {
-							if(pl_num > 1) pl_num--; //restrict the size >= 1
-							else pl_num = 1;
+							if(pl_num_max > 1) pl_num_max--; //restrict the size >= 1
+							else pl_num_max = 1;
 						}
 
 						//there's only one possible state anyway
@@ -290,7 +290,7 @@ int main(int argc, char* args[]) {
 			SDL_FillRect(screen, &pl_num_box, SDL_MapRGB(screen->format, 0x00, 0x00, 0x00));
 			printText(275, pl_num_box.y+30, "Max players:", textColor);
 			
-			printText(475, pl_num_box.y+30, itoa(pl_num, mem), textColor);
+			printText(475, pl_num_box.y+30, itoa(pl_num_max, mem), textColor);
 
 			//game name box with prompt
 			printText(game_name_box.x, game_name_box.y-35, "Game name:", textColor);
@@ -341,14 +341,16 @@ int main(int argc, char* args[]) {
 			//game lobby infobox (using server list box rectangle)
 			SDL_FillRect(screen, &server_list_box, SDL_MapRGB(screen->format, 0x00, 0x00, 0x00));
 
+			//pl_num_max = getMaxPlayers();
 			printText(225, server_list_box.y+30, "Game name: ", textColor);
 			printText(370, server_list_box.y+30, &g_name_str[0], textColor);
 			printText(225, server_list_box.y+60, "Max players: ", textColor);
-			printText(400, server_list_box.y+60, itoa(pl_num, mem), textColor);
+			printText(400, server_list_box.y+60, itoa(pl_num_max, mem), textColor);
 			printText(225, server_list_box.y+90, "Players joined: ", textColor);
 
             joined = getPlayers();
-            for(i=0; i < joined->playerCount; i++){
+			pl_num = joined->playerCount;
+            for(i=0; i < pl_num; i++){
                 printText(225, server_list_box.y+120+(30*i), joined->name[i], textColor);
             }
 
@@ -359,7 +361,7 @@ int main(int argc, char* args[]) {
 			/* CHAT */
 			for(i = 0; i < LOGSIZE; i++) {
 				if(strlen(&chatlog[i][0]) > 0) 
-					printText(225, server_list_box.h+(20*i), &chatlog[i][0], textColor);
+					printText(225, server_list_box.h+(20*i), &chatlog[i][0], chatColor);
 			}
 
 			if(strcmp(joined->name[0], pl_name_str) == 0) {
@@ -391,8 +393,7 @@ int main(int argc, char* args[]) {
 					handleEnemyDamage(enemies[i]);
 				}
 
-				players[0]->b.x += players[0]->xVel;
-				players[0]->b.y += players[0]->yVel;
+				movePlayer(players[0]);
 				drawPlayer(players[0]);
 				handleShooting(players[0]);
 
@@ -656,7 +657,7 @@ void setupEnemy(void) {
 
 	 	enemies[i] = malloc(sizeof(struct SDLenemy));
 
-		enemies[i]->health = 3;
+		enemies[i]->health = 0;
 		enemies[i]->dir = DOWN;
 		enemies[i]->is_shot = 0;
 		enemies[i]->frame = 0;
@@ -810,6 +811,22 @@ void handlePlayerInput(int i) {
 								players[i]->shoot_time = S_TIME;	break; 
 		}
 	}
+}
+
+void movePlayer(struct SDLplayer* _player) {
+	
+	_player->b.x += _player->xVel;
+
+    if((_player->b.x < 0) || (_player->b.x + PC_DIMS > SCREEN_WIDTH)) {
+        _player->b.x -= _player->xVel;
+    }
+
+	_player->b.y += _player->yVel;
+
+    if((_player->b.y < 0) || (_player->b.y > PC_DIMS + SCREEN_HEIGHT)) {
+		_player->b.y -= _player->yVel;
+    }			
+
 }
 
 void handleShooting(struct SDLplayer* _player) { 
