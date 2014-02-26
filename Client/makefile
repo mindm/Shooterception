@@ -2,7 +2,7 @@ COMPILER = gcc
 CFLAGS = -w -std=gnu99
 DFLAGS = -g
 LIBS = -lSDL -lSDL_image -lSDL_ttf -lSDL_mixer -lpthread
-SRC = main.c ../networking/packets.c
+SRC = main.c ../networking/packets.c ../networking/huffman.c
 OUT = main
 
 all:

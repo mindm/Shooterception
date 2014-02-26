@@ -149,8 +149,13 @@ int main(int argc, char* args[]) {
 						int y = event.button.y;
 
 						if(_state = handleButton(join_button, x, y)) {
-							state = _state;
-							sendJoinGame(id);
+							
+							if(connectServer(id, 1) == 0) {
+								SDL_Delay(1000);
+								sendJoinGame(id);
+								SDL_Delay(1000);
+								state = _state;
+							}
                         }
                         
 						for(i = 0; i < sv_count; i++) {
@@ -207,8 +212,11 @@ int main(int argc, char* args[]) {
 						int y = event.button.y;
 
                      	if(_state = handleButton(ok_button, x, y)) {
-							state = _state;
-							//selected server [id]
+							
+							if(connectServer(id, 0) == 0) {
+								SDL_Delay(1000);
+								state = _state;
+							}
                         }   
 
 						for(i = 0; i < sv_count; i++) {

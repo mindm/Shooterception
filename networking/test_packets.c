@@ -153,7 +153,7 @@ void test_chat_relay()
 }
 
 void test_server_state()
-{
+{/*
     game _game;
     player out_p;
     enemy out_e;
@@ -176,12 +176,64 @@ void test_server_state()
     _game.enemyList[0] = out_e;
     _game.playerCount = 1;
     _game.enemyCount = 1;
+    */
     
-    int msgnu;
+    game gs2;
+    int num;
+    //player pleijeri;
     
-    packServerState(outbuf, &_game, 10);
-    unpackServerState(outbuf, &game2, &msgnu);
-    printf("%d\n", game2.enemyList[0].viewDirection);
+    game gs;
+    gs.playerCount = 2;
+    gs.enemyCount = 5;
+    
+    gs.playerList[0].xcoord = 324;
+    gs.playerList[0].ycoord = 433;
+    gs.playerList[0].viewDirection = 3;
+    gs.playerList[0].health = 3;
+    gs.playerList[0].hasShot = 1;
+    
+    gs.playerList[1].xcoord = 456;
+    gs.playerList[1].ycoord = 12;
+    gs.playerList[1].viewDirection = 2;
+    gs.playerList[1].health = 3;
+    gs.playerList[1].hasShot = 1;
+    
+    gs.enemyList[0].xcoord = 112;
+    gs.enemyList[0].ycoord = 876;
+    gs.enemyList[0].viewDirection = 0;
+    gs.enemyList[0].health = 3;
+    gs.enemyList[0].isShot = 0;
+    
+    gs.enemyList[1].xcoord = 123;
+    gs.enemyList[1].ycoord = 246;
+    gs.enemyList[1].viewDirection = 2;
+    gs.enemyList[1].health = 3;
+    gs.enemyList[1].isShot = 0;
+
+    gs.enemyList[2].xcoord = 456;
+    gs.enemyList[2].ycoord = 654;
+    gs.enemyList[2].viewDirection = 0;
+    gs.enemyList[2].health = 3;
+    gs.enemyList[2].isShot = 0;
+
+    gs.enemyList[3].xcoord = 789;
+    gs.enemyList[3].ycoord = 876;
+    gs.enemyList[3].viewDirection = 1;
+    gs.enemyList[3].health = 3;
+    gs.enemyList[3].isShot = 0;
+    
+    gs.enemyList[4].xcoord = 1;
+    gs.enemyList[4].ycoord = 987;
+    gs.enemyList[4].viewDirection = 3;
+    gs.enemyList[4].health = 3;
+    gs.enemyList[4].isShot = 0;
+    
+    //int msgnu;
+    
+    packServerState(outbuf, &gs, 10);
+    memcpy(inbuf, outbuf, 512);
+    unpackServerState(inbuf, &gs2, &num);
+    printf("%d\n", gs2.enemyList[0].xcoord);
 }
 
 void test_client()

@@ -145,7 +145,55 @@ void sendClientExit() {
 	lenout = packClientExit(outbuf);
 }
 
+int connectServer(int id, int joining) {
+
+	// Some variables for connection
+	struct addrinfo hints, *res, *iter;
+	int status;
+
+	//set hints
+	memset(&hints, 0, sizeof(hints));
+	hints.ai_family = AF_UNSPEC; // Don't force IPv4 or v6
+	hints.ai_socktype = SOCK_DGRAM;
+	hints.ai_family=PF_INET;
+
+	if(!joining) {
+		if ((status = getaddrinfo(cl_serverList.servers[id].host, cl_serverList.servers[id].port, &hints, &res)) != 0) {
+			fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(status));
+			return 1;
+		}
+	}
+	else {
+		if ((status = getaddrinfo(cl_gamesList.servers[id].host, cl_gamesList.servers[id].port, &hints, &res)) != 0) {
+			fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(status));
+			return 1;
+		}
+	}
+
+	// Iterate through results and use first usable one
+	for(iter = res; iter != NULL; iter = iter->ai_next) {
+		if ((sockfd = socket(iter->ai_family, iter->ai_socktype,
+				iter->ai_protocol)) == -1) {
+			perror("client: socket");
+			continue;
+		}
+		// Connect to use send and rcv
+		if (connect(sockfd, iter->ai_addr, iter->ai_addrlen) == -1) {
+			close(sockfd); // Sock has to be closed because connection failed
+			perror("client: connect");
+			continue;
+		}
+
+		break;
+	}
+
+	freeaddrinfo(res);
+	return 0;
+}
+
 void updateEnemyStates(struct SDLenemy* _enemy, int i) {
+
+    _enemy->health = gameState->enemyList[i].health;
 
 	if(_enemy->health <= 0) 
 		return;
@@ -153,21 +201,21 @@ void updateEnemyStates(struct SDLenemy* _enemy, int i) {
     _enemy->b.x = gameState->enemyList[i].xcoord;
     _enemy->b.y = gameState->enemyList[i].ycoord;
     _enemy->dir = gameState->enemyList[i].viewDirection;
-    _enemy->health = gameState->enemyList[i].health;
     _enemy->is_shot = gameState->enemyList[i].isShot;
 
 }
 
 void updatePlayerStates(struct SDLplayer* _player, int i) {
 
+	_player->health = gameState->playerList[i].health;
+
 	if(_player->health <= 0) 
 		return;
 
 	_player->b.x = gameState->playerList[i].xcoord;
 	_player->b.y = gameState->playerList[i].ycoord;
-	_player->dir = gameState->playerList[i].viewDirection;
-	_player->health = gameState->playerList[i].health;
-	//_player->shooting = gameState->playerList[i].hasShot;
+	_player->dir = gameState->playerList[i].viewDirection;	
+	_player->shooting = gameState->playerList[i].hasShot;
 	_player->can_shoot = gameState->playerList[i].canShoot;
 	_player->is_attacked = gameState->playerList[i].isColliding;
 
@@ -183,7 +231,7 @@ void *networking_thread(void *dest_addr)
 	struct addrinfo hints, *res, *iter;
 	int status;
 	char ipstr[INET6_ADDRSTRLEN];
-	int sockfd, numbytes;
+	int numbytes;
 
 	char *host = "0.0.0.0";
 	char *port = "8000";
