@@ -10,6 +10,7 @@
 // These are going to be used globally
 char outbuffer[MAXDATASIZE];
 int lenout = 0;
+int starting = 0;
 
 // This handles IPv4 and IPv6 addresses dynamically
 // Not my own invention, this is from Beej's tutorial (see readme)
@@ -77,6 +78,11 @@ int getServerList(void) {
 	}
 
 	return cl_gamesList.count;
+}
+
+int getGameStart(void) { 
+
+	return starting;
 }
 
 void setPlayerNames(char* pl1, char* pl2, char* pl3, char* pl4) {
@@ -287,6 +293,7 @@ void *networking_thread(void *dest_addr)
 				if( msgtype == SERVERSTATE) {
 					int msgnum; printf("server state");
 				    unpackServerState(buf, gameState, &msgnum);
+					starting = 1;
 				}
 				
 				else if (msgtype == LOBBYSTATE) {
@@ -304,6 +311,7 @@ void *networking_thread(void *dest_addr)
 				else if (msgtype == GAMESTART) {
 				    //gameLevel declared in SDLmain
 				    unpackGameStart(buf, &gameLevel);
+					
 				}
 
 				else if (msgtype == GAMELIST) {
