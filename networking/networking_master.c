@@ -18,7 +18,8 @@ serverList server_list;
 void getPort(char *port)
 {
     FILE *fp;
-    if (fp = fopen("master.cfg", "r"))
+    fp = fopen("master.cfg", "r");
+    if (fp)
     {   
         fscanf(fp, "%s", port);
     }
