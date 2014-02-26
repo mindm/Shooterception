@@ -8,6 +8,8 @@
 
 #include "gameLogic.h"
 
+int locked = 1;
+
 int startGame(game* gameState, char outbuf[MAXDATASIZE], int levelNumber){
 
     printf("gameLogic: startGame function\n");
@@ -376,7 +378,7 @@ game* addPlayer(game* gameState, player_n* connectionInfo, char* playerName){
 // Updates the lobby state to every player
 void updateLobby(game* gameState, char* buf){
     
-	if(lock == 1) {
+	if(locked == 1) {
 		//printf("gameLogic: updateLobby function\n");
 		
 		//Set array of array of chars and set values to \0
@@ -396,7 +398,7 @@ void updateLobby(game* gameState, char* buf){
 		
 		setLenout(size);
 	}
-	lock = 0;
+	locked = 0;
 }
 
 game* addEnemy(game* gameState){
