@@ -62,6 +62,7 @@ void updatePlayerStates(struct SDLplayer* _player, int i);
 playerNames *getPlayers();
 int getGameList(void);
 int getServerList(void);
+int getGameStart(void);
 void *get_in_addr(struct sockaddr *sa);
 
 void sendJoinGame(int id);

@@ -361,8 +361,12 @@ int main(int argc, char* args[]) {
 					printText(225, server_list_box.h+(20*i), &chatlog[i][0], textColor);
 			}
 
-			if(strcmp(joined->name[0], pl_name_str) == 0)
+			if(strcmp(joined->name[0], pl_name_str) == 0) {
 				showButton(start_button);
+			}
+			else if(getGameStart()) {
+				state = IN_GAME;
+			}
 		}
 		/* game lobby end */
 
