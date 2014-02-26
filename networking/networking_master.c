@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
 	int sockfd, numbytes;
 
 	//Hard coded arguments at this point
-	char *port;
+	char *port = NULL;
 
 	// For parsing options
 	extern char *optarg;
@@ -167,7 +167,17 @@ int main(int argc, char *argv[])
 
 	freeaddrinfo(res); // Done with addrinfo
 
+
+    strcpy(server_list.servers[0].host,"0.0.0.0");
+    strcpy(server_list.servers[0].port, "6001");
+    server_list.servers[0].serverState = 0;
+    server_list.servers[0].playerNumber = 1;
+    server_list.servers[0].maxPlayers = 4;
+    strcpy(server_list.servers[0].gameName,"testipeli");    
+    server_list.count = 1;
+
 	while(1){
+	
 		printf("master server: waiting for packet...\n");
 
 		// Save address sice and read with recvfrom

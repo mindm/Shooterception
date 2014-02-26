@@ -223,7 +223,7 @@ game* checkCollision (game* gameState){
                 gameState->playerList[j].isColliding = 1;
                 // Check if PC dies
                 if(gameState->playerList[j].health == 0){
-                    gameState = removePlayer(gameState, gameState->playerList[j].connectionInfo);
+                    gameState = removePlayer(gameState, &gameState->playerList[j].connectionInfo);
                 }
             }
         }
@@ -292,7 +292,7 @@ game* newGame(game* gameState, char* gameName, int maxPlayers) {
     gameState->playerCount = 0; // No players in new game yet
     gameState->enemyCount = 0; // Number of enemies on the game board
     gameState->levelNumber = 1; // Number of the game level (1-3), new game starts from 1
-    memcpy(gameState->gameName, gameName, GAMENAME_LENGTH);
+    strcpy(gameState->gameName, gameName);
     gameState->maxPlayers = maxPlayers;
     
     // Change to inLobby state
@@ -313,7 +313,7 @@ void freeGame(game* gameState) {
 
 game* addPlayer(game* gameState, player_n* connectionInfo, char* playerName){
 
-    //printf("gameLogic: addPlayer function\n");
+    printf("gameLogic: addPlayer function\n");
 
     // TODO: Check if packet came from joined client
     
@@ -338,8 +338,8 @@ game* addPlayer(game* gameState, player_n* connectionInfo, char* playerName){
         
         int playerNumber = gameState->playerCount;
         newPlayer[0].playerNumber = playerNumber; // Player's number
-        memcpy(&newPlayer[0].playerName, &playerName, sizeof(playerName)); // Player's name        
-        newPlayer[0].connectionInfo = connectionInfo; // sockaddr_storage struct  
+        strcpy(newPlayer[0].playerName, playerName); // Player's name     
+        newPlayer[0].connectionInfo = *connectionInfo; // sockaddr_storage struct  
         newPlayer[0].isColliding = 0; // New player not colliding with enemies, yet  
         gameState->playerList[playerNumber] = newPlayer[0]; // Allocate new player
         
@@ -357,13 +357,13 @@ void updateLobby(game* gameState, char* buf){
     //printf("gameLogic: updateLobby function\n");
     
     //Set array of array of chars and set values to \0
-    char nameArray[4][16];
-    memset(nameArray, '\0', 4*16*sizeof(char));
+    char nameArray[4][17];
+    memset(nameArray, '\0', 4*17*sizeof(char));
     
     // Write player names to array
     for (int i = 0; i < gameState->playerCount; i++)
     {   
-        memcpy(nameArray[i], gameState->playerList[i].playerName, sizeof(gameState->playerList[i].playerName));   
+        strcpy(nameArray[i], gameState->playerList[i].playerName);   
     }
     
     //Pack names
@@ -494,7 +494,7 @@ int getPlayerNumber(game* gameState, player_n* connectionInfo){
     //TODO: Here was something wrong!
     int playerNumber = 100;
     for(int i=0;i<gameState->playerCount;i++){
-        if(gameState->playerList[i].connectionInfo == connectionInfo){
+        if(strcmp(gameState->playerList[i].connectionInfo.address, connectionInfo->address) == 0 && gameState->playerList[i].connectionInfo.port == connectionInfo->port){
             playerNumber = gameState->playerList[i].playerNumber;
             break;
         }
@@ -529,7 +529,7 @@ game* removePlayer(game* gameState, player_n* connectionInfo){
     printf("gameLogic: removePlayer function\n");
     
     for(int i=0;i<gameState->playerCount;i++){
-        if(gameState->playerList[i].connectionInfo == connectionInfo){
+        if(strcmp(gameState->playerList[i].connectionInfo.address, connectionInfo->address) == 0 && gameState->playerList[i].connectionInfo.port == connectionInfo->port){        
             for(int j=i;j<gameState->playerCount;j++){
                 gameState->playerList[j] = gameState->playerList[j+1];
             }
@@ -545,14 +545,13 @@ void relayChatMessage(game* gameState,  char outbuf[MAXDATASIZE], char message[C
     printf("gameLogic: relayChatMessage function\n");
 
     // Check if private message - sent as "/playerNumber <message>"
-    printf("here1\n");
+    
    /* if(strcmp(message[0],"/") == 0 && isdigit(message[1]) != 0){
         printf("here2\n");
         setSendMask(atoi(message[1]));
        printf("here3\n");
     } */
     
-    printf("here4\n");
     int size = packChatRelay(outbuf, message);
     setLenout(size);
 }

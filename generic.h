@@ -92,8 +92,8 @@ typedef struct t_player {
     int canShoot; // Cooldown not running, 0: False, 1: True
     int isHost; // Is the player the host - 0: False, 1: True
     int playerNumber; // Player's number
-    char* playerName; // Player's name
-    player_n* connectionInfo; // pointer to struct containing sockaddr_storage
+    char playerName[17]; // Player's name
+    player_n connectionInfo; // pointer to struct containing sockaddr_storage
     int isColliding; // Is the PC colliding with enemy?
 } player;
 

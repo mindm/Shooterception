@@ -31,13 +31,13 @@ char buf[MAXDATASIZE];
 
 typedef struct playerNames {
     int playerCount;
-    char name[4][16];
+    char name[4][17];
 } playerNames;
 
-char pl1[16] = { 0 }; 
-char pl2[16] = { 0 }; 
-char pl3[16] = { 0 }; 
-char pl4[16] = { 0 };
+char pl1[17] = { 0 }; 
+char pl2[17] = { 0 }; 
+char pl3[17] = { 0 }; 
+char pl4[17] = { 0 };
 
 playerNames pl_names;
 

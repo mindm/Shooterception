@@ -19,10 +19,13 @@ build:
 	make test_client
 	
 client:
-	$(COMPILER) $(CLIENT_FLAGS) Client/main.c networking/packets.c networking/packets.h -o client $(LIBS)
+	$(COMPILER) $(CLIENT_FLAGS) Client/main.c networking/packets.c networking/packets.h -o Client/client $(LIBS)
 
 server:
 	$(COMPILER) $(SERVER_FLAGS) gameLogic.c gameLogic.h networking/networking_server.c networking/networking_server.h networking/packets.c networking/packets.h generic.h -lrt -o server
+
+master_server:
+	$(COMPILER) $(SERVER_FLAGS) networking/networking_master.c networking/networking_master.h networking/packets.c networking/packets.h generic.h -o master_server
 
 test_client:
 	$(COMPILER) $(CLIENT_FLAGS) test_client.c test_client.h networking/packets.c networking/packets.h generic.h -o test_client
@@ -31,5 +34,6 @@ clean:
 	rm client
 	rm server
 	rm test_client
+	rm master_server
 	
-.PHONY: all client server test_client clean
+.PHONY: all client server master_server test_client clean

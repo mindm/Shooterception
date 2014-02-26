@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
 	extern int optopt;
 	int optc;
     
-    char *port;
+    char *port = NULL;
 
     // Temp values for joining players
     char gameName[GAMENAME_LENGTH];
@@ -177,11 +177,11 @@ int main(int argc, char *argv[])
     freeaddrinfo(res); // Done with addrinfo
     
     printf("Server: Enter main loop\n");
-	sendMSG();
+
 	while(1)
 	{		
 	    //timeval
-	    tv.tv_sec = 2;
+	    tv.tv_sec = 1;
         tv.tv_usec = 0; // 50ms (= 50000 microseconds)
         
         //timespec
@@ -203,7 +203,8 @@ int main(int argc, char *argv[])
 		}
 
 		// Block until input (no timeval)
-		// TODO: Add timeout
+        
+        // TODO: Start timeout when currentState == 2
 		if ((rval = select(fdmax+1,&readfds,&writefds,NULL, &tv)) > 0) {
 		//if ((rval = select(fdmax+1,&readfds,&writefds,NULL, NULL)) > 0) {
 			//listening socket got something
@@ -306,75 +307,89 @@ int main(int argc, char *argv[])
                 else if(msgtype == 0)
                 {
                     printf("Server: Received ack message\n");                                
-                }                                                                                 
-				
+                }   
+                else{
+                    printf("Unknown message type: %d\n",msgtype);
+                }    
 			} // end read inputsocket
 			
 			// if something to output ->  send
 			if(FD_ISSET(sockfd,&writefds)){
 			    		    
+			    // Send to all players		    
 			    if(sendMask == 100){
 	    
 			        for(int i=0;i<gameState->playerCount;i++){
-			            sendto(sockfd, outbuf, lenout, 0, (struct sockaddr *) &(gameState->playerList[i].connectionInfo->their_addr), gameState->playerList[i].connectionInfo->addr_size);
+			            sendto(sockfd, outbuf, lenout, 0, (struct sockaddr *) &(gameState->playerList[i].connectionInfo.their_addr), gameState->playerList[i].connectionInfo.addr_size);
 			        }
 			        		
 			        printf("Sent packet to all players (%d)\n",gameState->playerCount);
 			        		        
 				    memset(outbuf,'\0', MAXDATASIZE);
 				    lenout = 0;
+				// Send to master server
 				} else if (sendMask == 200) {
                     sendMask = 100;
                     sendto(sockfd, outbuf, lenout, 0, (struct sockaddr *) &(master_s_addr),  master_s_len);
                 }
+                // Send to one player
                 else{
-				    sendto(sockfd, outbuf, lenout, 0, (struct sockaddr *) &(gameState->playerList[sendMask].connectionInfo->their_addr), gameState->playerList[sendMask].connectionInfo->addr_size);	
+				    sendto(sockfd, outbuf, lenout, 0, (struct sockaddr *) &(gameState->playerList[sendMask].connectionInfo.their_addr), gameState->playerList[sendMask].connectionInfo.addr_size);	
 				    sendMask = 100; // Reset value  	
 				    		
-		            printf("Sent packet to player %d\n",gameState->playerList[sendMask].playerNumber);    
+		            printf("Sent packet to player %d\n",gameState->playerList[sendMask].playerNumber); 
 				} 
 			} 
 		} // End select
 		
+        printf("currentState: %d",gameState->currentState);
+
 	    // Game Logic here
 	
 	    //printf("\n***update functions start***\n");
-	
-	    gameState = checkSpawnTimer(gameState);
-        // Spawn enemy if spawn rate allows and MAXENEMIES is not full
-        if((gameState->enemySpawnRate = 0) && (gameState->enemyCount < MAXENEMIES)){
-            // Spawn enemy to random border coordinate with level base speed and PC to follow
-            gameState = addEnemy(gameState);
-            gameState->enemyCount += 1;
-        }
-        
-        // Update all enemy locations
-        gameState = updateEnemyLocations(gameState);
-        
-        // Are player character and enemy colliding
-        gameState = checkCollision(gameState);
-        
-        // Check end condition
-        if(checkEnd(gameState) == 1){
-            // Player's have won
-            // Move to lobby and set next level parameters
-        }
-        else if(checkEnd(gameState) == 2){
-            // All PCs dead, game lost
-            // Shut down game, return to main menu
-        }
-        
-        // Send game state to all clients
-        // This sent twice?
-        //sendGameState(gameState, outbuf);
-        
-        //printf("Packet number: %d\n",gameState->msgNumber);
-        
-        gameState = resetEnemyHits(gameState);
-        gameState = resetPlayerCollisions(gameState);
-        
-	    //printf("***update functions end***\n");
 
+        // currentState in inGame
+	    if(gameState->currentState == 2){
+
+	        for(int i=0;i<gameState->playerCount;i++){
+	            printf("Player %d: %s %s:%d\n",gameState->playerList[i].playerNumber, gameState->playerList[i].playerName, gameState->playerList[i].connectionInfo.address,gameState->playerList[i].connectionInfo.port);
+	        }
+	        
+	        gameState = checkSpawnTimer(gameState);
+            // Spawn enemy if spawn rate allows and MAXENEMIES is not full
+            if((gameState->enemySpawnRate = 0) && (gameState->enemyCount < MAXENEMIES)){
+                // Spawn enemy to random border coordinate with level base speed and PC to follow
+                gameState = addEnemy(gameState);
+                gameState->enemyCount += 1;
+            }
+            
+            // Update all enemy locations
+            gameState = updateEnemyLocations(gameState);
+            
+            // Are player character and enemy colliding
+            gameState = checkCollision(gameState);
+            
+            // Check end condition
+            if(checkEnd(gameState) == 1){
+                // Player's have won
+                // Move to lobby and set next level parameters
+            }
+            else if(checkEnd(gameState) == 2){
+                // All PCs dead, game lost
+                // Shut down game, return to main menu
+            }
+            
+            // Send game state to all clients
+            // This sent twice?
+            sendGameState(gameState, outbuf);
+            
+            printf("Packet number: %d\n",gameState->msgNumber);
+            
+            gameState = resetEnemyHits(gameState);
+            gameState = resetPlayerCollisions(gameState);
+            
+	        //printf("***update functions end***\n");
+        }
 	} // End while loop
 	
     // Cleanup after the game ends
