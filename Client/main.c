@@ -341,7 +341,7 @@ int main(int argc, char* args[]) {
 			//game lobby infobox (using server list box rectangle)
 			SDL_FillRect(screen, &server_list_box, SDL_MapRGB(screen->format, 0x00, 0x00, 0x00));
 
-			pl_num_max = 1; //getMaxPlayers();
+			//pl_num_max = getMaxPlayers();
 			printText(225, server_list_box.y+30, "Game name: ", textColor);
 			printText(370, server_list_box.y+30, &g_name_str[0], textColor);
 			printText(225, server_list_box.y+60, "Max players: ", textColor);

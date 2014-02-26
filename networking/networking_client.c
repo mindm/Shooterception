@@ -79,7 +79,7 @@ int getServerList(void) {
 	for(i = 0; i < cl_serverList.count; i++) {
 		strncpy(server_list[i]->name, cl_serverList.servers[i].host, 46);
 	}
-	//printf("%d\n", cl_serverList.count);
+
 	return cl_serverList.count;
 }
 
@@ -174,7 +174,6 @@ void updatePlayerStates(struct SDLplayer* _player, int i) {
 }
 
 void *networking_thread(void *dest_addr)
-//int main() 
 {
     struct timespec tv;
     
@@ -187,7 +186,7 @@ void *networking_thread(void *dest_addr)
 	int sockfd, numbytes;
 
 	char *host = "0.0.0.0";
-	char *port = "6001";
+	char *port = "8000";
 
 	// For parsing options
 	extern char *optarg;
@@ -290,7 +289,7 @@ void *networking_thread(void *dest_addr)
 				printf("%d\n", msgtype);		
 				
 				if( msgtype == SERVERSTATE) {
-					int msgnum; printf("server state");
+					int msgnum; printf("server state\n");
 				    unpackServerState(buf, gameState, &msgnum);
 					starting = 1;
 				}
