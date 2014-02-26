@@ -31,7 +31,8 @@ void test_create_game()
     char player2[16];
     
     int len = packCreateGame(outbuf, gameName, maxp1, player1);
-    memcpy(inbuf, outbuf, 512);
+    //int len = packCreateGame(outbuf, "game", maxp1, "player1");
+    memcpy(inbuf, outbuf, len);
     unpackCreateGame(inbuf, rcvgameName, &maxp2, player2);    
     
     if(
@@ -167,10 +168,18 @@ void test_server_state()
     out_e.isShot = 1; // Has the player shot after sending the last clientState
     out_e.health = 2;
     
+    game game2;
+    
     _game.playerList[0] = out_p;
     _game.enemyList[0] = out_e;
     _game.playerCount = 1;
     _game.enemyCount = 1;
+    
+    int msgnu;
+    
+    packServerState(outbuf, &_game, 10);
+    unpackServerState(outbuf, &game2, &msgnu);
+    printf("%d\n", game2.enemyList[0].viewDirection);
 }
 
 void test_client()
@@ -189,6 +198,7 @@ void test_server()
     test_lobby_state();
     test_game_start();
     test_chat_relay();
+    test_server_state();
     printf("-----End Server tests\n");
 }
 

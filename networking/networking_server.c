@@ -41,18 +41,10 @@ int getInPort(struct sockaddr *sa, int p_port)
 }
 
 
-void sendMSG()
+void sendToMaster(game gameState)
 {
-    struct sockaddr_in servaddr;
-    bzero(&servaddr,sizeof(servaddr));
-    servaddr.sin_family = AF_INET;
-    servaddr.sin_addr.s_addr=inet_addr("127.0.0.1");
-    servaddr.sin_port=htons(6001);
-    
-    int size = packGamesQuery(outbuf);
-    
-    sendto(sockfd,outbuf,size,0,
-             (struct sockaddr *)&servaddr,sizeof(servaddr));
+    lenout = packUpdateState(outbuf, &gameState);
+    setSendMask(200);
 }
 
 int main(int argc, char *argv[])
@@ -62,8 +54,14 @@ int main(int argc, char *argv[])
 	// Some variables for connection
 	struct addrinfo hints, *res, *iter;
 	struct sockaddr_storage their_addr; // connector's address information
-    struct sockaddr_storage master_s_addr; // connector's address information
-    socklen_t master_s_len;
+
+    // Master server address
+    struct sockaddr_in servaddr;
+    bzero(&servaddr,sizeof(servaddr));
+    servaddr.sin_family = AF_INET;
+    servaddr.sin_addr.s_addr=inet_addr("127.0.0.1");
+    servaddr.sin_port=htons(6001);
+
 	struct timeval tv;
     //struct timespec tv;
     
@@ -330,7 +328,7 @@ int main(int argc, char *argv[])
 				// Send to master server
 				} else if (sendMask == 200) {
                     sendMask = 100;
-                    sendto(sockfd, outbuf, lenout, 0, (struct sockaddr *) &(master_s_addr),  master_s_len);
+                    sendto(sockfd, outbuf, lenout, 0, (struct sockaddr *) &servaddr, sizeof(servaddr));
                 }
                 // Send to one player
                 else{

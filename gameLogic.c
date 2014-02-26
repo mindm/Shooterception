@@ -280,6 +280,9 @@ game* initGame(void){
     memset(gameState->gameName, 0, sizeof(char));
     gameState->updateTimer = 0;
     gameState->msgNumber = 0;
+    
+    sendToMaster(*gameState);
+    
     return gameState;
 }
 
@@ -347,6 +350,7 @@ game* addPlayer(game* gameState, player_n* connectionInfo, char* playerName){
     }
     
     // TODO: Else -> return game full error
+    sendToMaster(*gameState);
     
     return gameState;
 }
