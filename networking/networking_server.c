@@ -370,7 +370,7 @@ int main(int argc, char *argv[])
             }
             
             for(int i=0;i<gameState->enemyCount;i++){
-                printf("Enemy %d, xcoord: %d, ycoord: %d, health: %d\n",i, gameState->enemyList[i].xcoord,gameState->enemyList[i].ycoord,gameState->enemyList[i].health);
+                printf("Enemy %d, xcoord: %d, ycoord: %d, health: %d, following: %d\n",i, gameState->enemyList[i].xcoord,gameState->enemyList[i].ycoord,gameState->enemyList[i].health, gameState->enemyList[i].following);
 
             }
 

@@ -657,7 +657,7 @@ void setupEnemy(void) {
 
 	 	enemies[i] = malloc(sizeof(struct SDLenemy));
 
-		enemies[i]->health = 0;
+		enemies[i]->health = 3;
 		enemies[i]->dir = DOWN;
 		enemies[i]->is_shot = 0;
 		enemies[i]->frame = 0;

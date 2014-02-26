@@ -196,6 +196,7 @@ game* checkHit (game* gameState, int playerNumber){
                 }
            }     
         }     
+
         // Enemy hit, reduce Health points by 1
         gameState->enemyList[candidateNumber].health -= 1; 
         // Mark the enemy as being hit                 
@@ -204,11 +205,14 @@ game* checkHit (game* gameState, int playerNumber){
 
         // Check if enemy dies
         if(gameState->enemyList[candidateNumber].health == 0){
+
+            /*
             // Stop moving
             gameState->enemyList[candidateNumber].following = 10;
 
             gameState->deadEnemyCount += 1;
             gameState->enemyCount -= 1;
+            */
 
             /*        
             for(int i = candidateNumber; i < gameState->enemyCount; i++){
@@ -217,6 +221,7 @@ game* checkHit (game* gameState, int playerNumber){
             gameState->enemyCount -= 1;
             gameState->enemyLimit -= 1;
             */
+
         }                             
     }
     return gameState;
@@ -432,16 +437,19 @@ game* addEnemy(game* gameState){
         newEnemy[0].viewDirection = RIGHT;
     }        
     newEnemy[0].health = 3; // Initial Health points
-   
+
     newEnemy[0].following = randomPlayer; // Player who enemy is following
     
     // TODO Changing individual speed speed
     newEnemy[0].speed = gameState->enemyBaseSpeed; // Player who enemy is following
     newEnemy[0].isShot = 0; // New enemy has not been shot, yet
-      
+    
+    /* 
+    int totalEnemies = gameState->enemyCount+gameState->deadEnemyCount;
+
     // If MAXENEMIES is full replace dead enemy
-    if((gameState->enemyCount+gameState->deadEnemyCount) == MAXENEMIES){
-       for(int i=0;i<(gameState->enemyCount+gameState->deadEnemyCount);i++){
+    if(totalEnemies == MAXENEMIES){
+       for(int i=0;i<totalEnemies;i++){
             if(gameState->enemyList[i].health == 0){
                 gameState->enemyList[i] = newEnemy[0];
                 gameState->deadEnemyCount -= 1;
@@ -451,8 +459,11 @@ game* addEnemy(game* gameState){
     } else {
         gameState->enemyList[gameState->enemyCount] = newEnemy[0]; // Allocate new enemy
     }
+    */
 
+    gameState->enemyList[gameState->enemyCount] = newEnemy[0]; // Allocate new enemy
     gameState->enemyCount += 1;
+
     return gameState;
 }
 
@@ -463,8 +474,8 @@ game* setLevelParameters(game* gameState){
     // Set game parameters for game level
     if(gameState->levelNumber == 0){
         gameState->enemyLimit = 100; // How many enemies are spawned
-        //gameState->enemySpawnRate = 1000000000; // How fast the enemis are spawned, in ns
-        gameState->enemySpawnRate = 1000000; // How fast the enemis are spawned, in ns
+        gameState->enemySpawnRate = 1000000000; // How fast the enemis are spawned, in ns
+        //gameState->enemySpawnRate = 1000000; // How fast the enemis are spawned, in ns
         gameState->enemyBaseSpeed = 1; // How fast the enemies _atleast_ move
     } 
     else if(gameState->levelNumber == 1){
@@ -580,11 +591,11 @@ void relayChatMessage(game* gameState,  char outbuf[MAXDATASIZE], char message[C
 
     // Check if private message - sent as "/playerNumber <message>"
     
-   /* if(strcmp(message[0],"/") == 0 && isdigit(message[1]) != 0){
-        printf("here2\n");
-        setSendMask(atoi(message[1]));
-       printf("here3\n");
-    } */
+    //if(strcmp(message[0],"/") == 0 && isdigit(message[1]) != 0){
+    if(strncmp(&message[0],"/",1) == 0 && isdigit(message[1]) != 0){
+        setSendMask(atoi(&message[1]));
+        printf("gameLogic: Relayed private chat message no player %d\n",atoi(&message[1]));
+    }
     
     int size = packChatRelay(outbuf, message);
     setLenout(size);
@@ -596,8 +607,8 @@ game* sendGameState(game* gameState, char outbuf[MAXDATASIZE]){
     
     struct timespec tempTime = getCurrentTime();
     
-    //unsigned long currentTime = tempTime.tv_sec * 1000000000 + tempTime.tv_nsec;
-    unsigned long currentTime = + tempTime.tv_nsec;
+    unsigned long currentTime = tempTime.tv_sec * 1000000000 + tempTime.tv_nsec;
+    //unsigned long currentTime = + tempTime.tv_nsec;
          
     printf("currentTime: %lu\n",currentTime);
     printf("updateTimer: %lu\n",gameState->updateTimer);
@@ -612,6 +623,11 @@ game* sendGameState(game* gameState, char outbuf[MAXDATASIZE]){
         setLenout(size);
         
         gameState->msgNumber += 1;
+
+        // Reset counter to prevent int16 overflow
+        if(gameState->msgNumber == 32000){
+            gameState->msgNumber = 0;
+        }
     }
   
     return gameState;
@@ -624,6 +640,7 @@ game* checkShotCooldown(game* gameState, int playerNumber){
 
     struct timespec tempTime = getCurrentTime();
     unsigned long currentTime = tempTime.tv_sec * 1000000000 + tempTime.tv_nsec;
+    //unsigned long currentTime = tempTime.tv_nsec;
         
     // Cooldown not running
     if(currentTime - gameState->playerList[playerNumber].shotCooldown >= 500000000){
@@ -644,7 +661,8 @@ game* checkSpawnTimer(game* gameState){
     //struct timeval tempTime = getCurrentTime();
     struct timespec tempTime = getCurrentTime();    
     unsigned long currentTime = tempTime.tv_sec * 1000000000 + tempTime.tv_nsec;
-         
+    //unsigned long currentTime = tempTime.tv_nsec;     
+    
     // Enemy spawn allowed
     if(currentTime - gameState->enemySpawnTimer >= gameState->enemySpawnRate){
         gameState->enemySpawnTimer = currentTime;
