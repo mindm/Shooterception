@@ -57,6 +57,11 @@ void sendServerQuery(void) {
 	lenout = packServerQuery(outbuf);
 }
 
+void sendClientQuit(void) {
+	printf("Send client quit\n");
+	lenout = packClientExit(buf);
+}
+
 int getMaxPlayers(void) {
 	return gameState->maxPlayers;
 }

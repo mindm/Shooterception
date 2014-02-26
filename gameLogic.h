@@ -20,6 +20,8 @@
 #include "networking/packets.h"
 #include "networking/networking_server.h"
 
+int lock = 1;
+
 // Function to update PC location
 // Params: game state, connection info, xcoord, ycoord, viewDirection, hasShot
 game* updatePlayerInfo (game*, player_n*, int, int, int, int);

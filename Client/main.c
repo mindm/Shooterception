@@ -434,6 +434,7 @@ int main(int argc, char* args[]) {
 				if(event.type == SDL_MOUSEBUTTONDOWN) {
 					if(event.button.button == SDL_BUTTON_LEFT) {
 						if(_state = handleButton(ok_prompt_button, event.button.x, event.button.y)) {
+							//sendClientQuit();
 							quit = 1;
 						}
 
@@ -450,6 +451,10 @@ int main(int argc, char* args[]) {
 
         	showButton(ok_prompt_button);
 			showButton(cancel_prompt_button); 
+		}
+
+		if(quit) {
+			sendClientQuit();
 		}
 
 		//update screen

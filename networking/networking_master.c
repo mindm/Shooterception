@@ -163,7 +163,7 @@ int main(int argc, char *argv[])
     server_list.servers[0].serverState = 1;
     server_list.servers[0].playerNumber = 1;
     server_list.servers[0].maxPlayers = 4;
-    strcpy(server_list.servers[0].gameName,"testipeli");    
+    strcpy(server_list.servers[0].gameName, "testipeli");    
     server_list.count = 1;
 
 	while(1){
@@ -186,7 +186,7 @@ int main(int argc, char *argv[])
 		p_port = ntohs(get_in_port((struct sockaddr *)&their_addr));
 		printf("server: got packet from %s, %d\n",
 				ipstr, p_port);
-		printf("server: packet is %d bytes long\n\n", numbytes);
+		printf("server: packet(%d) is %d bytes long\n\n", msgtype, numbytes);
 		inbuf[numbytes] = '\0';
 
 		// Join
