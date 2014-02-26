@@ -72,6 +72,8 @@ struct SDLplayer {
 	int health;
 	int shooting;
 	float shoot_time;
+	int can_shoot;
+	int xVel, yVel;
 	int dir;
 	int frame;
 	int is_attacked;
@@ -117,6 +119,7 @@ void setupPlayer(void);
 void setupEnemy(void);
 
 void handlePlayerInput(int);
+void handleShooting(struct SDLplayer*);
 void shootBullet(struct SDLplayer*);
 void drawPlayer(struct SDLplayer*);
 void drawEnemy(struct SDLenemy*);

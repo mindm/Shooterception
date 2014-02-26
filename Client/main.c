@@ -323,6 +323,7 @@ int main(int argc, char* args[]) {
 						if(_state = handleButton(start_button, event.button.x, event.button.y)) {
 							state = _state;
 							sendGameStart();
+                            SDL_Delay(1000);
 						}
 
 						if(state == IN_GAME) { //start was pressed, transition into game, therefore:
@@ -388,27 +389,19 @@ int main(int argc, char* args[]) {
 					updateEnemyStates(enemies[i], i);
 					drawEnemy(enemies[i]);
 				}
-						
-				for(i = 0; i < pl_num; i++)	{
+
+				players[0]->b.x += players[0]->xVel;
+				players[0]->b.y += players[0]->yVel;
+				drawPlayer(players[0]);
+				handleShooting(players[0]);
+
+				for(i = 1; i < pl_num; i++)	{
 					updatePlayerStates(players[i], i);
 
 					drawPlayer(players[i]);
 					handlePlayerDamage(players[i]);
 
-					if(players[i]->shooting) {
-
-						players[i]->shoot_time -= 0.19;
-
-						if(players[i]->shoot_time <= 0.0f) {
-							players[i]->shooting = 0; //could be also empty if 
-						}
-						else {
-							shootBullet(players[i]); //just gfx shot
-
-							for(i = 0; i < MAX_EN; i++)
-								handleEnemyDamage(enemies[i]);
-						}
-					}
+					handleShooting(players[i]);
 				}
 
 				sendClientState(players[0], counter++); //send player movements to server
@@ -593,6 +586,9 @@ void setupPlayer(void) {
 			case 3: players[i]->playerSurf = loadImage("player4.gif"); break;
 		}
 
+		players[i]->xVel = 0;
+		players[i]->yVel = 0;
+		players[i]->can_shoot = 1;
 		players[i]->frame = 4;
 		players[i]->health = 3;
 		players[i]->shooting = 0;
@@ -788,10 +784,10 @@ void handlePlayerInput(int i) {
 	if(event.type == SDL_KEYDOWN) {
 		switch(event.key.keysym.sym) { 
 
-			case SDLK_UP: 		players[i]->b.y -= PC_VEL; 	break; 
-			case SDLK_DOWN: 	players[i]->b.y += PC_VEL; 	break; 
-			case SDLK_LEFT: 	players[i]->b.x -= PC_VEL; 	break; 
-			case SDLK_RIGHT: 	players[i]->b.x += PC_VEL; 	break;
+			case SDLK_UP: 		players[i]->yVel -= PC_VEL; 	break; 
+			case SDLK_DOWN: 	players[i]->yVel += PC_VEL; 	break; 
+			case SDLK_LEFT: 	players[i]->xVel -= PC_VEL; 	break; 
+			case SDLK_RIGHT: 	players[i]->xVel += PC_VEL; 	break;
 			case SDLK_w: 		players[i]->dir = UP; 			break; 
 			case SDLK_s: 		players[i]->dir = DOWN; 		break; 
 			case SDLK_a: 		players[i]->dir = LEFT; 		break; 
@@ -805,14 +801,37 @@ void handlePlayerInput(int i) {
 	else if(event.type == SDL_KEYUP) {
 		switch(event.key.keysym.sym) { 
 
-			case SDLK_UP: 		players[i]->b.y += PC_VEL; 		break; 
-			case SDLK_DOWN: 	players[i]->b.y -= PC_VEL; 		break; 
-			case SDLK_LEFT: 	players[i]->b.x += PC_VEL; 		break; 
-			case SDLK_RIGHT: 	players[i]->b.x -= PC_VEL; 		break;
+			case SDLK_UP: 		players[i]->yVel += PC_VEL; 		break; 
+			case SDLK_DOWN: 	players[i]->yVel -= PC_VEL; 		break; 
+			case SDLK_LEFT: 	players[i]->xVel += PC_VEL; 		break; 
+			case SDLK_RIGHT: 	players[i]->xVel -= PC_VEL; 		break;
 			case SDLK_SPACE:	players[i]->shooting = 0; 
 								players[i]->shoot_time = S_TIME;	break; 
 		}
 	}
+}
+
+void handleShooting(struct SDLplayer* _player) { 
+	
+	if(!_player->can_shoot)
+		return;
+
+	int i = 0;
+	if(_player->shooting) {
+
+		//_player->shoot_time -= 0.19;
+
+		if(!_player->can_shoot /*_player->shoot_time <= 0.0f*/) {
+			_player->shooting = 0; //could be also empty if 
+		}
+		else {
+			shootBullet(_player); //just gfx shot
+
+			for(i = 0; i < MAX_EN; i++)
+				handleEnemyDamage(enemies[i]);
+		}
+	}
+
 }
 
 void drawPlayer(struct SDLplayer* _player) {

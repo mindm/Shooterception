@@ -26,8 +26,10 @@ int startGame(game* gameState, char outbuf[MAXDATASIZE], int levelNumber){
 
     // Set initial players locations
     gameState = setPlayerLocations(gameState);
-    
-    int size = packStartGame(outbuf);
+
+    int size = packGameStart(outbuf,gameState->levelNumber);
+    printf("gameLogic: packGameStart called succesfully\n");
+
     setLenout(size);
 
     return 0;
