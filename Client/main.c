@@ -156,10 +156,6 @@ int main(int argc, char* args[]) {
 								SDL_Delay(1000);
 								state = _state;
 							}
-                            
-							sendJoinGame(id);
-							SDL_Delay(1000);
-							state = _state;
                         }
                         
 						for(i = 0; i < sv_count; i++) {

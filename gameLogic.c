@@ -357,6 +357,15 @@ game* addPlayer(game* gameState, player_n* connectionInfo, char* playerName){
     
     // Check if player limit is full
     if(gameState->playerCount < gameState->maxPlayers){
+
+    /*
+    for(int i=0;i<gameState->playerCount;i++){
+        
+        if(strcmp(gameState->playerList[i].connectionInfo.address, connectionInfo->address) == 0 && gameState->playerList[i].connectionInfo.port == connectionInfo->port){
+            return gameState;
+        }
+    }
+    */
         player newPlayer[1];
         
         // Set new player parameters
