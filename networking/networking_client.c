@@ -188,6 +188,7 @@ int connectServer(int id, int joining) {
 	}
 
 	freeaddrinfo(res);
+	return 0;
 }
 
 void updateEnemyStates(struct SDLenemy* _enemy, int i) {
