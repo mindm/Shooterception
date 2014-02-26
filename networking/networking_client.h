@@ -64,6 +64,7 @@ playerNames *getPlayers();
 int getGameList(void);
 int getServerList(void);
 int getGameStart(void);
+int getMaxPlayers(void);
 void *get_in_addr(struct sockaddr *sa);
 
 void sendJoinGame(int id);

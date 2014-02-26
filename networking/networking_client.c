@@ -57,6 +57,10 @@ void sendServerQuery(void) {
 	lenout = packServerQuery(outbuf);
 }
 
+int getMaxPlayers(void) {
+	return gameState->maxPlayers;
+}
+
 int getGameList(void) {
 
 	int i;
@@ -72,10 +76,10 @@ int getGameList(void) {
 int getServerList(void) { 
 
 	int i;
-	for(i = 0; i < cl_gamesList.count; i++) {
-		strncpy(server_list[i]->name, cl_serverList.servers[i].gameName, 17);
+	for(i = 0; i < cl_serverList.count; i++) {
+		strncpy(server_list[i]->name, cl_serverList.servers[i].host, 46);
 	}
-
+	//printf("%d\n", cl_serverList.count);
 	return cl_gamesList.count;
 }
 
@@ -183,7 +187,7 @@ void *networking_thread(void *dest_addr)
 	int sockfd, numbytes;
 
 	char *host = "0.0.0.0";
-	char *port = "8000";
+	char *port = "6001";
 
 	// For parsing options
 	extern char *optarg;

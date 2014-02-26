@@ -34,7 +34,7 @@ struct button {
 /* list item, can be click-focused */
 struct item {
 	SDL_Rect box;
-	char name[17];
+	char name[46];
 	int pl_num;
 	int pl_num_max;
 	int focused;
