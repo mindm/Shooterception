@@ -25,7 +25,7 @@ void getPort(char *port)
     }
     else 
     {
-        strcpy(port, "8000");
+        strcpy(port, "6001");
         fp = fopen("master.cfg", "w");
         fprintf(fp, "%s\n", port);           
     }

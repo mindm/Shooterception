@@ -607,8 +607,7 @@ void relayChatMessage(game* gameState,  char outbuf[MAXDATASIZE], char message[C
 
     // Check if private message - sent as "/playerNumber <message>"
     
-    //if(strcmp(message[0],"/") == 0 && isdigit(message[1]) != 0){
-    if(strncmp(&message[0],"/",1) == 0 && isdigit(message[1]) != 0){
+    if(strncmp(&message[0],"/",1) == 0 || isdigit(message[1]) != 0){
         setSendMask(atoi(&message[1]));
         printf("gameLogic: Relayed private chat message no player %d\n",atoi(&message[1]));
     }
