@@ -100,10 +100,10 @@ void test_lobby_state()
     char pl3[] = "name3";
     char pl4[] = "nombre4";
 
-    char _pl1[17];
-    char _pl2[17];
-    char _pl3[17];
-    char _pl4[17];
+    char _pl1[16];
+    char _pl2[16];
+    char _pl3[16];
+    char _pl4[16];
     
     int size = packLobbyState(outbuf, pl1, pl2, pl3, pl4);
     memcpy(inbuf, outbuf, 512);
@@ -116,6 +116,8 @@ void test_lobby_state()
         printf("\nLobby state test OK\n");
     else
         printf("\nLobby state test Fail\n");
+    
+    printf("%s, %s, %s, %s", _pl1, _pl2, _pl3, _pl4);
 
 }
 

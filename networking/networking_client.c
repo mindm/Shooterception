@@ -92,10 +92,12 @@ void setPlayerNames(char* pl1, char* pl2, char* pl3, char* pl4) {
         strncpy(pl_names.name[0], pl1, 16);
         pl_names.playerCount = 1;
     }
+    
     if (strlen(pl2) > 0) {
        strncpy(pl_names.name[1], pl2, 16);
         pl_names.playerCount = 2;
     }
+
     if (strlen(pl3) > 0) {
         strncpy(pl_names.name[2], pl3, 16);
         pl_names.playerCount = 3;
@@ -173,10 +175,6 @@ void *networking_thread(void *dest_addr)
     
 	gameState = malloc(sizeof(game));
 
-	strcpy(cl_serverList.servers[0].gameName, "testi");
-	strcpy(cl_serverList.servers[1].gameName, "testi2");
-	strcpy(cl_serverList.servers[2].gameName, "testi3"); 
-	cl_serverList.count = 3;
 	// Some variables for connection
 	struct addrinfo hints, *res, *iter;
 	int status;
@@ -299,7 +297,6 @@ void *networking_thread(void *dest_addr)
 				}
 				
 				else if (msgtype == LOBBYSTATE) {
-					printf("lobby state");
 				    unpackLobbyState(buf, pl1, pl2, pl3, pl4);
 				    setPlayerNames(pl1, pl2, pl3, pl4);			    
 				}

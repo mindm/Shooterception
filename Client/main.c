@@ -59,7 +59,7 @@ int main(int argc, char* args[]) {
 		    if(SDL_PollEvent(&event)) {
 
 			    if(event.type == SDL_QUIT)
-			        state == QUIT;
+			        quit = 1;
 
 				//player name input
 				handleStringInput(state, NAME_LEN);
@@ -99,7 +99,7 @@ int main(int argc, char* args[]) {
 		if(state == MAIN_MENU) { 
 		    if(SDL_PollEvent(&event)) {
 			    if(event.type == SDL_QUIT)
-			        state == QUIT;
+			        quit = 1;
 
 				//if any button hitbox is left-clicked
 				if(event.type == SDL_MOUSEBUTTONDOWN) {
@@ -139,7 +139,7 @@ int main(int argc, char* args[]) {
 		    if(SDL_PollEvent(&event)) {
 
 			    if(event.type == SDL_QUIT)
-			        state == QUIT;
+			        quit = 1;
 
 				//if any button's hitbox is left-clicked
 				if(event.type == SDL_MOUSEBUTTONDOWN) {
@@ -197,7 +197,7 @@ int main(int argc, char* args[]) {
 		    if(SDL_PollEvent(&event)) {
 
 			    if(event.type == SDL_QUIT)
-			        state == QUIT;
+			        quit = 1;
 
 				//if any button's hitbox is left-clicked
 				if(event.type == SDL_MOUSEBUTTONDOWN) {
@@ -252,7 +252,7 @@ int main(int argc, char* args[]) {
 		    if(SDL_PollEvent(&event)) {
 
 				if(event.type == SDL_QUIT)
-					state == QUIT;
+					quit = 1;
 
 				//game name input
 				handleStringInput(state, NAME_LEN);
@@ -311,7 +311,7 @@ int main(int argc, char* args[]) {
 		    if(SDL_PollEvent(&event)) {
 
 			    if(event.type == SDL_QUIT)
-			        state == QUIT;
+			        quit = 1;
 
 				//game name input
 				handleStringInput(state, MAX_LEN);
