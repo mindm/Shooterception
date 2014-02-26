@@ -234,7 +234,7 @@ void *networking_thread(void *dest_addr)
 	int numbytes;
 
 	char *host = "0.0.0.0";
-	char *port = "8000";
+	char *port = "6001";
 
 	// For parsing options
 	extern char *optarg;

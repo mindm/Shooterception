@@ -286,8 +286,9 @@ void unpackChatRelay(char *buf, char *message, int *msglen)
 void unpackServerState(char *buf, game *gameState, int *msgNumber)
 {
     //Decode Huffman
-    memcpy(compress_buffer, &buf[1], 511);
-    Huffman_Uncompress(compress_buffer, (unsigned char *)&buf[1], 511, 511);
+	int msize = 511;
+    memcpy(compress_buffer, &buf[1], msize);
+    Huffman_Uncompress(compress_buffer, (unsigned char *)&buf[1], msize, msize);
     
     //int comp_size = Huffman_Compress((unsigned char *)&buf[1], compress_buffer, cur-1);
     //memcpy(&buf[1], (char *)compress_buffer, comp_size);
