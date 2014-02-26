@@ -290,10 +290,7 @@ void *networking_thread(void *dest_addr)
 				}
 				
 				else if (msgtype == LOBBYSTATE) {
-					printf("lobby state");
 				    unpackLobbyState(buf, pl1, pl2, pl3, pl4);
-                    printf("unpackLobbyState called suffesfully\n");
-                    printf("Names: %s, %s, %s, %s\n",pl1,pl2,pl3,pl4);
 				    setPlayerNames(pl1, pl2, pl3, pl4);			    
 				}
 
