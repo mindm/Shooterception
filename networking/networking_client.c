@@ -39,7 +39,7 @@ void sendJoinGame(int id) {
 
 void sendCreateGame(void) {
     printf("Send createGame\n");
-	lenout = packCreateGame(outbuf, g_name_str, pl_num, pl_name_str);
+	lenout = packCreateGame(outbuf, g_name_str, pl_num_max, pl_name_str);
 }
 
 void sendGameStart(void) {
@@ -80,7 +80,7 @@ int getServerList(void) {
 		strncpy(server_list[i]->name, cl_serverList.servers[i].host, 46);
 	}
 	//printf("%d\n", cl_serverList.count);
-	return cl_gamesList.count;
+	return cl_serverList.count;
 }
 
 int getGameStart(void) { 
