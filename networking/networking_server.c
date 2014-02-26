@@ -164,7 +164,7 @@ int main(int argc, char *argv[])
 	{		
 	    //timeval
 	    tv.tv_sec = 2;
-        tv.tv_usec = 0; // 50ms (= 50000 microseconds = 50000000 nanoseconds)
+        tv.tv_usec = 0; // 50ms (= 50000 microseconds)
         
         //timespec
         //tv.tv_nsec = 50000; // 50ms (= 50000 microseconds = 50000000 nanoseconds)

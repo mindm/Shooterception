@@ -321,9 +321,6 @@ game* addPlayer(game* gameState, player_n* connectionInfo, char* playerName){
     if(gameState->playerCount < gameState->maxPlayers){
         player newPlayer[1];
         
-        // Get player number from connectionInfo
-        //int playerNumber = getPlayerNumber(gameState, connectionInfo);
-        
         // Set new player parameters
         newPlayer[0].xcoord = 0 ; // Initial X coordinate
         newPlayer[0].ycoord = 0; // Initial Y coordinate
