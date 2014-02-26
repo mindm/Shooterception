@@ -41,9 +41,9 @@ int getInPort(struct sockaddr *sa, int p_port)
 }
 
 
-void sendMSG()
+void sendToMaster(game gameState)
 {
-    lenout = packGamesQuery(outbuf);
+    lenout = packUpdateState(outbuf, &gameState);
     setSendMask(200);
 }
 

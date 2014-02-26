@@ -17,6 +17,7 @@ build:
 	make client
 	make server
 	make test_client
+	make master
 	
 client:
 	$(COMPILER) $(CLIENT_FLAGS) Client/main.c networking/packets.c networking/packets.h -o client $(LIBS)
@@ -27,9 +28,13 @@ server:
 test_client:
 	$(COMPILER) $(CLIENT_FLAGS) test_client.c test_client.h networking/packets.c networking/packets.h generic.h -o test_client
 	
+master:
+	$(COMPILER) $(SERVER_FLAGS) networking/networking_master.c networking/packets.c -o master
+	
 clean:
 	rm client
 	rm server
 	rm test_client
+	rm master
 	
 .PHONY: all client server test_client clean
