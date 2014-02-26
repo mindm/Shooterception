@@ -175,7 +175,7 @@ int main(int argc, char *argv[])
     freeaddrinfo(res); // Done with addrinfo
     
     printf("Server: Enter main loop\n");
-	sendMSG();
+
 	while(1)
 	{		
 	    //timeval
