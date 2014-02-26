@@ -388,6 +388,7 @@ int main(int argc, char* args[]) {
 				for(i = 0; i < MAX_EN; i++)	{		
 					updateEnemyStates(enemies[i], i);
 					drawEnemy(enemies[i]);
+					handleEnemyDamage(enemies[i]);
 				}
 
 				players[0]->b.x += players[0]->xVel;
@@ -813,22 +814,19 @@ void handlePlayerInput(int i) {
 
 void handleShooting(struct SDLplayer* _player) { 
 	
-	if(!_player->can_shoot)
+	if(!_player->can_shoot || !_player->shooting)
 		return;
 
-	int i = 0;
+
 	if(_player->shooting) {
 
-		//_player->shoot_time -= 0.19;
+		_player->shoot_time -= 0.19;
 
-		if(!_player->can_shoot /*_player->shoot_time <= 0.0f*/) {
-			_player->shooting = 0; //could be also empty if 
+		if(!_player->can_shoot || _player->shoot_time <= 0.0f) {
+			_player->shooting = 0;
 		}
 		else {
 			shootBullet(_player); //just gfx shot
-
-			for(i = 0; i < MAX_EN; i++)
-				handleEnemyDamage(enemies[i]);
 		}
 	}
 
