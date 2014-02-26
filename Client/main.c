@@ -341,10 +341,11 @@ int main(int argc, char* args[]) {
 			//game lobby infobox (using server list box rectangle)
 			SDL_FillRect(screen, &server_list_box, SDL_MapRGB(screen->format, 0x00, 0x00, 0x00));
 
+			pl_num_max = getMaxPlayers();
 			printText(225, server_list_box.y+30, "Game name: ", textColor);
 			printText(370, server_list_box.y+30, &g_name_str[0], textColor);
 			printText(225, server_list_box.y+60, "Max players: ", textColor);
-			printText(400, server_list_box.y+60, itoa(pl_num, mem), textColor);
+			printText(400, server_list_box.y+60, itoa(pl_num_max, mem), textColor);
 			printText(225, server_list_box.y+90, "Players joined: ", textColor);
 
             joined = getPlayers();
@@ -360,7 +361,7 @@ int main(int argc, char* args[]) {
 			/* CHAT */
 			for(i = 0; i < LOGSIZE; i++) {
 				if(strlen(&chatlog[i][0]) > 0) 
-					printText(225, server_list_box.h+(20*i), &chatlog[i][0], textColor);
+					printText(225, server_list_box.h+(20*i), &chatlog[i][0], chatColor);
 			}
 
 			if(strcmp(joined->name[0], pl_name_str) == 0) {

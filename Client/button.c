@@ -129,7 +129,8 @@ void setupItemlist(void) {
 		server_list[i]->pl_num = 0;
 		server_list[i]->pl_num_max = 0;
 		server_list[i]->focused = 0;
-		strcpy(server_list[i]->name, "default");
+		//strcpy(server_list[i]->name, "default");
+		memset(server_list[i]->name, 0, 46);
 	}
 
 	server_list[0]->focused = 1; //first item is focused
