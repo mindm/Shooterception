@@ -263,13 +263,13 @@ int main(int argc, char* args[]) {
 					if(event.button.button == SDL_BUTTON_LEFT) {
 
 						if(_state = handleButton(up_button, event.button.x, event.button.y)) {
-							if(pl_num < 4) pl_num++; //restrict the size <= 4
-							else pl_num = 4;
+							if(pl_num_max < 4) pl_num_max++; //restrict the size <= 4
+							else pl_num_max = 4;
 						}
 
 						if(_state = handleButton(down_button, event.button.x, event.button.y)) {
-							if(pl_num > 1) pl_num--; //restrict the size >= 1
-							else pl_num = 1;
+							if(pl_num_max > 1) pl_num_max--; //restrict the size >= 1
+							else pl_num_max = 1;
 						}
 
 						//there's only one possible state anyway
@@ -290,7 +290,7 @@ int main(int argc, char* args[]) {
 			SDL_FillRect(screen, &pl_num_box, SDL_MapRGB(screen->format, 0x00, 0x00, 0x00));
 			printText(275, pl_num_box.y+30, "Max players:", textColor);
 			
-			printText(475, pl_num_box.y+30, itoa(pl_num, mem), textColor);
+			printText(475, pl_num_box.y+30, itoa(pl_num_max, mem), textColor);
 
 			//game name box with prompt
 			printText(game_name_box.x, game_name_box.y-35, "Game name:", textColor);
@@ -348,7 +348,8 @@ int main(int argc, char* args[]) {
 			printText(225, server_list_box.y+90, "Players joined: ", textColor);
 
             joined = getPlayers();
-            for(i=0; i < joined->playerCount; i++){
+			pl_num = joined->playerCount;
+            for(i=0; i < pl_num; i++){
                 printText(225, server_list_box.y+120+(30*i), joined->name[i], textColor);
             }
 

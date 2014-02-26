@@ -62,7 +62,8 @@ Mix_Chunk *en_death = NULL;
 
 SDL_Event event;
 
-//number of players in created game
+//number of players/max players in created game
+int pl_num_max = 1;
 int pl_num = 1;
 
 int gameLevel = 0;
