@@ -180,8 +180,8 @@ int main(int argc, char *argv[])
 	{		
 	    //timeval
         if(gameState->currentState == 2){
-	        tv.tv_sec = 1;
-            tv.tv_usec = 0; // 50ms (= 50000 microseconds)
+	        tv.tv_sec = 0;
+            tv.tv_usec = 50000; // 50ms (= 50000 microseconds)
         } else {
             tv.tv_sec = 9001;
             tv.tv_usec = 0; 
@@ -287,7 +287,7 @@ int main(int argc, char *argv[])
                     
                     // Update player characters location, view direction and if the PC has shot
                     gameState = updatePlayerInfo(gameState, tempAddress, playerInfo->xcoord, playerInfo->ycoord, playerInfo->viewDirection, playerInfo->hasShot);     
-                    printf("Server: updatePlayerInfo complete\n");                    
+                    printf("Server: updatePlayerInfo complete\n");       
                 }
                 // clientExit
                 else if(msgtype == 5)
@@ -356,17 +356,24 @@ int main(int argc, char *argv[])
 	    if(gameState->currentState == 2){
 
 	        for(int i=0;i<gameState->playerCount;i++){
-	            printf("Player %d: %s %s:%d\n",gameState->playerList[i].playerNumber, gameState->playerList[i].playerName, gameState->playerList[i].connectionInfo.address,gameState->playerList[i].connectionInfo.port);
+	            printf("\nPlayer %d \nName: %s\nConnection: %s:%d\nxcoord:%d\nycoord:%d\n",gameState->playerList[i].playerNumber, gameState->playerList[i].playerName, gameState->playerList[i].connectionInfo.address,gameState->playerList[i].connectionInfo.port, gameState->playerList[i].xcoord, gameState->playerList[i].ycoord);
 	        }
 	        
+            printf("gameLevel: %d\nenemyLimit: %d\nenemySpawnRate: %llu\n",gameState->levelNumber,gameState->enemyLimit, gameState->enemySpawnRate);
+
 	        gameState = checkSpawnTimer(gameState);
+
             // Spawn enemy if spawn rate allows and MAXENEMIES is not full
-            if((gameState->enemySpawnRate = 0) && (gameState->enemyCount < MAXENEMIES)){
+            if((gameState->canSpawn == 1) && (gameState->enemyCount < MAXENEMIES) && (gameState->enemyCount<gameState->enemyLimit)){
                 // Spawn enemy to random border coordinate with level base speed and PC to follow
                 gameState = addEnemy(gameState);
-                gameState->enemyCount += 1;
             }
             
+            for(int i=0;i<gameState->enemyCount;i++){
+                printf("Enemy %d, xcoord: %d, ycoord: %d, health: %d\n",i, gameState->enemyList[i].xcoord,gameState->enemyList[i].ycoord,gameState->enemyList[i].health);
+
+            }
+
             // Update all enemy locations
             gameState = updateEnemyLocations(gameState);
             
@@ -387,8 +394,10 @@ int main(int argc, char *argv[])
             // This sent twice?
             sendGameState(gameState, outbuf);
             
-            printf("Packet number: %d\n",gameState->msgNumber);
-            
+            printf("Packet number: %d\n", gameState->msgNumber);
+            printf("Enemy count: %d\n", gameState->enemyCount);            
+            printf("Dead enemy count: %d\n", gameState->deadEnemyCount);            
+
             gameState = resetEnemyHits(gameState);
             gameState = resetPlayerCollisions(gameState);
             
