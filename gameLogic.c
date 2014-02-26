@@ -378,7 +378,7 @@ game* addPlayer(game* gameState, player_n* connectionInfo, char* playerName){
 // Updates the lobby state to every player
 void updateLobby(game* gameState, char* buf){
     
-	if(locked == 1) {
+	if(locked != 1) {
 		//printf("gameLogic: updateLobby function\n");
 		
 		//Set array of array of chars and set values to \0
