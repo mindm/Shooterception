@@ -286,8 +286,9 @@ void unpackChatRelay(char *buf, char *message, int *msglen)
 void unpackServerState(char *buf, game *gameState, int *msgNumber)
 {
     //Decode Huffman
-    memcpy(compress_buffer, &buf[1], 511);
-    Huffman_Uncompress(compress_buffer, (unsigned char *)&buf[1], 511, 511);
+	int msize = 511;
+    memcpy(compress_buffer, &buf[1], msize);
+    Huffman_Uncompress(compress_buffer, (unsigned char *)&buf[1], msize, msize);
     
     //int comp_size = Huffman_Compress((unsigned char *)&buf[1], compress_buffer, cur-1);
     //memcpy(&buf[1], (char *)compress_buffer, comp_size);
@@ -367,7 +368,7 @@ int packGameList(char *buf, serverList *list)
     uint8_t msgtype = GAMELIST;
     packmessagetype(buf, msgtype);  
     
-    int gameCount;
+    int gameCount = 0;
     int count = list->count;
     //*(uint8_t*)&buf[1] = count;
     
@@ -392,7 +393,7 @@ int packGameList(char *buf, serverList *list)
         }
     }   
     *(uint8_t*)&buf[1] = gameCount;
-    
+    printf("gc %d\n", gameCount);
     return cur;
 }
 int packServerList(char *buf, serverList *list)
@@ -429,6 +430,8 @@ void unpackGameList(char *buf, serverList *list)
     int count = *(uint8_t*)&buf[1];
     list->count = count;
     
+	printf("%d %d\n", list->count, count);
+
     int i, cur;
     cur = 2; // cursor for buffer
     

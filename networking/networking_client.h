@@ -79,7 +79,7 @@ void sendJoinGame(int id);
 void sendChatMsg(char *message);
 void sendServerQuery(void);
 void sendGamesQuery(void);
-
+void sendClientQuit(void);
 void readParams(char *full_address, char *host, char *port);
 char *createFullAddress(char *host, char *port);
 

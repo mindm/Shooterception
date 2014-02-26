@@ -57,6 +57,11 @@ void sendServerQuery(void) {
 	lenout = packServerQuery(outbuf);
 }
 
+void sendClientQuit(void) {
+	printf("Send client quit\n");
+	lenout = packClientExit(buf);
+}
+
 int getMaxPlayers(void) {
 	return gameState->maxPlayers;
 }
@@ -65,7 +70,8 @@ int getGameList(void) {
 
 	int i;
 	for(i = 0; i < cl_gamesList.count; i++) {
-		strncpy(server_list[i]->name, cl_gamesList.servers[i].gameName, 17);
+		printf("%s\n", cl_gamesList.servers[i].gameName);
+		strcpy(server_list[i]->name, cl_gamesList.servers[i].gameName);
 		server_list[i]->pl_num = cl_gamesList.servers[i].playerNumber;
 		server_list[i]->pl_num_max = cl_gamesList.servers[i].maxPlayers;
 	}
@@ -234,7 +240,7 @@ void *networking_thread(void *dest_addr)
 	int numbytes;
 
 	char *host = "0.0.0.0";
-	char *port = "8000";
+	char *port = "6001";
 
 	// For parsing options
 	extern char *optarg;
@@ -334,7 +340,7 @@ void *networking_thread(void *dest_addr)
 				uint8_t msgtype = getmessagetype(buf); //unpack messagetype
 
 				// ok
-				printf("%d\n", msgtype);		
+				printf("recv msg: %d\n", msgtype);		
 				
 				if( msgtype == SERVERSTATE) {
 					int msgnum; printf("server state\n");
@@ -362,6 +368,7 @@ void *networking_thread(void *dest_addr)
 
 				else if (msgtype == GAMELIST) {
 					unpackGameList(buf, &cl_gamesList);
+					
 				}
 
 				else if (msgtype == SERVERLIST) {

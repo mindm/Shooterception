@@ -111,7 +111,7 @@ int main(int argc, char* args[]) {
 							sendGamesQuery();
 						}
 
-						if(_state = handleButton(create_menu_button, event.button.x, event.button.y)) {
+						else if(_state = handleButton(create_menu_button, event.button.x, event.button.y)) {
 							state = _state;
 							//since we want to create game, send query for available game servers
 							sendServerQuery();
@@ -440,6 +440,7 @@ int main(int argc, char* args[]) {
 				if(event.type == SDL_MOUSEBUTTONDOWN) {
 					if(event.button.button == SDL_BUTTON_LEFT) {
 						if(_state = handleButton(ok_prompt_button, event.button.x, event.button.y)) {
+							//sendClientQuit();
 							quit = 1;
 						}
 
@@ -456,6 +457,10 @@ int main(int argc, char* args[]) {
 
         	showButton(ok_prompt_button);
 			showButton(cancel_prompt_button); 
+		}
+
+		if(quit) {
+			sendClientQuit();
 		}
 
 		//update screen

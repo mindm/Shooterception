@@ -29,7 +29,7 @@ test_client:
 	$(COMPILER) $(CLIENT_FLAGS) test_client.c test_client.h networking/packets.c networking/packets.h networking/huffman.c generic.h -o test_client
 	
 master:
-	$(COMPILER) $(SERVER_FLAGS) networking/networking_master.c networking/packets.c -o master
+	$(COMPILER) $(SERVER_FLAGS) networking/networking_master.c networking/packets.c networking/huffman.c -o master
 	
 clean:
 	rm client

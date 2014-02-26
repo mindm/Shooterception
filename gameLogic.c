@@ -8,6 +8,8 @@
 
 #include "gameLogic.h"
 
+int locked = 1;
+
 int startGame(game* gameState, char outbuf[MAXDATASIZE], int levelNumber){
 
     printf("gameLogic: startGame function\n");
@@ -391,24 +393,27 @@ game* addPlayer(game* gameState, player_n* connectionInfo, char* playerName){
 // Updates the lobby state to every player
 void updateLobby(game* gameState, char* buf){
     
-    //printf("gameLogic: updateLobby function\n");
-    
-    //Set array of array of chars and set values to \0
-    char nameArray[4][17];
-    memset(nameArray, '\0', 4*17*sizeof(char));
-    
-    // Write player names to array
-    for (int i = 0; i < gameState->playerCount; i++)
-    {   
-        strcpy(nameArray[i], gameState->playerList[i].playerName);   
-    }
-    
-    //Pack names
-    int size = packLobbyState(buf, nameArray[0], nameArray[1], nameArray[2], nameArray[3]);
-    
-    printf("gameLogic: packLobbyState called succesfully\n");
-    
-    setLenout(size);
+	if(locked != 1) {
+		//printf("gameLogic: updateLobby function\n");
+		
+		//Set array of array of chars and set values to \0
+		char nameArray[4][17];
+		memset(nameArray, '\0', 4*17*sizeof(char));
+		
+		// Write player names to array
+		for (int i = 0; i < gameState->playerCount; i++)
+		{   
+		    strcpy(nameArray[i], gameState->playerList[i].playerName);   
+		}
+		
+		//Pack names
+		int size = packLobbyState(buf, nameArray[0], nameArray[1], nameArray[2], nameArray[3]);
+		
+		printf("gameLogic: packLobbyState called succesfully\n");
+		
+		setLenout(size);
+	}
+	locked = 0;
 }
 
 game* addEnemy(game* gameState){
