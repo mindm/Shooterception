@@ -16,6 +16,9 @@
 #include <string.h>
 #include <netinet/in.h>
 #include "../generic.h"
+#include "huffman.h"
+
+unsigned char compress_buffer[512];
 
 /* ##### Packing functions #####*/
 

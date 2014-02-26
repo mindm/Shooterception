@@ -20,13 +20,13 @@ build:
 	make master
 	
 client:
-	$(COMPILER) $(CLIENT_FLAGS) Client/main.c networking/packets.c networking/packets.h -o client $(LIBS)
+	$(COMPILER) $(CLIENT_FLAGS) Client/main.c networking/packets.c networking/packets.h networking/huffman.c -o client $(LIBS)
 
 server:
-	$(COMPILER) $(SERVER_FLAGS) gameLogic.c gameLogic.h networking/networking_server.c networking/networking_server.h networking/packets.c networking/packets.h generic.h -lrt -o server
+	$(COMPILER) $(SERVER_FLAGS) gameLogic.c gameLogic.h networking/networking_server.c networking/networking_server.h networking/packets.c networking/packets.h generic.h networking/huffman.c -lrt -o server
 
 test_client:
-	$(COMPILER) $(CLIENT_FLAGS) test_client.c test_client.h networking/packets.c networking/packets.h generic.h -o test_client
+	$(COMPILER) $(CLIENT_FLAGS) test_client.c test_client.h networking/packets.c networking/packets.h networking/huffman.c generic.h -o test_client
 	
 master:
 	$(COMPILER) $(SERVER_FLAGS) networking/networking_master.c networking/packets.c -o master
