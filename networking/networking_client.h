@@ -49,6 +49,8 @@ playerNames pl_names;
     char address[40];
 } serverInfo;*/ //turha?
 
+int sockfd;
+
 /* from generic.h */
 serverList cl_serverList;
 serverList cl_gamesList;
@@ -66,6 +68,8 @@ int getServerList(void);
 int getGameStart(void);
 int getMaxPlayers(void);
 void *get_in_addr(struct sockaddr *sa);
+
+int connectServer(int, int);
 
 void sendJoinGame(int id);
 void sendCreateGame(void);

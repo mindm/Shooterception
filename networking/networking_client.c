@@ -145,6 +145,51 @@ void sendClientExit() {
 	lenout = packClientExit(outbuf);
 }
 
+int connectServer(int id, int joining) {
+
+	// Some variables for connection
+	struct addrinfo hints, *res, *iter;
+	int status;
+
+	//set hints
+	memset(&hints, 0, sizeof(hints));
+	hints.ai_family = AF_UNSPEC; // Don't force IPv4 or v6
+	hints.ai_socktype = SOCK_DGRAM;
+	hints.ai_family=PF_INET;
+
+	if(!joining) {
+		if ((status = getaddrinfo(cl_serverList.servers[id].host, cl_serverList.servers[id].port, &hints, &res)) != 0) {
+			fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(status));
+			return 1;
+		}
+	}
+	else {
+		if ((status = getaddrinfo(cl_gamesList.servers[id].host, cl_gamesList.servers[id].port, &hints, &res)) != 0) {
+			fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(status));
+			return 1;
+		}
+	}
+
+	// Iterate through results and use first usable one
+	for(iter = res; iter != NULL; iter = iter->ai_next) {
+		if ((sockfd = socket(iter->ai_family, iter->ai_socktype,
+				iter->ai_protocol)) == -1) {
+			perror("client: socket");
+			continue;
+		}
+		// Connect to use send and rcv
+		if (connect(sockfd, iter->ai_addr, iter->ai_addrlen) == -1) {
+			close(sockfd); // Sock has to be closed because connection failed
+			perror("client: connect");
+			continue;
+		}
+
+		break;
+	}
+
+	freeaddrinfo(res);
+}
+
 void updateEnemyStates(struct SDLenemy* _enemy, int i) {
 
 	if(_enemy->health <= 0) 
@@ -183,7 +228,7 @@ void *networking_thread(void *dest_addr)
 	struct addrinfo hints, *res, *iter;
 	int status;
 	char ipstr[INET6_ADDRSTRLEN];
-	int sockfd, numbytes;
+	int numbytes;
 
 	char *host = "0.0.0.0";
 	char *port = "8000";

@@ -52,10 +52,10 @@ void handleStringInput(int context, int length) {
 			//enter (if this is chat, then add log, otherwise ignore)
             else if(event.key.keysym.sym == SDLK_RETURN && length == MAX_LEN) {
 				if(textpos > 0) {
-					//memset(temp, 0, MAX_LEN);
+					memset(temp, 0, MAX_LEN);
 					textbuffer[textpos] = '\0';
-					//sprintf(temp, "%s: %s", pl_name_str, textbuffer);
-					sendChatMsg(textbuffer); 
+					sprintf(temp, "%s: %s", pl_name_str, textbuffer);
+					sendChatMsg(temp); 
 					//addLog(temp, textpos+strlen(pl_name_str)+4);
 				}
 				resetStringInput();
