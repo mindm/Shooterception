@@ -37,4 +37,4 @@ clean:
 	rm test_client
 	rm master
 	
-.PHONY: all client server test_client clean
+.PHONY: all client server test_client master clean
