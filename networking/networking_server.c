@@ -274,6 +274,7 @@ int main(int argc, char *argv[])
                     printf("Server: Received startGame message\n");
                                     
                     unpackGameStart(inbuf, &gameLevel);
+
                     startGame(gameState, outbuf, gameLevel);
                     printf("Server: startGame complete\n");
                 }
@@ -345,7 +346,7 @@ int main(int argc, char *argv[])
 			} 
 		} // End select
 		
-        printf("currentState: %d",gameState->currentState);
+        printf("currentState: %d\n",gameState->currentState);
 
 	    // Game Logic here
 	

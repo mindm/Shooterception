@@ -323,6 +323,7 @@ int main(int argc, char* args[]) {
 						if(_state = handleButton(start_button, event.button.x, event.button.y)) {
 							state = _state;
 							sendGameStart();
+                            SDL_Delay(1000);
 						}
 
 						if(state == IN_GAME) { //start was pressed, transition into game, therefore:
