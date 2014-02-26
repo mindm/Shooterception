@@ -819,9 +819,9 @@ void handleShooting(struct SDLplayer* _player) {
 	int i = 0;
 	if(_player->shooting) {
 
-		_player->shoot_time -= 0.19;
+		//_player->shoot_time -= 0.19;
 
-		if(_player->shoot_time <= 0.0f) {
+		if(!_player->can_shoot /*_player->shoot_time <= 0.0f*/) {
 			_player->shooting = 0; //could be also empty if 
 		}
 		else {
