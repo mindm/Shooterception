@@ -193,27 +193,29 @@ int connectServer(int id, int joining) {
 
 void updateEnemyStates(struct SDLenemy* _enemy, int i) {
 
+    _enemy->health = gameState->enemyList[i].health;
+
 	if(_enemy->health <= 0) 
 		return;
 
     _enemy->b.x = gameState->enemyList[i].xcoord;
     _enemy->b.y = gameState->enemyList[i].ycoord;
     _enemy->dir = gameState->enemyList[i].viewDirection;
-    _enemy->health = gameState->enemyList[i].health;
     _enemy->is_shot = gameState->enemyList[i].isShot;
 
 }
 
 void updatePlayerStates(struct SDLplayer* _player, int i) {
 
+	_player->health = gameState->playerList[i].health;
+
 	if(_player->health <= 0) 
 		return;
 
 	_player->b.x = gameState->playerList[i].xcoord;
 	_player->b.y = gameState->playerList[i].ycoord;
-	_player->dir = gameState->playerList[i].viewDirection;
-	_player->health = gameState->playerList[i].health;
-	//_player->shooting = gameState->playerList[i].hasShot;
+	_player->dir = gameState->playerList[i].viewDirection;	
+	_player->shooting = gameState->playerList[i].hasShot;
 	_player->can_shoot = gameState->playerList[i].canShoot;
 	_player->is_attacked = gameState->playerList[i].isColliding;
 
