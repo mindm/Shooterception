@@ -15,6 +15,22 @@ int lenout = 0;
 
 serverList server_list;
 
+void getPort(char *port)
+{
+    FILE *fp;
+    if (fp = fopen("master.cfg", "r"))
+    {   
+        fscanf(fp, "%s", port);
+    }
+    else 
+    {
+        strcpy(port, "8000");
+        fp = fopen("master.cfg", "w");
+        fprintf(fp, "%s\n", port);           
+    }
+    fclose(fp);
+}
+
 void *get_in_addr(struct sockaddr *sa)
 {
     if (sa->sa_family == AF_INET) {
@@ -90,13 +106,8 @@ int main(int argc, char *argv[])
 	int sockfd, numbytes;
 
 	//Hard coded arguments at this point
-	char *port = NULL;
-
-	// For parsing options
-	extern char *optarg;
-	extern int optopt;
-	int optc;
-
+	char port[17];
+	
     server_list.count = 0;
     server temp_server;
     
@@ -106,30 +117,8 @@ int main(int argc, char *argv[])
 	hints.ai_socktype = SOCK_DGRAM;
 	hints.ai_flags = AI_PASSIVE;
 
-	while ((optc = getopt(argc,argv,":64p:")) != -1) {
-		switch (optc) {
-			case 'p':
-				port = optarg;
-				break;
-			case '4':
-				hints.ai_family=PF_INET; 	// IPv4
-			case '6':
-				hints.ai_family=PF_INET6; 	// IPv6
-				break;
-			case ':':
-				printf("Parameter -%c is missing a operand\n", optopt);
-				return -1;
-			case '?':
-				printf("Unknown parameter\n");
-				break;
-		}
-	}
-
-	if (!port)
-	{
-		printf("Some parameter is missing\n");
-		return -1;
-	}
+    getPort(port);
+    printf("Master server is using port: %s\n\n", port);    
 
 	//getaddrinfo
 	if ((status = getaddrinfo(NULL, port, &hints, &res)) != 0) {
