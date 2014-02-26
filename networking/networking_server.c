@@ -15,6 +15,7 @@ char outbuf[MAXDATASIZE];
 char inbuf[MAXDATASIZE];
 int lenout = 0;
 int sendMask = 100; // Mask to determine clients receiving packets - 100 = all
+int sockfd = 0;
 
 // Get non-binary address, IPv4 or IPv6
 char* getInAddr(struct sockaddr *sa, char* ipstr)
@@ -39,6 +40,21 @@ int getInPort(struct sockaddr *sa, int p_port)
     return p_port;
 }
 
+
+void sendMSG()
+{
+    struct sockaddr_in servaddr;
+    bzero(&servaddr,sizeof(servaddr));
+    servaddr.sin_family = AF_INET;
+    servaddr.sin_addr.s_addr=inet_addr("127.0.0.1");
+    servaddr.sin_port=htons(6001);
+    
+    int size = packGamesQuery(outbuf);
+    
+    sendto(sockfd,outbuf,size,0,
+             (struct sockaddr *)&servaddr,sizeof(servaddr));
+}
+
 int main(int argc, char *argv[])
 {
     printf("\nServer: Start main\n");
@@ -46,6 +62,8 @@ int main(int argc, char *argv[])
 	// Some variables for connection
 	struct addrinfo hints, *res, *iter;
 	struct sockaddr_storage their_addr; // connector's address information
+    struct sockaddr_storage master_s_addr; // connector's address information
+    socklen_t master_s_len;
 	struct timeval tv;
     //struct timespec tv;
     
@@ -64,7 +82,7 @@ int main(int argc, char *argv[])
         
 	char ipstr[INET6_ADDRSTRLEN]; //Store ip-address
 	int p_port = 0; //store port
-	int sockfd = 0;
+	
 	int recvbytes = 0;
     int status = 0;
     int yes = 0;
@@ -159,7 +177,7 @@ int main(int argc, char *argv[])
     freeaddrinfo(res); // Done with addrinfo
     
     printf("Server: Enter main loop\n");
-	
+	sendMSG();
 	while(1)
 	{		
 	    //timeval
@@ -305,7 +323,11 @@ int main(int argc, char *argv[])
 			        		        
 				    memset(outbuf,'\0', MAXDATASIZE);
 				    lenout = 0;
-				} else{
+				} else if (sendMask == 200) {
+                    sendMask = 100;
+                    sendto(sockfd, outbuf, lenout, 0, (struct sockaddr *) &(master_s_addr),  master_s_len);
+                }
+                else{
 				    sendto(sockfd, outbuf, lenout, 0, (struct sockaddr *) &(gameState->playerList[sendMask].connectionInfo->their_addr), gameState->playerList[sendMask].connectionInfo->addr_size);	
 				    sendMask = 100; // Reset value  	
 				    		

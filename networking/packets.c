@@ -358,25 +358,31 @@ int packGameList(char *buf, serverList *list)
     uint8_t msgtype = GAMELIST;
     packmessagetype(buf, msgtype);  
     
+    int gameCount;
     int count = list->count;
-    *(uint8_t*)&buf[1] = count;
+    //*(uint8_t*)&buf[1] = count;
     
     int i, cur;
     cur = 2; // cursor for buffer
     
     for(i=0;i<count;i++)
     {   
-        memcpy(buf+cur, list->servers[i].host, 46);
-        cur += 46;
-        memcpy(buf+cur, list->servers[i].port, 17);
-        cur += 17;
-        memcpy(buf+cur, list->servers[i].gameName, 17);
-        cur += 17;
-        *(uint8_t*)&buf[cur] = list->servers[i].maxPlayers;
-        cur += 1;
-        *(uint8_t*)&buf[cur] = list->servers[i].playerNumber;
-        cur += 1;
+        if(list->servers[i].serverState == 1)
+        {
+            memcpy(buf+cur, list->servers[i].host, 46);
+            cur += 46;
+            memcpy(buf+cur, list->servers[i].port, 17);
+            cur += 17;
+            memcpy(buf+cur, list->servers[i].gameName, 17);
+            cur += 17;
+            *(uint8_t*)&buf[cur] = list->servers[i].maxPlayers;
+            cur += 1;
+            *(uint8_t*)&buf[cur] = list->servers[i].playerNumber;
+            cur += 1;
+            gameCount++;
+        }
     }   
+    *(uint8_t*)&buf[1] = gameCount;
     
     return cur;
 }
@@ -385,19 +391,25 @@ int packServerList(char *buf, serverList *list)
     uint8_t msgtype = SERVERLIST;
     packmessagetype(buf, msgtype);
     
-        int count = list->count;
-    *(uint8_t*)&buf[1] = count;
+    int serverCount = 0; // count out lobbies
+    int count = list->count;
+    //*(uint8_t*)&buf[1] = count;
     
     int i, cur;
     cur = 2; // cursor for buffer
     
     for(i=0;i<count;i++)
     {   
+        if(list->servers[i].serverState == 0)
+        {
         memcpy(buf+cur, list->servers[i].host, 46);
         cur += 46;
         memcpy(buf+cur, list->servers[i].port, 17);
         cur += 17;
+        serverCount++;
+        }
     }
+    *(uint8_t*)&buf[1] = serverCount;
     
     return cur;
 }
@@ -469,3 +481,4 @@ void unpackUpdateState(char *buf, server *server)
     server->maxPlayers = *(uint8_t*)&buf[3];
     memcpy(server->gameName, buf+4, 17);
 }
+

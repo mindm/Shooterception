@@ -41,7 +41,7 @@ int main(int argc, char *argv[]){
     char gameName[GAMENAME_LENGTH] = "testgame";
     char playerName[PLAYERNAME_LENGTH] = "testplayer1";  
     
-    char *host = "0.0.0.0";
+    char *host = "127.0.0.1";
 	char *port = "8000";
 	
     player testPlayer[1];
@@ -57,6 +57,12 @@ int main(int argc, char *argv[]){
     testPlayer->connectionInfo = NULL; // pointer to struct containing sockaddr_storage
     testPlayer->isColliding = 0; // Is the PC colliding with enemy?
     
+    game testGame;
+    testGame.currentState = 0;
+    testGame.playerCount = 0;
+    testGame.maxPlayers = 4;
+    strcpy(testGame.gameName,"peliNimi");
+
 	//clear buffer
 	memset(outbuffer,'\0', MAXDATASIZE);
 
@@ -180,9 +186,33 @@ int main(int argc, char *argv[]){
 	        // Set lenout to send message
             setLenout(size);
         }	
+	    else if(strcmp(command,"updateState") == 0){
+	        printf("Client: Sent updateState message\n");
+	        
+	        size = packUpdateState(outbuffer, &testGame);
+	        
+	        // Set lenout to send message
+            setLenout(size);
+        }	
+	    else if(strcmp(command,"gamesQuery") == 0){
+	        printf("Client: Sent gamesQuery message\n");
+	        
+	        size = packGamesQuery(outbuffer, &testGame);
+	        
+	        // Set lenout to send message
+            setLenout(size);
+        }
+	    else if(strcmp(command,"serverQuery") == 0){
+	        printf("Client: Sent serverQuery message\n");
+	        
+	        size = packServerQuery(outbuffer, &testGame);
+	        
+	        // Set lenout to send message
+            setLenout(size);
+        }
         else{
             printf("Now valid packet name\n");
-            printf("Options are: chatMessage, createGame, joinGame, \nstartGame, clientState, clientExit, ack\n");
+            printf("Options are: chatMessage, createGame, joinGame, \nstartGame, clientState, clientExit, ack, updateState\n");
         } 
         
         if(lenout > 0){

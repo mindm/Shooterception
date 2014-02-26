@@ -33,7 +33,7 @@ void sendChatMsg(char* message) {
 
 void sendJoinGame(int id) {
 	printf("Send joinGame\n");
-	lenout = packJoinGame(buf, cl_serverList[id].game_name, pl_name_str);
+	lenout = packJoinGame(buf, cl_gamesList.servers[id].gameName, pl_name_str);
 
 }
 
@@ -47,8 +47,37 @@ void sendGameStart(void) {
 	lenout = packStartGame(buf);
 }
 
-void getGameList(void){}
-void getServerList(void){}
+void sendGamesQuery(void) {
+	printf("Send Games query\n");
+	lenout = packGamesQuery(buf);
+}
+
+void sendServerQuery(void) {
+	printf("Send server query\n");
+	lenout = packServerQuery(buf);
+}
+
+int getGameList(void) {
+
+	int i;
+	for(i = 0; i < cl_gamesList.count; i++) {
+		strncpy(server_list[i]->name, cl_gamesList.servers[i].gameName, 17);
+		server_list[i]->pl_num = cl_gamesList.servers[i].playerNumber;
+		server_list[i]->pl_num_max = cl_gamesList.servers[i].maxPlayers;
+	}
+
+	return cl_gamesList.count;
+}
+
+int getServerList(void) { 
+
+	int i;
+	for(i = 0; i < cl_gamesList.count; i++) {
+		strncpy(server_list[i]->name, cl_serverList.servers[i].gameName, 17);
+	}
+
+	return cl_gamesList.count;
+}
 
 void setPlayerNames(char* pl1, char* pl2, char* pl3, char* pl4) {
 	
@@ -138,10 +167,10 @@ void *networking_thread(void *dest_addr)
     
 	gameState = malloc(sizeof(game));
 
-	strcpy(cl_serverList[0].game_name, "testi");
-	strcpy(cl_serverList[1].game_name, "testi2");
-	strcpy(cl_serverList[2].game_name, "testi3"); 
-
+	strcpy(cl_serverList.servers[0].gameName, "testi");
+	strcpy(cl_serverList.servers[1].gameName, "testi2");
+	strcpy(cl_serverList.servers[2].gameName, "testi3"); 
+	cl_serverList.count = 3;
 	// Some variables for connection
 	struct addrinfo hints, *res, *iter;
 	int status;
@@ -265,19 +294,29 @@ void *networking_thread(void *dest_addr)
 				else if (msgtype == LOBBYSTATE) {
 					printf("lobby state");
 				    unpackLobbyState(buf, pl1, pl2, pl3, pl4);
-				    setPlayerNames(pl1, pl2, pl3, pl4);
-				    
+				    setPlayerNames(pl1, pl2, pl3, pl4);			    
 				}
+
 				else if (msgtype == CHATRELAY) {   
 				    int msglen;
 					char newMessage[100];
 				    unpackChatRelay(buf, newMessage, &msglen);
 				    addLog(newMessage, msglen);
 				}
+
 				else if (msgtype == GAMESTART) {
-				    int gameLevel;
+				    //gameLevel declared in SDLmain
 				    unpackGameStart(buf, &gameLevel);
 				}
+
+				else if (msgtype == GAMELIST) {
+					unpackGameList(buf, &cl_gamesList);
+				}
+
+				else if (msgtype == SERVERLIST) {
+					unpackServerList(buf, &cl_serverList);
+				}
+
 				else if (msgtype == ERROR) {
 			        int errorCode;
 			        unpackError(buf, &errorCode);
