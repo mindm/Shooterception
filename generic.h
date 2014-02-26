@@ -103,10 +103,12 @@ typedef struct t_game {
     enemy enemyList[20]; // List of enemies in game
     int playerCount; // Number of players in game
     int enemyCount; // Number of enemies in game
+    int deadEnemyCount; // Number of dead enemies
     int levelNumber; // Number of the game level, defines level parameters
     int enemyLimit; // How many enemies current level will spawn
     unsigned long enemySpawnTimer; // When enemy last spawned
-    long enemySpawnRate; // How quickly new enemies are spawned
+    long long enemySpawnRate; // How quickly new enemies are spawned
+    int canSpawn; // Is enemy spawn allowed?
     int enemyBaseSpeed; // Base speed for enemies
     int currentState; // 0: Waiting game, 1: inLobby, 2: inGame
     int maxPlayers; // Maximum amount of players, 1-4
