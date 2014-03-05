@@ -136,6 +136,7 @@ int main(int argc, char* args[]) {
 
 		/* join menu */
 		if(state == JOIN_MENU) {
+			sendGamesQuery();
 			sv_count = getGameList(); 
 		    if(SDL_PollEvent(&event)) {
 
@@ -423,7 +424,9 @@ int main(int argc, char* args[]) {
 					updatePlayerStates(players[i], i);
 					drawPlayer(players[i]);
 					handlePlayerDamage(players[i]);
-					handleShooting(players[i]);
+					if(players[i]->shooting) 
+						shootBullet(players[i]);
+					//handleShooting(players[i]);
 				}
 
 				sendClientState(players[my_id], counter++); //send player movements to server
@@ -848,7 +851,7 @@ void movePlayer(struct SDLplayer* _player) {
 
 	_player->b.y += _player->yVel;
 
-    if((_player->b.y < 0) || (_player->b.y > PC_DIMS + SCREEN_HEIGHT)) {
+    if((_player->b.y < 0) || (_player->b.y + PC_DIMS > SCREEN_HEIGHT)) {
 		_player->b.y -= _player->yVel;
     }			
 
