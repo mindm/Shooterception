@@ -98,4 +98,10 @@ void relayChatMessage(game*,  char[MAXDATASIZE], char[CHATMESSAGE_LENGTH]);
 // Params: game state, outbuffer
 game* sendGameState(game*, char[MAXDATASIZE]);
 
+// Players won, next level
+game* nextLevel(game*, char[MAXDATASIZE]);
+
+// Players lost, reset to first level
+game* resetGame(game*, char[MAXDATASIZE]);
+
 #endif /* GAMELOGIC_H_ */

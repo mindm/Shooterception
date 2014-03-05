@@ -505,28 +505,28 @@ game* setLevelParameters(game* gameState){
     } 
     else if(gameState->levelNumber == 1){
         gameState->enemyLimit = 15; // How many enemies are spawned
-        gameState->enemySpawnRate = 1; // How fast the enemies are spawned
+        gameState->enemySpawnRate = 1000000000; // How fast the enemies are spawned
         gameState->enemyBaseSpeed = 2; // How fast the enemies _atleast_ move
  
     } 
     else if(gameState->levelNumber == 2){
         gameState->enemyLimit = 20; // How many enemies are spawned
-        gameState->enemySpawnRate = 1; // How fast the enemies are spawned
+        gameState->enemySpawnRate = 1000000000; // How fast the enemies are spawned
         gameState->enemyBaseSpeed = 3; // How fast the enemies _atleast_ move
     }
     else if(gameState->levelNumber == 3){
         gameState->enemyLimit = 20; // How many enemies are spawned
-        gameState->enemySpawnRate = 1; // How fast the enemies are spawned
+        gameState->enemySpawnRate = 1000000000; // How fast the enemies are spawned
         gameState->enemyBaseSpeed = 3; // How fast the enemies _atleast_ move
     }
     else if(gameState->levelNumber == 4){
         gameState->enemyLimit = 20; // How many enemies are spawned
-        gameState->enemySpawnRate = 1; // How fast the enemies are spawned
+        gameState->enemySpawnRate = 1000000000; // How fast the enemies are spawned
         gameState->enemyBaseSpeed = 3; // How fast the enemies _atleast_ move
     }
     else if(gameState->levelNumber == 5){
         gameState->enemyLimit = 20; // How many enemies are spawned
-        gameState->enemySpawnRate = 1; // How fast the enemies are spawned
+        gameState->enemySpawnRate = 1000000000; // How fast the enemies are spawned
         gameState->enemyBaseSpeed = 3; // How fast the enemies _atleast_ move
     }            
     return gameState;
@@ -711,4 +711,30 @@ struct timespec getCurrentTime(void){
     struct timespec currentTime;
     clock_gettime(CLOCK_MONOTONIC, &currentTime);
     return currentTime;
+}
+
+game* nextLevel(game* gameState, char outbuf[MAXDATASIZE]){
+
+		// Send lobby state to clients
+		updateLobby(gameState, outbuf); 
+		
+		gameState->levelNumber += 1;
+		
+		// Update level parameters
+		gameState = setLevelParameters(gameState);
+		
+		return gameState;
+}
+
+game* resetGame(game* gameState, char outbuf[MAXDATASIZE]){
+
+		// Send lobby state to clients
+		updateLobby(gameState, outbuf); 
+		
+		gameState->levelNumber = 0;
+		
+		// Update level parameters
+		gameState = setLevelParameters(gameState);
+		
+		return gameState;
 }

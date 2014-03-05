@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
     struct sockaddr_in servaddr;
     bzero(&servaddr,sizeof(servaddr));
     servaddr.sin_family = AF_INET;
-    servaddr.sin_addr.s_addr=inet_addr("127.0.0.1");
+    servaddr.sin_addr.s_addr=inet_addr("157.24.55.212");
     servaddr.sin_port=htons(6001);
 
 	struct timeval tv;
@@ -382,17 +382,22 @@ int main(int argc, char *argv[])
             // Check end condition
             if(checkEnd(gameState) == 1){
                 // Player's have won
+                
                 // Move to lobby and set next level parameters
+                gameState = nextLevel(gameState,outbuf);
+                
             }
             else if(checkEnd(gameState) == 2){
                 // All PCs dead, game lost
-                // Shut down game, return to main menu
+                
+                // Move to lobby and set first level parameters
+                gameState = resetGame(gameState,outbuf);
             }
-            
-            // Send game state to all clients
-            // This sent twice?
-            sendGameState(gameState, outbuf);
-            
+            else {
+            	// Send game state to all clients
+            	sendGameState(gameState, outbuf);
+			}      
+			      
             printf("Packet number: %d\n", gameState->msgNumber);
             printf("Enemy count: %d\n", gameState->enemyCount);            
             printf("Dead enemy count: %d\n", gameState->deadEnemyCount);            
