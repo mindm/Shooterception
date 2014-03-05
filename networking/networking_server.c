@@ -379,7 +379,7 @@ int main(int argc, char *argv[])
             // Are player character and enemy colliding
             gameState = checkCollision(gameState);
             
-            
+            /*
             // Check end condition
             if(checkEnd(gameState) == 1){
                 // Player's have won
@@ -398,9 +398,9 @@ int main(int argc, char *argv[])
             	// Send game state to all clients
             	sendGameState(gameState, outbuf);
 			}      
+			*/
 			
-			
-		 	//sendGameState(gameState, outbuf);  
+		 	sendGameState(gameState, outbuf);  
 		 	 
             printf("Packet number: %d\n", gameState->msgNumber);
             printf("Enemy count: %d\n", gameState->enemyCount);            
