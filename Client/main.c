@@ -439,7 +439,6 @@ int main(int argc, char* args[]) {
 					handlePlayerDamage(players[i]);
 					if(players[i]->shooting) 
 						shootBullet(players[i]);
-					//handleShooting(players[i]);
 				}
 
 				sendClientState(players[my_id], counter++); //send player movements to server
@@ -856,6 +855,9 @@ void handlePlayerInput(int i) {
 
 void movePlayer(struct SDLplayer* _player) {
 	
+	if(_player->health <= 0)
+		return;
+
 	_player->b.x += _player->xVel;
 
     if((_player->b.x < 0) || (_player->b.x + PC_DIMS > SCREEN_WIDTH)) {
