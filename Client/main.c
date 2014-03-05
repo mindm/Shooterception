@@ -445,7 +445,7 @@ int main(int argc, char* args[]) {
 				
 				if(counter >= 65530) counter = 0;
 
-				drawHud(my_id); // aka foreground
+				drawHud(players[my_id]); // aka foreground
 
 				//framecap							
 				if(deltaTime() < 1000/FPS) {
@@ -816,9 +816,9 @@ void drawBackground(int level) {
     applySurface(400, 400, background, screen, &bgClip[level]);
 }
 
-void drawHud(int index) {
+void drawHud(struct SDLplayer* _player) {
 	int i;	
-	for(i = 0; i < players[index]->health; i++)
+	for(i = 0; i < _player->health; i++)
 		applySurface(20+(32*i), 16, hudSurf, screen, NULL);
 }
 
@@ -896,7 +896,8 @@ void drawPlayer(struct SDLplayer* _player) {
 
 	if(_player->health <= 0) {
 		//draw corpse
-		applySurface(_player->b.x, _player->b.y, _player->playerSurf, screen, &_player->animVer[8]);
+		//applySurface(_player->b.x, _player->b.y, _player->playerSurf, screen, &_player->animVer[8]);
+		applySurface(_player->b.x, _player->b.y, enemySurf, screen, &enemies[0]->animVer[8]);
 	}
 	else {
 		//draw movement

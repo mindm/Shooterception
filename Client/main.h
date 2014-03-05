@@ -110,7 +110,7 @@ struct SDLenemy *enemies[MAX_EN];
 SDL_Surface *loadImage(char*);
 void applySurface(int, int, SDL_Surface*, SDL_Surface*, SDL_Rect*);
 void drawBackground(int);
-void drawHud(int);
+void drawHud(struct SDLplayer*);
 int init(void);
 int loadAssets(void);
 void freeAssets(void); 
