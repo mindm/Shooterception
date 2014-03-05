@@ -245,8 +245,9 @@ game* checkHit (game* gameState, int playerNumber){
 // Function to determine if player character and enemy collide
 game* checkCollision (game* gameState){
     
-    int randomPlayer = 0;
-    int deadPlayers = 0;
+    //int randomPlayer = 0;
+    //int deadPlayers = 0;
+    
     //printf("gameLogic: checkCollision function\n");
     
     // Loop through enemies and PCs and check if they're in same coordinate
