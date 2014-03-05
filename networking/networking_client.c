@@ -239,7 +239,7 @@ void *networking_thread(void *dest_addr)
 	char ipstr[INET6_ADDRSTRLEN];
 	int numbytes;
 
-	char *host = "0.0.0.0";
+	char *host = "157.24.55.212";
 	char *port = "6001";
 
 	// For parsing options

@@ -18,9 +18,10 @@
 int main(int argc, char* args[]) { 
 
 	char mem[1] = "m"; //dummy memory holder
-	int quit = 0;
-	int sv_count = 0;
+	int quit = 0; //while loop breaker
+	int sv_count = 0; //server count
 	int counter = 0;
+	int my_id = 0;
 	int i = 0; //common incrementor
 
 	//client networking thread
@@ -364,6 +365,13 @@ int main(int argc, char* args[]) {
                 printText(225, server_list_box.y+120+(30*i), joined->name[i], textColor);
             }
 
+			for(i = 0; i < pl_num; i++){
+				if(strcmp(joined->name[i], pl_name_str) == 0) {
+					my_id = i;
+					break;
+				}
+			}
+
 			//show chat input
 			printText(225, server_list_box.h+100, "Chat: ", textColor);
 			printStringInput(225, server_list_box.h+120, &textbuffer[0], textColor);
@@ -392,7 +400,7 @@ int main(int argc, char* args[]) {
 						quit = 1; //state == QUIT;
 					}
 
-					handlePlayerInput(0); //index of controller
+					handlePlayerInput(my_id); //index of controller
 				}
 
 				drawBackground(gameLevel); //level n:o here 0-3
@@ -403,20 +411,22 @@ int main(int argc, char* args[]) {
 					handleEnemyDamage(enemies[i]);
 				}
 
-				movePlayer(players[0]);
-				drawPlayer(players[0]);
-				handleShooting(players[0]);
+				movePlayer(players[my_id]);
+				drawPlayer(players[my_id]);
+				handleShooting(players[my_id]);
 
-				for(i = 1; i < pl_num; i++)	{
+				for(i = 0; i < pl_num; i++)	{
+
+					if(my_id == i)
+						continue;
+
 					updatePlayerStates(players[i], i);
-
 					drawPlayer(players[i]);
 					handlePlayerDamage(players[i]);
-
 					handleShooting(players[i]);
 				}
 
-				sendClientState(players[0], counter++); //send player movements to server
+				sendClientState(players[my_id], counter++); //send player movements to server
 				
 				if(counter >= 65530) counter = 0;
 
