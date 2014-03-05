@@ -181,8 +181,8 @@ int main(int argc, char *argv[])
 	    //timeval
         if(gameState->currentState == 2){
 	        tv.tv_sec = 0;
-            //tv.tv_usec = 50000; // 50ms (= 50000 microseconds)
-            tv.tv_usec = 600000; // 50ms (= 50000 microseconds)           
+            tv.tv_usec = 50000; // 50ms (= 50000 microseconds)
+            //tv.tv_usec = 600000; // 50ms (= 50000 microseconds)           
         } else {
             tv.tv_sec = 9001;
             tv.tv_usec = 0; 

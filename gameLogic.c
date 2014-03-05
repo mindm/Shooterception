@@ -246,6 +246,7 @@ game* checkHit (game* gameState, int playerNumber){
 game* checkCollision (game* gameState){
     
     int randomPlayer = 0;
+    int deadPlayers = 0;
     //printf("gameLogic: checkCollision function\n");
     
     // Loop through enemies and PCs and check if they're in same coordinate
@@ -262,10 +263,12 @@ game* checkCollision (game* gameState){
 		            gameState->playerList[j].health -= 1;
 		            // Mark PC as being colliding with enemy
                 
+                	/*
 		            // Check if PC is knocked out            
 		            if(gameState->playerList[j].health == 0){
 		            
 		            	// Find all enemies following knocked out PC
+		            	
 		            	for(int y=0;y<gameState->enemyCount;y++){
 		            		if(gameState->enemyList[y].following == gameState->playerList[j].playerNumber){                		
 						    	// Choose random player to follow
@@ -278,6 +281,7 @@ game* checkCollision (game* gameState){
 				 			}
 		 				}
 		            }
+		            */
 		        }
             }
         }
