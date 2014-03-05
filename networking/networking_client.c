@@ -211,6 +211,10 @@ void updateEnemyStates(struct SDLenemy* _enemy, int i) {
 
 }
 
+void updateMyHealth(struct SDLplayer* _player, int i) {
+	_player->health = gameState->playerList[i].health;
+}
+
 void updatePlayerStates(struct SDLplayer* _player, int i) {
 
 	_player->health = gameState->playerList[i].health;

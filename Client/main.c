@@ -441,11 +441,12 @@ int main(int argc, char* args[]) {
 						shootBullet(players[i]);
 				}
 
-				sendClientState(players[my_id], counter++); //send player movements to server
-				
-				if(counter >= 65530) counter = 0;
-
+				updateMyHealth(players[my_id], my_id);
 				drawHud(players[my_id]); // aka foreground
+
+				sendClientState(players[my_id], counter++); //send player movements to server
+
+				if(counter >= 65530) counter = 0;
 
 				//framecap							
 				if(deltaTime() < 1000/FPS) {
@@ -896,8 +897,8 @@ void drawPlayer(struct SDLplayer* _player) {
 
 	if(_player->health <= 0) {
 		//draw corpse
-		//applySurface(_player->b.x, _player->b.y, _player->playerSurf, screen, &_player->animVer[8]);
-		applySurface(_player->b.x, _player->b.y, enemySurf, screen, &enemies[0]->animVer[8]);
+		applySurface(_player->b.x, _player->b.y, _player->playerSurf, screen, &_player->animVer[8]);
+		//applySurface(_player->b.x, _player->b.y, enemySurf, screen, &enemies[0]->animVer[8]);
 	}
 	else {
 		//draw movement
