@@ -446,7 +446,7 @@ int main(int argc, char* args[]) {
 				
 				if(counter >= 65530) counter = 0;
 
-				drawHud(0); // aka foreground
+				drawHud(my_id); // aka foreground
 
 				//framecap							
 				if(deltaTime() < 1000/FPS) {
