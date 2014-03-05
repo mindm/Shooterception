@@ -28,7 +28,7 @@
 #define SCREEN_HEIGHT 800
 #define SCREEN_CX 400
 #define SCREEN_CY 400
-#define SCREEN_BPP 8
+#define SCREEN_BPP 16
 
 /* Client constants */
 

@@ -70,7 +70,7 @@ int getGameList(void) {
 
 	int i;
 	for(i = 0; i < cl_gamesList.count; i++) {
-		printf("%s\n", cl_gamesList.servers[i].gameName);
+		//printf("%s\n", cl_gamesList.servers[i].gameName);
 		strcpy(server_list[i]->name, cl_gamesList.servers[i].gameName);
 		server_list[i]->pl_num = cl_gamesList.servers[i].playerNumber;
 		server_list[i]->pl_num_max = cl_gamesList.servers[i].maxPlayers;

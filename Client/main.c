@@ -136,7 +136,7 @@ int main(int argc, char* args[]) {
 
 		/* join menu */
 		if(state == JOIN_MENU) {
-			sendGamesQuery();
+			
 			sv_count = getGameList(); 
 		    if(SDL_PollEvent(&event)) {
 
@@ -159,6 +159,10 @@ int main(int argc, char* args[]) {
 								state = _state;
 							}
                         }
+
+						if(_state = handleButton(rf_button, x, y)) {
+							sendGamesQuery(); 
+						}
                         
 						for(i = 0; i < sv_count; i++) {
 							if((_id = handleFocus(server_list[i], x, y)) >= 0) {
@@ -195,11 +199,13 @@ int main(int argc, char* args[]) {
 			}
 
         	showButton(join_button);
+			showButton(rf_button);
 		}
 		/* join menu end */
 
 		/* Server select for create game */
 		if(state == SERVER_MENU) {
+			
 			sv_count = getServerList(); 
 		    if(SDL_PollEvent(&event)) {
 
@@ -222,6 +228,9 @@ int main(int argc, char* args[]) {
                             						    
                             state = _state;
                         }   
+						if(_state = handleButton(rf_button, x, y)) {
+							sendServerQuery();
+						}
 
 						for(i = 0; i < sv_count; i++) {
 							if((_id = handleFocus(server_list[i], x, y)) >= 0) {
@@ -256,6 +265,7 @@ int main(int argc, char* args[]) {
 			}
 
         	showButton(ok_button);
+        	showButton(rf_button);
 		}
 		/* Server select for create game ends */
 
@@ -320,6 +330,8 @@ int main(int argc, char* args[]) {
 
 		/* game lobby */
 		if(state == GAME_LOBBY) { 
+
+            joined = getPlayers();
 		    if(SDL_PollEvent(&event)) {
 
 			    if(event.type == SDL_QUIT)
@@ -328,19 +340,21 @@ int main(int argc, char* args[]) {
 				//game name input
 				handleStringInput(state, MAX_LEN);
 
-				//if any button hitbox is left-clicked
-				if(event.type == SDL_MOUSEBUTTONDOWN) {
+				if(strcmp(joined->name[0], pl_name_str) == 0) {
+					//if any button hitbox is left-clicked
+					if(event.type == SDL_MOUSEBUTTONDOWN) {
 
-					if(event.button.button == SDL_BUTTON_LEFT) {
-						if(_state = handleButton(start_button, event.button.x, event.button.y)) {
-							state = _state;
-							sendGameStart();
-                            SDL_Delay(1000);
-						}
+						if(event.button.button == SDL_BUTTON_LEFT) {
+							if(_state = handleButton(start_button, event.button.x, event.button.y)) {
+								state = _state;
+								sendGameStart();
+		                        SDL_Delay(1000);
+							}
 
-						if(state == IN_GAME) { //start was pressed, transition into game, therefore:
-							toggleMenuMusic(); //menu music off
-							toggleGameMusic(); //game music on
+							if(state == IN_GAME) { //start was pressed, transition into game, therefore:
+								toggleMenuMusic(); //menu music off
+								toggleGameMusic(); //game music on
+							}
 						}
 					}
 				}
@@ -360,7 +374,6 @@ int main(int argc, char* args[]) {
 			printText(400, server_list_box.y+60, itoa(pl_num_max, mem), textColor);
 			printText(225, server_list_box.y+90, "Players joined: ", textColor);
 
-            joined = getPlayers();
 			pl_num = joined->playerCount;
             for(i=0; i < pl_num; i++){
                 printText(225, server_list_box.y+120+(30*i), joined->name[i], textColor);

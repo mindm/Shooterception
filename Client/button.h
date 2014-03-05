@@ -61,6 +61,8 @@ struct button start_button;
 struct button up_button;
 struct button down_button;
 
+struct button rf_button;
+
 void setupButtons(void);
 void setupItemlist(void);
 
