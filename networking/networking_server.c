@@ -181,7 +181,8 @@ int main(int argc, char *argv[])
 	    //timeval
         if(gameState->currentState == 2){
 	        tv.tv_sec = 0;
-            tv.tv_usec = 50000; // 50ms (= 50000 microseconds)
+            //tv.tv_usec = 50000; // 50ms (= 50000 microseconds)
+            tv.tv_usec = 600000; // 50ms (= 50000 microseconds)           
         } else {
             tv.tv_sec = 9001;
             tv.tv_usec = 0; 
@@ -209,7 +210,6 @@ int main(int argc, char *argv[])
         
         // TODO: Start timeout when currentState == 2
 		if ((rval = select(fdmax+1,&readfds,&writefds,NULL, &tv)) > 0) {
-		//if ((rval = select(fdmax+1,&readfds,&writefds,NULL, NULL)) > 0) {
 			//listening socket got something
 			if(FD_ISSET(sockfd,&readfds)){  
 			    
@@ -379,6 +379,7 @@ int main(int argc, char *argv[])
             // Are player character and enemy colliding
             gameState = checkCollision(gameState);
             
+            /*
             // Check end condition
             if(checkEnd(gameState) == 1){
                 // Player's have won
@@ -397,13 +398,16 @@ int main(int argc, char *argv[])
             	// Send game state to all clients
             	sendGameState(gameState, outbuf);
 			}      
-			      
+			*/
+			
+		 	sendGameState(gameState, outbuf);  
+		 	 
             printf("Packet number: %d\n", gameState->msgNumber);
             printf("Enemy count: %d\n", gameState->enemyCount);            
             printf("Dead enemy count: %d\n", gameState->deadEnemyCount);            
 
             gameState = resetEnemyHits(gameState);
-            gameState = resetPlayerCollisions(gameState);
+            //gameState = resetPlayerCollisions(gameState);
             
 	        //printf("***update functions end***\n");
         }

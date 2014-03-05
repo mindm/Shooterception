@@ -85,7 +85,7 @@ game* checkSpawnTimer(game*);
 game* resetEnemyHits(game*);
 
 // Reset players isColliding back to 0
-game* resetPlayerCollisions(game*);
+//game* resetPlayerCollisions(game*);
 
 // Create initial game state when server starts
 game* initGame(void);
