@@ -261,25 +261,24 @@ game* checkCollision (game* gameState){
 		            // Enemy and PC collide, reduce PC's Health points by 1
 		            gameState->playerList[j].health -= 1;
 		            // Mark PC as being colliding with enemy
-		            gameState->playerList[j].isColliding = 1;
-                }
                 
-                // Check if PC is knocked out            
-                if(gameState->playerList[j].health == 0){
-                
-                	// Find all enemies following knocked out PC
-                	for(int y=0;y<gameState->enemyCount;y++){
-                		if(gameState->enemyList[y].following == gameState->playerList[j].playerNumber){                		
-				        	// Choose random player to follow
-				            randomPlayer = rand() % gameState->playerCount;      
-				            while(gameState->playerList[randomPlayer].health == 0) {
-				            	randomPlayer = rand() % gameState->playerCount;      
-						        // Give new player to follow
-				 				gameState->enemyList[i].following = randomPlayer;
-			 				}
-			 			}
-     				}
-                }
+		            // Check if PC is knocked out            
+		            if(gameState->playerList[j].health == 0){
+		            
+		            	// Find all enemies following knocked out PC
+		            	for(int y=0;y<gameState->enemyCount;y++){
+		            		if(gameState->enemyList[y].following == gameState->playerList[j].playerNumber){                		
+						    	// Choose random player to follow
+						        randomPlayer = rand() % gameState->playerCount;      
+						        while(gameState->playerList[randomPlayer].health == 0) {
+						        	randomPlayer = rand() % gameState->playerCount;      
+								    // Give new player to follow
+					 				gameState->enemyList[i].following = randomPlayer;
+				 				}
+				 			}
+		 				}
+		            }
+		        }
             }
         }
     }
@@ -409,7 +408,8 @@ game* addPlayer(game* gameState, player_n* connectionInfo, char* playerName){
         newPlayer[0].playerNumber = playerNumber; // Player's number
         strcpy(newPlayer[0].playerName, playerName); // Player's name     
         newPlayer[0].connectionInfo = *connectionInfo; // sockaddr_storage struct  
-        newPlayer[0].isColliding = 0; // New player not colliding with enemies, yet  
+        newPlayer[0].isInvulnerable = 0; // New player not colliding with enemies, yet
+        newPlayer[0].collisionCooldown = 0; // PC is invulnerable for 2s after hit     
         gameState->playerList[playerNumber] = newPlayer[0]; // Allocate new player
         
         gameState->playerCount += 1; // Increase number of players
@@ -605,6 +605,7 @@ game* resetEnemyHits(game* gameState){
     return gameState;
 }
 
+/*
 game* resetPlayerCollisions(game* gameState){
 
     //printf("gameLogic: resetPlayerCollisions function\n");
@@ -614,7 +615,7 @@ game* resetPlayerCollisions(game* gameState){
     }
     
     return gameState;
-}
+} */
 
 game* removePlayer(game* gameState, player_n* connectionInfo){
 
@@ -761,6 +762,7 @@ game* nextLevel(game* gameState, char outbuf[MAXDATASIZE]){
 		// Send lobby state to clients
 		updateLobby(gameState, outbuf); 
 		
+		gameState->currentState = 1;
 		gameState->levelNumber += 1;
 		
 		// Update level parameters
@@ -774,6 +776,7 @@ game* resetGame(game* gameState, char outbuf[MAXDATASIZE]){
 		// Send lobby state to clients
 		updateLobby(gameState, outbuf); 
 		
+		gameState->currentState = 1;
 		gameState->levelNumber = 0;
 		
 		// Update level parameters
