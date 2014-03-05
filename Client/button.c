@@ -11,6 +11,15 @@
 
 void setupButtons() {
 
+	/* refresh */
+ 	rf_button.image = loadImage("refresh.gif");
+	rf_button.box.x = SCREEN_CX+100;
+	rf_button.box.y = 650;
+	rf_button.box.w = 100;
+	rf_button.box.h = 100;
+	rf_button.action = OK;
+
+
 	/* ok prompt */
  	ok_prompt_button.image = loadImage("ok.gif");
 	ok_prompt_button.box.x = SCREEN_CX+15;
@@ -37,7 +46,7 @@ void setupButtons() {
 
 	/* join selected game button */
  	join_button.image = loadImage("join.gif");
-	join_button.box.x = SCREEN_CX-125;
+	join_button.box.x = SCREEN_CX-200;
 	join_button.box.y = 650;
 	join_button.box.w = 250;
 	join_button.box.h = 100;
@@ -46,7 +55,7 @@ void setupButtons() {
 
 	/* ok selected server in create game menu*/
  	ok_button.image = loadImage("ok.gif");
-	ok_button.box.x = SCREEN_CX-125;
+	ok_button.box.x = SCREEN_CX-200;
 	ok_button.box.y = 650;
 	ok_button.box.w = 250;
 	ok_button.box.h = 100;
@@ -182,7 +191,7 @@ void freeButtons() {
 	SDL_FreeSurface(start_button.image);
 	SDL_FreeSurface(up_button.image);
 	SDL_FreeSurface(down_button.image);
-
+	SDL_FreeSurface(rf_button.image);
 	SDL_FreeSurface(ok_button.image);
 	SDL_FreeSurface(ok_prompt_button.image);
 	SDL_FreeSurface(cancel_prompt_button.image);
