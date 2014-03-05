@@ -104,4 +104,8 @@ game* nextLevel(game*, char[MAXDATASIZE]);
 // Players lost, reset to first level
 game* resetGame(game*, char[MAXDATASIZE]);
 
+// Check if PC is invulnerable after last collision
+// Params: game state, playerNumber
+game* checkCollissionCooldown(game*, int);
+
 #endif /* GAMELOGIC_H_ */

@@ -46,37 +46,40 @@ game* updatePlayerInfo (game* gameState, player_n* connectionInfo, int xcoord, i
 
     printf("gameLogic: playerNumber: %d\n",playerNumber);
 
-    // Check that PC is within game boundaries and update coordinates
-    if(xcoord<0){
-        gameState->playerList[playerNumber].xcoord = 0;
-    }
-    else if(xcoord>800){     
-        gameState->playerList[playerNumber].xcoord = 800;
-    }
-    else{
-        gameState->playerList[playerNumber].xcoord = xcoord;
-    }
-    if(ycoord<0){
-        gameState->playerList[playerNumber].ycoord = 0;
-    }
-    else if(ycoord>800){     
-        gameState->playerList[playerNumber].ycoord = 800;
-    }
-    else{
-        gameState->playerList[playerNumber].ycoord = ycoord;
-    }    
+	// Don't update knocked out players
+	if(gameState->playerList[playerNumber].health != 0){
+	
+		// Check that PC is within game boundaries and update coordinates
+		if(xcoord<0){
+		    gameState->playerList[playerNumber].xcoord = 0;
+		}
+		else if(xcoord>800){     
+		    gameState->playerList[playerNumber].xcoord = 800;
+		}
+		else{
+		    gameState->playerList[playerNumber].xcoord = xcoord;
+		}
+		if(ycoord<0){
+		    gameState->playerList[playerNumber].ycoord = 0;
+		}
+		else if(ycoord>800){     
+		    gameState->playerList[playerNumber].ycoord = 800;
+		}
+		else{
+		    gameState->playerList[playerNumber].ycoord = ycoord;
+		}    
 
-    gameState->playerList[playerNumber].viewDirection = viewDirection;
-    gameState->playerList[playerNumber].hasShot = hasShot;
+		gameState->playerList[playerNumber].viewDirection = viewDirection;
+		gameState->playerList[playerNumber].hasShot = hasShot;
 
-    gameState = checkShotCooldown(gameState, playerNumber);
+		gameState = checkShotCooldown(gameState, playerNumber);
 
-    // If PC has shot and cooldown timer isn't running, check for hit
-    //if(gameState->playerList[playerNumber].hasShot == 1 && gameState->playerList[playerNumber].canShoot == 1){
-    if(gameState->playerList[playerNumber].hasShot == 1){
-        gameState = checkHit(gameState, playerNumber);   
-    }  
-
+		// If PC has shot and cooldown timer isn't running, check for hit
+		//if(gameState->playerList[playerNumber].hasShot == 1 && gameState->playerList[playerNumber].canShoot == 1){
+		if(gameState->playerList[playerNumber].hasShot == 1){
+		    gameState = checkHit(gameState, playerNumber);   
+		}  
+	}
     return gameState;
 }
 
@@ -242,22 +245,41 @@ game* checkHit (game* gameState, int playerNumber){
 // Function to determine if player character and enemy collide
 game* checkCollision (game* gameState){
     
+    int randomPlayer = 0;
     //printf("gameLogic: checkCollision function\n");
     
     // Loop through enemies and PCs and check if they're in same coordinate
     for(int i=0;i<gameState->enemyCount;i++){
         for(int j=0;j<gameState->playerCount;j++){
+
             if(gameState->enemyList[i].xcoord == gameState->playerList[j].xcoord && gameState->enemyList[i].ycoord == gameState->playerList[j].ycoord){
-                // Enemy and PC collide, reduce PC's Health points by 1
-                gameState->playerList[j].health -= 1;
-                // Mark PC as being colliding with enemy
-                gameState->playerList[j].isColliding = 1;
-                // Check if PC dies
-                /*                
-                if(gameState->playerList[j].health == 0){
-                    gameState = removePlayer(gameState, &gameState->playerList[j].connectionInfo);
+                
+                gameState = checkCollissionCooldown(gameState, gameState->playerList[j].playerNumber);
+                
+            	// Check that player is not knocked out or invulnerable
+            	if(gameState->playerList[j].health != 0 && gameState->playerList[j].isInvulnerable == 0){
+		            // Enemy and PC collide, reduce PC's Health points by 1
+		            gameState->playerList[j].health -= 1;
+		            // Mark PC as being colliding with enemy
+		            gameState->playerList[j].isColliding = 1;
                 }
-                */
+                
+                // Check if PC is knocked out            
+                if(gameState->playerList[j].health == 0){
+                
+                	// Find all enemies following knocked out PC
+                	for(int y=0;y<gameState->enemyCount;y++){
+                		if(gameState->enemyList[y].following == gameState->playerList[j].playerNumber){                		
+				        	// Choose random player to follow
+				            randomPlayer = rand() % gameState->playerCount;      
+				            while(gameState->playerList[randomPlayer].health == 0) {
+				            	randomPlayer = rand() % gameState->playerCount;      
+						        // Give new player to follow
+				 				gameState->enemyList[i].following = randomPlayer;
+			 				}
+			 			}
+     				}
+                }
             }
         }
     }
@@ -428,7 +450,7 @@ void updateLobby(game* gameState, char* buf){
 game* addEnemy(game* gameState){
 
     //printf("gameLogic: addEnemy function\n");
-
+        
     int randomPlayer = rand() % gameState->playerCount; // Choose random player to follow
     int randomXborder = rand() % 2; // Choose random border from x axis
     int randomYborder = rand() % 2; // Choose random border from y axis
@@ -695,6 +717,27 @@ game* checkSpawnTimer(game* gameState){
     } else {
         gameState->canSpawn = 0;
     }
+    
+    return gameState;
+}
+
+// Check if cooldown is running
+game* checkCollissionCooldown(game* gameState, int playerNumber){
+
+    //printf("gameLogic: checkShotCooldown function\n");
+
+    struct timespec tempTime = getCurrentTime();
+    unsigned long currentTime = tempTime.tv_sec * 1000000000 + tempTime.tv_nsec;
+    //unsigned long currentTime = tempTime.tv_nsec;
+        
+    // Cooldown not running - player vulnerable
+    if(currentTime - gameState->playerList[playerNumber].collisionCooldown >= 2000000000){
+        gameState->playerList[playerNumber].collisionCooldown = currentTime;
+        gameState->playerList[playerNumber].isInvulnerable = 0;
+    // Cooldown running - player invulnerable
+    } else {
+        gameState->playerList[playerNumber].isInvulnerable = 1;
+    } 
     
     return gameState;
 }

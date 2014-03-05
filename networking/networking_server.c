@@ -356,7 +356,7 @@ int main(int argc, char *argv[])
 	    if(gameState->currentState == 2){
 
 	        for(int i=0;i<gameState->playerCount;i++){
-	            printf("\nPlayer %d \nName: %s\nConnection: %s:%d\nxcoord:%d\nycoord:%d\n",gameState->playerList[i].playerNumber, gameState->playerList[i].playerName, gameState->playerList[i].connectionInfo.address,gameState->playerList[i].connectionInfo.port, gameState->playerList[i].xcoord, gameState->playerList[i].ycoord);
+	            printf("\nPlayer %d, name: %s, connection: %s:%d, xcoord:%d, ycoord:%d, health: %d\n",gameState->playerList[i].playerNumber, gameState->playerList[i].playerName, gameState->playerList[i].connectionInfo.address,gameState->playerList[i].connectionInfo.port, gameState->playerList[i].xcoord, gameState->playerList[i].ycoord,gameState->playerList[i].health);
 	        }
 	        
             printf("gameLevel: %d\nenemyLimit: %d\nenemySpawnRate: %llu\n",gameState->levelNumber,gameState->enemyLimit, gameState->enemySpawnRate);

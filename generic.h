@@ -95,6 +95,8 @@ typedef struct t_player {
     char playerName[17]; // Player's name
     player_n connectionInfo; // pointer to struct containing sockaddr_storage
     int isColliding; // Is the PC colliding with enemy?
+    unsigned long collisionCooldown; // PC is invulnerable for 2s after hit   
+    int isInvulnerable; // Is PC invulnerable - 0: False 1: True
 } player;
 
 // Game struct
