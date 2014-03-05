@@ -244,6 +244,7 @@ void *networking_thread(void *dest_addr)
 	int numbytes;
 
 	char *host = "157.24.55.212";
+    //char *host = "0.0.0.0";
 	char *port = "6001";
 
 	// For parsing options

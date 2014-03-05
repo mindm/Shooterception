@@ -117,6 +117,7 @@ typedef struct t_game {
     char gameName[17]; // Game name
     unsigned long updateTimer; // gameState update timer
     int msgNumber; // State update number
+    int deadPlayers; // Number of dead players
 } game;
 
 //Struct for server info

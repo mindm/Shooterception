@@ -60,6 +60,7 @@ int main(int argc, char *argv[])
     bzero(&servaddr,sizeof(servaddr));
     servaddr.sin_family = AF_INET;
     servaddr.sin_addr.s_addr=inet_addr("157.24.55.212");
+    //servaddr.sin_addr.s_addr=inet_addr("0.0.0.0");
     servaddr.sin_port=htons(6001);
 
 	struct timeval tv;
@@ -364,7 +365,8 @@ int main(int argc, char *argv[])
 	        gameState = checkSpawnTimer(gameState);
 
             // Spawn enemy if spawn rate allows, MAXENEMIES not full, level limit not reached
-            if((gameState->canSpawn == 1) && (gameState->enemyCount < MAXENEMIES) && (gameState->enemyCount<gameState->enemyLimit) && (gameState->deadEnemyCount != gameState->enemyLimit)){
+            //if((gameState->canSpawn == 1) && (gameState->enemyCount < MAXENEMIES) && (gameState->enemyCount<gameState->enemyLimit) && (gameState->enemyLimit != 0)){
+            if((gameState->canSpawn == 1) && (gameState->enemyCount-gameState->deadEnemyCount < MAXENEMIES) && (gameState->enemyCount<gameState->enemyLimit) && (gameState->enemyLimit != 0)){
                 // Spawn enemy to random border coordinate
                 gameState = addEnemy(gameState);
             }

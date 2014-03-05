@@ -223,19 +223,11 @@ game* checkHit (game* gameState, int playerNumber){
                          
 
         // Check if enemy dies
-        if(gameState->enemyList[candidateNumber].health == 1){
+        if(gameState->enemyList[candidateNumber].health == 0){
 
             gameState->deadEnemyCount += 1;
             //gameState->enemyCount -= 1;
-
-            /*     
-            for(int i = candidateNumber; i < gameState->enemyCount; i++){
-                gameState->enemyList[i] = gameState->enemyList[i+1];
-            }
-            gameState->enemyCount -= 1;
             gameState->enemyLimit -= 1;
-            */
-
         }                             
     }
 
@@ -245,8 +237,7 @@ game* checkHit (game* gameState, int playerNumber){
 // Function to determine if player character and enemy collide
 game* checkCollision (game* gameState){
     
-    //int randomPlayer = 0;
-    //int deadPlayers = 0;
+    int randomPlayer = 0;
     
     //printf("gameLogic: checkCollision function\n");
     
@@ -264,25 +255,28 @@ game* checkCollision (game* gameState){
 		            gameState->playerList[j].health -= 1;
 		            // Mark PC as being colliding with enemy
                 
-                	/*
+                    
 		            // Check if PC is knocked out            
 		            if(gameState->playerList[j].health == 0){
-		            
-		            	// Find all enemies following knocked out PC
-		            	
-		            	for(int y=0;y<gameState->enemyCount;y++){
-		            		if(gameState->enemyList[y].following == gameState->playerList[j].playerNumber){                		
-						    	// Choose random player to follow
-						        randomPlayer = rand() % gameState->playerCount;      
-						        while(gameState->playerList[randomPlayer].health == 0) {
-						        	randomPlayer = rand() % gameState->playerCount;      
-								    // Give new player to follow
-					 				gameState->enemyList[i].following = randomPlayer;
-				 				}
+		                gameState->deadPlayers += 1;
+
+			        	// If living PCs left choose new random player to follow
+                        if(gameState->deadPlayers < gameState->playerCount){ 
+                        
+		                	// Find all enemies following knocked out PC
+		                	for(int y=0;y<gameState->enemyCount;y++){
+		                		if(gameState->enemyList[y].following == gameState->playerList[j].playerNumber){                		
+
+						            randomPlayer = rand() % gameState->playerCount;
+   
+						            while(gameState->playerList[randomPlayer].health == 0) {
+						            	randomPlayer = rand() % gameState->playerCount;      
+				     				}
+					     			gameState->enemyList[y].following = randomPlayer;
+                                }
 				 			}
-		 				}
-		            }
-		            */
+		 				} 
+		            } 
 		        }
             }
         }
@@ -296,7 +290,7 @@ game* checkCollision (game* gameState){
 int checkEnd (game* gameState){
 
     //printf("gameLogic: checkEnd function\n");
-    
+  /*  
     int deadPlayers = 0;
     
     // All enemies defeated, level completed
@@ -314,7 +308,7 @@ int checkEnd (game* gameState){
         }
     }
     
-    // Game continues
+    // Game continues */
     return 0;
 
 }
@@ -341,6 +335,7 @@ game* initGame(void){
     memset(gameState->gameName, 0, sizeof(char));
     gameState->updateTimer = 0;
     gameState->msgNumber = 0;
+    gameState->deadPlayers = 0;
     
     sendToMaster(*gameState);
     
@@ -455,8 +450,23 @@ void updateLobby(game* gameState, char* buf){
 game* addEnemy(game* gameState){
 
     //printf("gameLogic: addEnemy function\n");
-        
-    int randomPlayer = rand() % gameState->playerCount; // Choose random player to follow
+
+    int randomPlayer = 0;
+    
+    // Some players alive, choose one from living
+    if(gameState->deadPlayers < gameState->playerCount){
+        randomPlayer = rand() % gameState->playerCount; // Choose random player to follow
+
+        while(gameState->playerList[randomPlayer].health == 0){
+            randomPlayer = rand() % gameState->playerCount;
+
+        }
+    // All players dead, choose corpse by random
+    } else {    
+        randomPlayer = rand() % gameState->playerCount;
+    }
+
+
     int randomXborder = rand() % 2; // Choose random border from x axis
     int randomYborder = rand() % 2; // Choose random border from y axis
     int randomXcoord = rand() % 800; // Choose random border from x axis
@@ -495,12 +505,10 @@ game* addEnemy(game* gameState){
     newEnemy[0].speed = gameState->enemyBaseSpeed; // Enemy speed
     newEnemy[0].isShot = 0; // New enemy has not been shot, yet
     
-    /* 
-    int totalEnemies = gameState->enemyCount+gameState->deadEnemyCount;
 
     // If MAXENEMIES is full replace dead enemy
-    if(totalEnemies == MAXENEMIES){
-       for(int i=0;i<totalEnemies;i++){
+    if(gameState->enemyCount == MAXENEMIES && gameState->deadEnemyCount != 0){
+       for(int i=0;i<gameState->enemyCount;i++){
             if(gameState->enemyList[i].health == 0){
                 gameState->enemyList[i] = newEnemy[0];
                 gameState->deadEnemyCount -= 1;
@@ -509,12 +517,10 @@ game* addEnemy(game* gameState){
 
     } else {
         gameState->enemyList[gameState->enemyCount] = newEnemy[0]; // Allocate new enemy
+        gameState->enemyCount += 1;
     }
-    */
 
-    gameState->enemyList[gameState->enemyCount] = newEnemy[0]; // Allocate new enemy
-
-    gameState->enemyCount += 1;
+    //gameState->enemyList[gameState->enemyCount] = newEnemy[0]; // Allocate new enemy
 
     return gameState;
 }
@@ -525,7 +531,7 @@ game* setLevelParameters(game* gameState){
     
     // Set game parameters for game level
     if(gameState->levelNumber == 0){
-        gameState->enemyLimit = 10; // How many enemies are spawned
+        gameState->enemyLimit = 1000; // How many enemies are spawned
         gameState->enemySpawnRate = 1000000000; // How fast the enemis are spawned, in ns
         //gameState->enemySpawnRate = 1000000; // How fast the enemis are spawned, in ns
         gameState->enemyBaseSpeed = 1; // How fast the enemies _atleast_ move
