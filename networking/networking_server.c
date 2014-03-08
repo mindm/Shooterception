@@ -379,7 +379,8 @@ int main(int argc, char *argv[])
             gameState = updateEnemyLocations(gameState);
             
             // Are player character and enemy colliding
-            gameState = checkCollision(gameState);
+            //gameState = checkCollision(gameState);
+            gameState = checkCollisionDistance(gameState);
             
             /*
             // Check end condition

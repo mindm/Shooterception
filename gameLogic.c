@@ -286,6 +286,57 @@ game* checkCollision (game* gameState){
     return gameState;
 }
 
+game* checkCollisionDistance(game * gameState) {
+
+    //Check the distance of each enemy from each player to detect collision 
+    for(int i=0;i<gameState->playerCount;i++) {
+        
+        player player_ = gameState->playerList[i];
+        
+        for(int j=0;j<gameState->enemyCount;j++) {
+            
+            enemy enemy_ = gameState->enemyList[j];
+            
+            int x = enemy_.xcoord - player_.xcoord;
+            int y = enemy_.ycoord - player_.ycoord;
+            int distance = (int) (hypot(x, y) + 0.5);
+            
+            if (distance <= 31) {
+            
+                gameState = checkCollissionCooldown(gameState, player_.playerNumber);
+                
+                if(player_.health != 0 && player_.isInvulnerable == 0) {
+                    
+                    player_.health -= 1;
+                    
+                    if(player_.health == 0){
+		                gameState->deadPlayers += 1;
+                        
+                        if(gameState->deadPlayers < gameState->playerCount){
+                        
+                            for(int y=0;y<gameState->enemyCount;y++){
+		                		if(gameState->enemyList[y].following == gameState->playerList[j].playerNumber){                		
+
+						            int randomPlayer = rand() % gameState->playerCount;
+   
+						            while(gameState->playerList[randomPlayer].health == 0) {
+						            	randomPlayer = rand() % gameState->playerCount;      
+				     				}
+					     			gameState->enemyList[y].following = randomPlayer;
+                                }
+				 			}
+                        
+                        }
+                    }
+                }
+            }
+        }
+        gameState->playerList[i] = player_;
+    }
+    
+    return gameState;
+}
+
 // Check end condition: all PCs are dead or enemyLimit and enemyCount are zero
 int checkEnd (game* gameState){
 

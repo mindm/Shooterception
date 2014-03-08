@@ -22,7 +22,7 @@ client:
 	$(COMPILER) $(CLIENT_FLAGS) Client/main.c networking/packets.c networking/packets.h networking/huffman.c -o Client/client $(LIBS)
 
 server:
-	$(COMPILER) $(SERVER_FLAGS) gameLogic.c gameLogic.h networking/networking_server.c networking/networking_server.h networking/packets.c networking/packets.h generic.h networking/huffman.c -lrt -o server
+	$(COMPILER) $(SERVER_FLAGS) gameLogic.c gameLogic.h networking/networking_server.c networking/networking_server.h networking/packets.c networking/packets.h generic.h networking/huffman.c -lrt -lm -o server
 
 master:
 	$(COMPILER) $(SERVER_FLAGS) networking/networking_master.c networking/packets.c networking/huffman.c -o master

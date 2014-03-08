@@ -15,6 +15,7 @@
 #include <time.h> 
 #include <unistd.h>
 #include <ctype.h>
+#include <math.h>
 
 #include "generic.h"
 #include "networking/packets.h"
@@ -37,6 +38,7 @@ game* checkHit (game*, int);
 
 // Function to determine if player character and enemy collide
 game* checkCollision (game*);
+game* checkCollisionDistance(game *);
 
 // Check end condition: all PCs are dead or enemyLimit and enemyCount are zero
 int checkEnd (game*);
